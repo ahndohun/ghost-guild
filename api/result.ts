@@ -1,6 +1,6 @@
 import { put } from "@vercel/blob";
 import { randomUUID } from "node:crypto";
-import { isResultScoreSane } from "../src/apiRules";
+import { isResultScoreSane } from "./_shared";
 
 type VercelRequest = {
   method?: string;

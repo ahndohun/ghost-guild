@@ -1,5 +1,5 @@
 import { put } from "@vercel/blob";
-import { loadoutBlobKey } from "../src/apiRules";
+import { loadoutBlobKey } from "./_shared";
 
 type VercelRequest = {
   method?: string;

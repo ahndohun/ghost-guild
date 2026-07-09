@@ -1,5 +1,5 @@
 import { list } from "@vercel/blob";
-import { selectUniqueByName } from "../src/apiRules";
+import { selectUniqueByName } from "./_shared";
 
 type VercelRequest = {
   method?: string;

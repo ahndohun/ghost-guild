@@ -1,4 +1,6 @@
-// NOTE: keep in sync with api/_shared.ts (serverless copy). See that file.
+// NOTE: keep in sync with src/apiRules.ts (client copy). Vercel serverless
+// functions in api/ cannot reliably import from src/, so the shared rules are
+// duplicated here; the underscore prefix keeps this file out of routing.
 export type NamedLoadout = {
   readonly name: string;
 };
