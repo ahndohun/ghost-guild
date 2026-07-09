@@ -1,0 +1,13 @@
+{
+  "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
+  "type": "frontend",
+  "name": "Solo run completes and shows results (fast deterministic run)",
+  "planSteps": [
+    { "type": "action", "description": "Navigate to https://ghost-guild.vercel.app/?seed=42&fast=1" },
+    { "type": "action", "description": "Click the deploy button (data-testid deploy-solo)" },
+    { "type": "assertion", "description": "Within about 30 seconds the results screen (element #screen-results) becomes visible — the run simulates at fast speed" },
+    { "type": "assertion", "description": "A numeric score is shown (data-testid result-score) along with kills and time stats" },
+    { "type": "action", "description": "Click the back-to-guild button (data-testid back-to-guild)" },
+    { "type": "assertion", "description": "The guild screen (#screen-guild) is visible again" }
+  ]
+}

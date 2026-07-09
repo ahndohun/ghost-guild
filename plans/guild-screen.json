@@ -1,0 +1,12 @@
+{
+  "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
+  "type": "frontend",
+  "name": "Guild screen renders with tuning controls",
+  "planSteps": [
+    { "type": "action", "description": "Navigate to https://ghost-guild.vercel.app/" },
+    { "type": "assertion", "description": "The guild management screen (element #screen-guild) is visible" },
+    { "type": "assertion", "description": "Three trait sliders are visible: bravery, greed, focus (inputs with data-testid trait-bravery, trait-greed, trait-focus)" },
+    { "type": "assertion", "description": "Class selection cards are visible for knight, mage and priest (data-testid class-knight, class-mage, class-priest)" },
+    { "type": "assertion", "description": "A deploy button is visible (data-testid deploy-solo)" }
+  ]
+}

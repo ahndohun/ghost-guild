@@ -17,3 +17,39 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test
+
+  e2e:
+    # TestSprite cloud E2E against the live deployment.
+    # Runs on main pushes whose commit message contains [e2e] (credit control).
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[e2e]')
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      TESTSPRITE_API_KEY: ${{ secrets.TESTSPRITE_API_KEY }}
+      PROJECT_ID: c172d9d5-4d21-4efd-81a7-37e706318152
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install -g @testsprite/testsprite-cli
+      - name: Wait for Vercel deploy to go live
+        run: sleep 90
+      - name: Run TestSprite suite against production
+        run: |
+          testsprite test run --all --project "$PROJECT_ID" \
+            --wait --timeout 900 --output json \
+            --idempotency-key "ci-run-${{ github.run_id }}-${{ github.run_attempt }}" \
+            | tee ts-result.json
+      - name: Download failure bundles
+        if: failure()
+        run: |
+          for id in $(jq -r '..|.testId? // empty' ts-result.json | sort -u); do
+            testsprite test failure get "$id" --out "./.testsprite/failure/$id" || true
+          done
+      - name: Upload failure bundles
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testsprite-failure
+          path: ./.testsprite/failure

@@ -1,0 +1,14 @@
+{
+  "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
+  "type": "frontend",
+  "name": "Trait sliders and class selection persist into a run",
+  "planSteps": [
+    { "type": "action", "description": "Navigate to https://ghost-guild.vercel.app/?seed=7&fast=1" },
+    { "type": "action", "description": "Set the bravery slider (data-testid trait-bravery) to 90 and the greed slider (data-testid trait-greed) to 20" },
+    { "type": "action", "description": "Select the mage class card (data-testid class-mage)" },
+    { "type": "action", "description": "Click the deploy button (data-testid deploy-solo)" },
+    { "type": "assertion", "description": "Within about 30 seconds the results screen (#screen-results) becomes visible" },
+    { "type": "action", "description": "Click back-to-guild (data-testid back-to-guild)" },
+    { "type": "assertion", "description": "The guild screen shows again and the bravery slider still reads 90 (settings persisted)" }
+  ]
+}
