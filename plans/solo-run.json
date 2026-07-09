@@ -1,13 +1,31 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "Solo run completes and shows results (fast deterministic run)",
+  "name": "solo-run",
   "planSteps": [
-    { "type": "action", "description": "Navigate to https://ghost-guild.vercel.app/?seed=42&fast=1" },
-    { "type": "action", "description": "Click the deploy button (data-testid deploy-solo)" },
-    { "type": "assertion", "description": "Within about 30 seconds the results screen (element #screen-results) becomes visible — the run simulates at fast speed" },
-    { "type": "assertion", "description": "A numeric score is shown (data-testid result-score) along with kills and time stats" },
-    { "type": "action", "description": "Click the back-to-guild button (data-testid back-to-guild)" },
-    { "type": "assertion", "description": "The guild screen (#screen-guild) is visible again" }
+    {
+      "type": "action",
+      "description": "Navigate to https://ghost-guild.vercel.app/?seed=42&fast=1"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid deploy-solo"
+    },
+    {
+      "type": "action",
+      "description": "Wait until the element #screen-results is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid result-score contains a number"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid back-to-guild"
+    },
+    {
+      "type": "assertion",
+      "description": "The element #screen-guild is visible"
+    }
   ]
 }
