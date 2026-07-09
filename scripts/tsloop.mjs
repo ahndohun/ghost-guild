@@ -16,8 +16,9 @@ function sh(cmd) {
 }
 function lastJson(raw) {
   const start = raw.indexOf("{");
-  if (start === -1) return null;
-  try { return JSON.parse(raw.slice(start)); } catch { return null; }
+  const end = raw.lastIndexOf("}");
+  if (start === -1 || end <= start) return null;
+  try { return JSON.parse(raw.slice(start, end + 1)); } catch { return null; }
 }
 
 const listRaw = sh(`testsprite test list --project ${PROJECT_ID} --output json`);
