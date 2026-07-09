@@ -1,8 +1,0 @@
-[
-  {
-    "kind": "snapshot",
-    "stepIndex": 4,
-    "summary": "Step 4 'Click the 'BACK TO GUILD' button' passed.",
-    "path": "steps/04-snapshot.html"
-  }
-]

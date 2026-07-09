@@ -1,5 +1,7 @@
 # 👻 Ghost Colosseum
 
+[![CI](https://github.com/ahndohun/ghost-guild/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ahndohun/ghost-guild/actions/workflows/ci.yml)
+
 > **You don't play the gladiator. You coach them.**
 
 A colosseum survivors (Vampire Survivors × a 2% pinch of Dragon Quest) where your gladiator fights **entirely on its own judgment**. You are the guildmaster: between bouts you pick their **temperament** — a Berserker ignores loot while enemies stand and never flees; a Hoarder detours for gold even at death's door — carve their identity deeper with **perk nodes** (no weakness-fixing allowed), buy permanent upgrades, unlock classes. Then you hit DEPLOY and watch your coaching pay off (or backfire) against ghost loadouts of players worldwide.

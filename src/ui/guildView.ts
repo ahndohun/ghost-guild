@@ -1,6 +1,6 @@
 import { heroClassIds, perkCosts, perkDefinitions, temperamentDefinitions, temperamentIds } from "../sim";
 import type { PerkChoice, PerkId, PerkTier, TemperamentId } from "../sim";
-import { requiredButton, requiredElement } from "./dom";
+import { requiredButton, requiredElement, requiredInput } from "./dom";
 import { classUnlockCosts, formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
 import type { GuildSave } from "./save";
 
@@ -24,6 +24,7 @@ export const perkSlots: readonly PerkSlot[] = [
 
 export function renderGuildView(documentRef: Document, save: GuildSave, controls: GuildViewControls): void {
   requiredElement(documentRef, "gold-amount").textContent = formatGold(save.gold);
+  requiredInput(documentRef, "player-name").value = save.playerName;
   controls.autorunButton.textContent = save.autorun ? "AUTO-RUN ON" : "AUTO-RUN OFF";
   controls.autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
   renderTemperaments(documentRef, save.temperament);

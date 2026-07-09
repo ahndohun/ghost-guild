@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob";
 import { randomUUID } from "node:crypto";
+import { isResultScoreSane } from "../src/apiRules";
 
 type VercelRequest = {
   method?: string;
@@ -13,7 +14,10 @@ type VercelResponse = {
 };
 
 const CLASSES = new Set(["knight", "mage", "priest"]);
+const TEMPERAMENTS = ["berserker", "hoarder", "duelist", "survivor"] as const;
 const MAX_BODY_BYTES = 2048;
+
+type Temperament = (typeof TEMPERAMENTS)[number];
 
 function bodyByteLength(req: VercelRequest): number {
   const header = req.headers["content-length"];
@@ -26,12 +30,17 @@ function bodyByteLength(req: VercelRequest): number {
   }
 }
 
-function isInt(value: unknown): value is number {
-  return typeof value === "number" && Number.isInteger(value);
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseTemperament(value: unknown): Temperament | undefined {
+  for (const temperament of TEMPERAMENTS) {
+    if (value === temperament) {
+      return temperament;
+    }
+  }
+  return undefined;
 }
 
 function parseResult(body: unknown):
@@ -42,6 +51,7 @@ function parseResult(body: unknown):
       kills: number;
       survived: boolean;
       timeMs: number;
+      temperament?: Temperament;
     }
   | null {
   if (!isRecord(body)) return null;
@@ -52,18 +62,21 @@ function parseResult(body: unknown):
   const heroClass = body.class;
   if (typeof heroClass !== "string" || !CLASSES.has(heroClass)) return null;
 
-  if (!isInt(body.score)) return null;
-  if (!isInt(body.kills) || body.kills < 0) return null;
+  const scoreFields = { score: body.score, kills: body.kills, timeMs: body.timeMs };
+  if (!isResultScoreSane(scoreFields)) return null;
   if (typeof body.survived !== "boolean") return null;
-  if (!isInt(body.timeMs) || body.timeMs < 0) return null;
+
+  const temperament = body.temperament === undefined ? undefined : parseTemperament(body.temperament);
+  if (body.temperament !== undefined && temperament === undefined) return null;
 
   return {
     name,
     class: heroClass as "knight" | "mage" | "priest",
-    score: body.score,
-    kills: body.kills,
+    score: scoreFields.score,
+    kills: scoreFields.kills,
     survived: body.survived,
-    timeMs: body.timeMs,
+    timeMs: scoreFields.timeMs,
+    ...(temperament !== undefined ? { temperament } : {}),
   };
 }
 

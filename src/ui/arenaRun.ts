@@ -3,6 +3,7 @@ import {
   fetchArenaMatch,
   ignoreExpectedApiError,
   postLoadout,
+  selectClientOpponents,
   toHeroLoadout,
   toServerLoadout,
 } from "./arenaApi";
@@ -31,7 +32,7 @@ export async function createArenaRunPlan(
     const seed = fixedSeed ?? consumeLocalSeed();
     return {
       seed,
-      heroes: [myLoadout, ...botLoadouts.map(toHeroLoadout)],
+      heroes: [myLoadout, ...botLoadouts.slice(0, 3).map(toHeroLoadout)],
       offline: true,
       serverLoadout,
     };
@@ -43,9 +44,14 @@ export async function createArenaRunPlan(
       return fallback();
     }
 
+    const opponents = selectClientOpponents(response.opponents, myLoadout.name ?? save.playerName);
+    if (opponents.length === 0) {
+      return fallback();
+    }
+
     return {
       seed: fixedSeed ?? response.seed,
-      heroes: [myLoadout, ...response.opponents.slice(0, 3).map(toHeroLoadout)],
+      heroes: [myLoadout, ...opponents.map(toHeroLoadout)],
       offline: false,
       serverLoadout,
     };

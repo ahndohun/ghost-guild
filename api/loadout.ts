@@ -1,5 +1,5 @@
 import { put } from "@vercel/blob";
-import { randomUUID } from "node:crypto";
+import { loadoutBlobKey } from "../src/apiRules";
 
 type VercelRequest = {
   method?: string;
@@ -168,10 +168,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       return;
     }
 
-    const id = randomUUID();
-    await put(`loadouts/${id}.json`, JSON.stringify(loadout), {
+    const id = loadoutBlobKey(loadout.name);
+    await put(id, JSON.stringify(loadout), {
       access: "public",
       addRandomSuffix: false,
+      allowOverwrite: true,
       contentType: "application/json",
       // BLOB_READ_WRITE_TOKEN is injected by Vercel
     });

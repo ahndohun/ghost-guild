@@ -1,9 +1,10 @@
 import { heroClassIds, perkCosts, perkDefinitions, temperamentIds } from "../sim";
 import type { PerkId, PerkTier } from "../sim";
-import { requiredButton } from "./dom";
+import { requiredButton, requiredInput } from "./dom";
 import { perkSlots } from "./guildView";
 import type { GuildViewControls } from "./guildView";
 import { classUnlockCosts, nextUpgradeCost, permStatUpgrades } from "./meta";
+import { normalizePlayerNameInput } from "./save";
 import type { GuildSave } from "./save";
 import { persist } from "./screenUtils";
 
@@ -17,6 +18,14 @@ type GuildInteractionContext = {
 
 export function wireGuildInteractions(context: GuildInteractionContext): GuildViewControls {
   const autorunButton = requiredButton(context.documentRef, "toggle-autorun");
+  const playerNameInput = requiredInput(context.documentRef, "player-name");
+
+  playerNameInput.addEventListener("change", () => {
+    updateSave(context, (save) => ({
+      ...save,
+      playerName: normalizePlayerNameInput(playerNameInput.value, save.playerName),
+    }));
+  });
 
   for (const temperament of temperamentIds) {
     requiredButton(context.documentRef, `temperament-${temperament}`).addEventListener("click", () => {

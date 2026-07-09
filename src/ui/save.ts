@@ -30,10 +30,15 @@ export function defaultSave(): GuildSave {
     perksByTemperament: emptyPerksByTemperament(),
     autorun: false,
     nextSeed: 1,
-    playerName: `Guildmaster-${String(Math.floor(Math.random() * 10000)).padStart(4, "0")}`,
+    playerName: randomGladiatorName(),
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     unlockedClasses: { knight: true, mage: false, priest: false },
   };
+}
+
+export function normalizePlayerNameInput(value: string, fallback: string): string {
+  const trimmed = value.trim();
+  return trimmed.length >= 1 && trimmed.length <= 20 ? trimmed : fallback;
 }
 
 export function loadSave(storage: Storage): GuildSave {
@@ -196,8 +201,7 @@ function parsePlayerName(value: unknown, fallback: string): string {
   if (typeof value !== "string") {
     return fallback;
   }
-  const trimmed = value.trim();
-  return trimmed.length >= 1 && trimmed.length <= 20 ? trimmed : fallback;
+  return normalizePlayerNameInput(value, fallback);
 }
 
 function clampPercent(value: number): number {
@@ -206,4 +210,8 @@ function clampPercent(value: number): number {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function randomGladiatorName(): string {
+  return `Gladiator-${String(Math.floor(Math.random() * 10000)).padStart(4, "0")}`;
 }

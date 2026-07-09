@@ -2,7 +2,7 @@ import { renderMatch } from "../render/canvas";
 import { TICKS_PER_SECOND } from "../sim/constants";
 import { createMatch, resultFromState } from "../sim";
 import type { MatchResult } from "../sim";
-import { ignoreExpectedApiError } from "./arenaApi";
+import { fetchLeaderboard, ignoreExpectedApiError } from "./arenaApi";
 import type { ServerLoadout } from "./arenaApi";
 import { createArenaRunPlan } from "./arenaRun";
 import { leaderboardFromResult, submitArenaResult } from "./arenaResults";
@@ -226,8 +226,24 @@ function createScreenController(
       void submitArenaResult(documentRef, serverLoadout, primary, result).catch(ignoreExpectedApiError);
     }
 
+    if (mode === "solo") {
+      void renderSoloLeaderboard().catch(ignoreExpectedApiError);
+    }
+
     if (mode === "solo" && save.autorun) {
       autorunTimer = windowRef.setTimeout(() => deploySolo(), 4000);
+    }
+  }
+
+  async function renderSoloLeaderboard(): Promise<void> {
+    try {
+      const leaderboard = await fetchLeaderboard();
+      renderLeaderboard(documentRef, leaderboard);
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+      renderLeaderboard(documentRef, []);
     }
   }
 

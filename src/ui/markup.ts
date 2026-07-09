@@ -17,8 +17,15 @@ export function screenMarkup(): string {
           <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
           <h1>Ghost Colosseum</h1>
           <p class="tagline">Coach your gladiator. The crowd remembers.</p>
+          <p class="onboarding-line">Your gladiator fights on its own - pick a temperament, hit DEPLOY, and watch. Win gold to unlock perks, classes, and upgrades.</p>
         </div>
-        <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
+        <div class="topbar-meta">
+          <label class="player-name-field">
+            <span>Gladiator</span>
+            <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" />
+          </label>
+          <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
+        </div>
       </header>
       <main class="guild-layout">
         <section class="panel temperament-panel">

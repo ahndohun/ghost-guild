@@ -104,19 +104,20 @@ button:disabled {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  opacity: 0.42;
   pointer-events: none;
 }
 
 .barracks-scene::before {
   position: absolute;
-  top: 120px;
-  left: 50%;
-  width: 240px;
-  height: 520px;
-  background: linear-gradient(180deg, rgba(232, 227, 213, 0.18), rgba(217, 164, 65, 0.05) 38%, transparent 100%);
+  top: 128px;
+  left: max(20px, calc(50% - 560px));
+  width: 190px;
+  height: 420px;
+  background: linear-gradient(180deg, rgba(232, 227, 213, 0.08), rgba(217, 164, 65, 0.03) 38%, transparent 100%);
   content: "";
   filter: blur(3px);
-  transform: translateX(-50%) perspective(320px) rotateX(32deg);
+  transform: perspective(320px) rotateX(32deg);
   transform-origin: top center;
 }
 
@@ -134,16 +135,16 @@ button:disabled {
   position: absolute;
   display: block;
   image-rendering: pixelated;
-  opacity: 0.9;
+  opacity: 0.72;
 }
 
 .barracks-gate {
   top: 92px;
-  left: 50%;
+  left: max(28px, calc(50% - 560px));
   width: 320px;
   height: 256px;
   filter: drop-shadow(0 24px 26px rgba(0, 0, 0, 0.58));
-  transform: translateX(-50%);
+  opacity: 0.34;
 }
 
 .barracks-banner {
@@ -225,6 +226,14 @@ h1 {
   line-height: 1.5;
 }
 
+.onboarding-line {
+  max-width: 720px;
+  margin: 10px 0 0;
+  color: rgba(232, 227, 213, 0.56);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 h2 {
   font-size: 13px;
   line-height: 1.5;
@@ -234,13 +243,50 @@ h2 {
 .panel,
 .results-panel {
   border: 2px solid #e8e3d5;
-  background: rgba(10, 8, 14, 0.9);
+  background: #0a080e;
   box-shadow: 6px 6px 0 #05040a;
 }
 
 .gold {
   padding: 14px 16px;
   white-space: nowrap;
+}
+
+.topbar-meta {
+  display: grid;
+  min-width: min(100%, 320px);
+  gap: 10px;
+}
+
+.player-name-field {
+  display: grid;
+  gap: 8px;
+  border: 2px solid #e8e3d5;
+  padding: 12px 14px;
+  background: #0a080e;
+  box-shadow: 6px 6px 0 #05040a;
+}
+
+.player-name-field span {
+  color: #58d6c9;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+}
+
+.player-name-field input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-bottom: 2px solid rgba(232, 227, 213, 0.42);
+  color: #fff4cf;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: 0;
+}
+
+.player-name-field input:focus-visible {
+  border-bottom-color: #58d6c9;
 }
 
 .guild-layout {
@@ -477,6 +523,10 @@ canvas {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .topbar-meta {
+    width: 100%;
   }
 
   .guild-layout,

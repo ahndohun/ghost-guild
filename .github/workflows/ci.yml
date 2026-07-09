@@ -17,6 +17,15 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test
+      - name: Secret scan committed TestSprite bundles
+        # Failure bundles may embed presigned S3 URLs carrying temporary AWS
+        # credentials — block the merge if any survived scripts/sanitize-bundles.mjs.
+        run: |
+          if grep -rEq "ASIA[A-Z0-9]{16}|AKIA[A-Z0-9]{16}|X-Amz-Signature=[A-Za-z0-9]" .testsprite/ 2>/dev/null; then
+            echo "::error::Unredacted AWS credential found in .testsprite/ — run 'node scripts/sanitize-bundles.mjs'"
+            exit 1
+          fi
+          echo "no unredacted credentials in .testsprite/"
 
   e2e:
     # TestSprite cloud E2E against the live deployment.

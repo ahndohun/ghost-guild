@@ -1,18 +1,5 @@
 {
-  "rootCauseHypothesis": "TEST BLOCKED: PASS: All requested steps completed.\n\nObserved actions and verifications performed in this session:\n- Navigated to https://ghost-guild.vercel.app/?seed=11&fast=1 (seeded URL).\n- Clicked the 'DEPLOY ARENA' button; the RESULTS screen appeared and the session recorded multiple match-ranking rows and a visible world leaderboard (session history: \"RESULTS screen is visible with match ranking and world leaderboard\"). This satisfies: the list with data-testid=result-ranking contains at least 2 rows, and the element with data-testid=leaderboard-list is visible.\n- Clicked the 'BACK TO GUILD' button; the Guildmaster Console (guild screen) is now visible — the page shows the 'Guildmaster Console' title and the 'DEPLOY ARENA' button.\n\nConclusion: The feature works as expected and all assertions in the task are satisfied. No additional actions will be performed per the user's instruction.",
+  "rootCauseHypothesis": "TEST BLOCKED: Clicked button \"DEPLOY ARENA\"",
   "recommendedFixTarget": null,
-  "evidence": [
-    {
-      "kind": "snapshot",
-      "stepIndex": 4,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/180cc8bd-8885-49c9-b06c-aeb2ef98945b/004.html?REDACTED",
-      "summary": "Step 4 'Click the 'BACK TO GUILD' button to return to the guild screen' passed."
-    },
-    {
-      "kind": "snapshot",
-      "stepIndex": 5,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/180cc8bd-8885-49c9-b06c-aeb2ef98945b/005.html?REDACTED",
-      "summary": "Step 5 'The guild screen is visible as indicated by the DEPLOY ARENA button being visible.' failed. Error: TEST BLOCKED: PASS: All requested steps completed.\n\nObserved actions and verifications performed in this session:\n- Navigated to https://ghost-guild.vercel.app/?seed=11&fast=1 (seeded URL).\n- Clicked the 'DEPLOY ARENA' button; the RESULTS screen appeared and the session recorded multiple match-ranking rows and a visible world leaderboard (session history: \"RESULTS screen is visible with match ranking and world leaderboard\"). This satisfies: the list with data-testid=result-ranking contains at least 2 rows, and the element with data-testid=leaderboard-list is visible.\n- Clicked the 'BACK TO GUILD' button; the Guildmaster Console (guild screen) is now visible — the page shows the 'Guildmaster Console' title and the 'DEPLOY ARENA' button.\n\nConclusion: The feature works as expected and all assertions in the task are satisfied. No additional actions will be performed per the user's instruction."
-    }
-  ]
+  "evidence": []
 }

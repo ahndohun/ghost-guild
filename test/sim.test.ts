@@ -39,7 +39,7 @@ const arenaMatch: MatchConfig = {
   seed: 2048,
   heroes: [
     {
-      name: "Guildmaster-1234",
+      name: "Gladiator-1234",
       classId: "knight",
       temperament: "berserker",
       perks: ["berserkerBloodThirst"],

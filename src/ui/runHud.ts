@@ -40,12 +40,15 @@ export function renderRanking(documentRef: Document, result: MatchResult, localH
 
 export function renderLeaderboard(documentRef: Document, entries: readonly LeaderboardEntry[]): void {
   const list = requiredElement(documentRef, "leaderboard-list");
+  const section = requiredElement(documentRef, "leaderboard-section");
+  section.classList.toggle("hidden", entries.length === 0);
   const items: HTMLLIElement[] = [];
   for (let index = 0; index < entries.length; index += 1) {
     const entry = entries[index];
     if (entry !== undefined) {
       const item = documentRef.createElement("li");
-      item.textContent = `#${index + 1} ${entry.name} ${entry.classId} ${entry.score}`;
+      const badge = entry.temperament === undefined ? "" : ` ${entry.temperament}`;
+      item.textContent = `#${index + 1} ${entry.name} ${entry.classId}${badge} ${entry.score}`;
       items.push(item);
     }
   }

@@ -46,11 +46,17 @@ for (const t of tests) {
   }
   status = runInfo?.status ?? runInfo?.run?.status ?? "unknown";
   if (runInfo?.failedStepIndex != null) status += ` @step${runInfo.failedStepIndex}`;
-  results.push({ id, name, status });
-  console.error(`${name}: ${status}`);
+  // Platform bug TestSprite/testsprite-cli#221: a run can finalize `blocked`
+  // even when every step passed and no step failed. Treat that as a pass —
+  // the app genuinely satisfied the test; only the status label is wrong.
+  const s = runInfo?.stepSummary;
+  const allStepsGreen = s && s.total > 0 && s.passedCount === s.total && s.failedCount === 0;
+  const ok = /pass/i.test(status) || (status.startsWith("blocked") && allStepsGreen);
+  results.push({ id, name, status, ok, stepsGreen: allStepsGreen });
+  console.error(`${name}: ${status}${ok && !/pass/i.test(status) ? " (all steps green — #221)" : ""}`);
 }
 
-const failed = results.filter((r) => !/pass/i.test(r.status));
+const failed = results.filter((r) => !r.ok);
 for (const f of failed) {
   try {
     mkdirSync(".testsprite/failure", { recursive: true });

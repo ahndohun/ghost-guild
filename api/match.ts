@@ -1,4 +1,5 @@
 import { list } from "@vercel/blob";
+import { selectUniqueByName } from "../src/apiRules";
 
 type VercelRequest = {
   method?: string;
@@ -76,19 +77,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       limit: 100,
     });
 
-    // Shuffle the listing first and stop after 3 valid picks — avoids
-    // serially fetching up to 100 blobs per matchmaking request.
     const shuffled = [...blobs];
     shuffleInPlace(shuffled);
     const candidates: Loadout[] = [];
     for (const blob of shuffled) {
-      if (candidates.length >= 3) break;
+      if (selectUniqueByName(candidates, exclude, 3).length >= 3) break;
       try {
         const response = await fetch(blob.url);
         if (!response.ok) continue;
         const data: unknown = await response.json();
         if (!isLoadout(data)) continue;
-        if (exclude && data.name === exclude) continue;
         candidates.push(data);
       } catch {
         // skip unreadable blobs
@@ -96,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     // Pass through temperament/perks when present on stored loadouts
-    const opponents = candidates.map((c) => ({
+    const opponents = selectUniqueByName(candidates, exclude, 3).map((c) => ({
       name: c.name,
       class: c.class,
       traits: c.traits,

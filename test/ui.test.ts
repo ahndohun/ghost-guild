@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { createArenaRunPlan } from "../src/ui/arenaRun";
-import { loadSave } from "../src/ui/save";
+import { loadSave, normalizePlayerNameInput } from "../src/ui/save";
 import type { GuildSave } from "../src/ui/save";
+import { screenMarkup } from "../src/ui/markup";
 
 const saveKey = "ghost-guild-save-v1";
 
@@ -54,10 +55,25 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(save.unlockedClasses).toEqual({ knight: true, mage: false, priest: false });
     expect(save.temperament).toBe("duelist");
     expect(save.perksByTemperament).toEqual({ berserker: [], hoarder: [], duelist: [], survivor: [] });
-    expect(save.playerName).toMatch(/^Guildmaster-[0-9]{4}$/);
+    expect(save.playerName).toMatch(/^Gladiator-[0-9]{4}$/);
     expect(stored).not.toBeNull();
     expect(stored).toContain("\"temperament\":\"duelist\"");
     expect(stored).not.toContain("\"traits\"");
+  });
+
+  it("normalizes typed gladiator names without erasing the current name on empty input", () => {
+    expect(normalizePlayerNameInput("  Vex Prime  ", "Gladiator-0001")).toBe("Vex Prime");
+    expect(normalizePlayerNameInput("", "Gladiator-0001")).toBe("Gladiator-0001");
+    expect(normalizePlayerNameInput("  ", "Gladiator-0001")).toBe("Gladiator-0001");
+    expect(normalizePlayerNameInput("123456789012345678901", "Gladiator-0001")).toBe("Gladiator-0001");
+  });
+
+  it("renders the player-name input and onboarding line on the guild screen", () => {
+    const markup = screenMarkup();
+
+    expect(markup).toContain("data-testid=\"player-name\"");
+    expect(markup).toContain("maxlength=\"20\"");
+    expect(markup).toContain("Your gladiator fights on its own");
   });
 
   it("builds an offline arena plan with bundled bots when the API is unreachable", async () => {
@@ -73,7 +89,7 @@ describe("Ghost Guild UI data boundaries", () => {
       expect(plan.offline).toBe(true);
       expect(plan.heroes).toHaveLength(4);
       expect(plan.heroes.map((hero) => hero.name)).toEqual([
-        "Guildmaster-0001",
+        "Gladiator-0001",
         "Grimm the Reckless",
         "Vex the Hoarder",
         "Sister Calm",
@@ -98,7 +114,7 @@ function testSave(): GuildSave {
     perksByTemperament: { berserker: [], hoarder: [], duelist: [], survivor: [] },
     autorun: false,
     nextSeed: 1,
-    playerName: "Guildmaster-0001",
+    playerName: "Gladiator-0001",
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     unlockedClasses: { knight: true, mage: false, priest: false },
   };

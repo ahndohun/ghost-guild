@@ -1,10 +1,12 @@
 # LOOP.md
 
 <!--
-Agent-written verification loop log. One plain-English line per iteration:
+Verification loop log — one plain-English line per iteration:
 maker first, then what ran, what broke, what got fixed.
 Format: `N. <maker> | ran: <what> | broke: <what> | fixed: <what or "pass">`
-Appended automatically by the loop runner — do not hand-edit.
+The loop runner (scripts/tsloop.mjs) appends its own cloud-run lines
+automatically; orchestrator (Claude) and human-QA lines are added by hand as
+they happen. Numbers are the append order across all makers.
 -->
 1. codex | ran: npm run typecheck | broke: render imported state types that were not exported from src/sim, plus an unused UI import | fixed: exported render-facing sim state types and removed the stale import
 2. codex | ran: npm run test | broke: placeholder golden values and the default Knight golden run died before 180s in the performance gate | fixed: recorded observed golden values and moved the full-duration performance gate to a survival Priest loadout
@@ -12,27 +14,27 @@ Appended automatically by the loop runner — do not hand-edit.
 4. codex | ran: npx vitest run test/probe.test.ts --reporter=verbose | broke: stacked enemies could still apply simultaneous touch damage and no sampled loadout survived to 180s | fixed: added a hero-level touch recovery window while preserving enemy damage values
 5. codex | ran: npm run typecheck && npm run test | broke: none | fixed: pass
 6. codex | ran: npm run typecheck && npm run test | broke: oversized implementation files after the first pass | fixed: split UI markup/HUD, enemy/result systems, and projectile stepping; pass
-6. claude-orchestrator | ran: browser QA on preview (deploy, fast run, trait A/B, gold flow) | broke: gold display went stale after back-to-guild (shown 64, saved 84) | fixed: renderGuild() call in the back-to-guild handler
-7. codex | ran: npm run typecheck && npm run test | broke: none | fixed: pass
-8. codex | ran: npm run typecheck && npm run test | broke: oversized src/ui/screens.ts after arena integration | fixed: split guild view, arena run planning, and arena result submission into small UI modules; pass
-9. codex | ran: npm run typecheck && npm run test | broke: src/ui/screens.ts still measured 261 pure LOC after first split | fixed: moved generic screen visibility, seed parsing, persistence, and autorun timer helpers into src/ui/screenUtils.ts; pass
-10. codex | ran: npm run typecheck && npm run test | broke: sim test fixtures were outside the TypeScript typecheck include set | fixed: added test/ to tsconfig include; pass
-11. codex | ran: npm run typecheck && npm run test | broke: JRPG level-up pause/dialog had no automated normal-speed verification | fixed: added normal-speed level-up dialog test; pass
-12. codex | ran: npm run typecheck && npm run test | broke: browser QA was unavailable, leaving save migration and API fallback without runnable local coverage | fixed: added UI data-boundary tests for save migration and offline arena bot fallback; pass
-8. claude-orchestrator | ran: testsprite test run --all (cloud) | broke: all 4 FE tests skipped — batch endpoint is BE-only, FE must run individually | fixed: rewrote scripts/tsloop.mjs to run FE tests one by one
-10. claude-orchestrator | ran: testsprite 3 FE tests vs production (0/3 passed) | broke: Trait sliders and class selection persist into a run (unknown); Solo run completes and shows results (fast deterministic run) (error(exit 1)); Guild screen renders with tuning controls (unknown) | fixed: P0 production, first real cloud suite
-13. codex | ran: npm run typecheck | broke: sprite canvas context overloads were too broad for OffscreenCanvas and HTMLCanvasElement | fixed: created typed sprite surfaces with context creation per canvas kind
-14. codex | ran: renderer size check | broke: src/render/canvas.ts exceeded the 250 pure-LOC limit after render effects landed | fixed: extracted render-side facing, poof, and shake bookkeeping to src/render/effects.ts
-15. codex | ran: npm run typecheck && npm run test && npm run build | broke: palette cleanup removed the dialog white stroke token | fixed: restored the token; rerun passed typecheck, 9 tests, and build
-10. claude-orchestrator | ran: GitHub secret scanning on pushed failure bundles | broke: TestSprite presigned S3 URLs carry temporary AWS credentials — flagged as exposed secret | fixed: scripts/sanitize-bundles.mjs redacts X-Amz-* signatures before commit, history rewritten, alert resolved
-17. claude-orchestrator | ran: testsprite 4 FE tests vs production (1/4 passed) | broke: Arena match: 4-hero ghost battle with ranking and leaderboard (blocked); Trait sliders and class selection persist into a run (blocked); Solo run completes and shows results (fast deterministic run) (blocked) | fixed: P1 meta + P2 arena deployed; parser fixed
-11. claude-orchestrator | ran: testsprite trait-tuning vs production | broke: test tried to select Mage but P1 added unlock gating (400g) — fresh browser has 0 gold, judge blocked | fixed: plan updated to assert lock state on knight path instead
+7. claude-orchestrator | ran: browser QA on preview (deploy, fast run, trait A/B, gold flow) | broke: gold display went stale after back-to-guild (shown 64, saved 84) | fixed: renderGuild() call in the back-to-guild handler
+8. codex | ran: npm run typecheck && npm run test | broke: none | fixed: pass
+9. codex | ran: npm run typecheck && npm run test | broke: oversized src/ui/screens.ts after arena integration | fixed: split guild view, arena run planning, and arena result submission into small UI modules; pass
+10. codex | ran: npm run typecheck && npm run test | broke: src/ui/screens.ts still measured 261 pure LOC after first split | fixed: moved generic screen visibility, seed parsing, persistence, and autorun timer helpers into src/ui/screenUtils.ts; pass
+11. codex | ran: npm run typecheck && npm run test | broke: sim test fixtures were outside the TypeScript typecheck include set | fixed: added test/ to tsconfig include; pass
+12. codex | ran: npm run typecheck && npm run test | broke: JRPG level-up pause/dialog had no automated normal-speed verification | fixed: added normal-speed level-up dialog test; pass
+13. codex | ran: npm run typecheck && npm run test | broke: browser QA was unavailable, leaving save migration and API fallback without runnable local coverage | fixed: added UI data-boundary tests for save migration and offline arena bot fallback; pass
+14. claude-orchestrator | ran: testsprite test run --all (cloud) | broke: all 4 FE tests skipped — batch endpoint is BE-only, FE must run individually | fixed: rewrote scripts/tsloop.mjs to run FE tests one by one
+15. claude-orchestrator | ran: testsprite 3 FE tests vs production (0/3 passed) | broke: Trait sliders and class selection persist into a run (unknown); Solo run completes and shows results (fast deterministic run) (error(exit 1)); Guild screen renders with tuning controls (unknown) | fixed: P0 production, first real cloud suite
+16. codex | ran: npm run typecheck | broke: sprite canvas context overloads were too broad for OffscreenCanvas and HTMLCanvasElement | fixed: created typed sprite surfaces with context creation per canvas kind
+17. codex | ran: renderer size check | broke: src/render/canvas.ts exceeded the 250 pure-LOC limit after render effects landed | fixed: extracted render-side facing, poof, and shake bookkeeping to src/render/effects.ts
+18. codex | ran: npm run typecheck && npm run test && npm run build | broke: palette cleanup removed the dialog white stroke token | fixed: restored the token; rerun passed typecheck, 9 tests, and build
+19. claude-orchestrator | ran: GitHub secret scanning on pushed failure bundles | broke: TestSprite presigned S3 URLs carry temporary AWS credentials — flagged as exposed secret | fixed: scripts/sanitize-bundles.mjs redacts X-Amz-* signatures before commit, history rewritten, alert resolved
+20. claude-orchestrator | ran: testsprite 4 FE tests vs production (1/4 passed) | broke: Arena match: 4-hero ghost battle with ranking and leaderboard (blocked); Trait sliders and class selection persist into a run (blocked); Solo run completes and shows results (fast deterministic run) (blocked) | fixed: P1 meta + P2 arena deployed; parser fixed
+21. claude-orchestrator | ran: testsprite trait-tuning vs production | broke: test tried to select Mage but P1 added unlock gating (400g) — fresh browser has 0 gold, judge blocked | fixed: plan updated to assert lock state on knight path instead
 22. claude-orchestrator | ran: testsprite 4 FE tests vs production (2/4 passed) | broke: Arena match: 4-hero ghost battle with ranking and leaderboard (blocked); Solo run completes and shows results (fast deterministic run) (unknown) | fixed: rewrote all 4 plans to behavior-only wording after judge misread meta-hints as stop requests
 23. codex | ran: npm run typecheck | broke: render effect helper extraction missed the activeHitReactions duration argument | fixed: passed the duration from effects.ts; rerun typecheck passed
 24. codex | ran: npm run typecheck && npm run test && npm run build | broke: none | fixed: JUICE + COLOSSEUM render/copy pass preserved the 9-test deterministic gate and production build
 25. claude-orchestrator | ran: cloud-run forensics on blocked solo/arena tests | broke: synchronous fast-mode loop froze the page seconds on slow cloud VMs — judge saw an unresponsive app | fixed: chunked runFast (600 steps + setTimeout yield), verified full run completes in preview
 26. codex | ran: npm run test | broke: Traits v2 changed seed 42 golden from 2011/150/8 to 2247/171/9 | fixed: recorded the new temperament golden and v2 loadout fixtures
-26. claude-orchestrator | ran: testsprite solo+arena vs production after non-blocking fast fix | broke: judge verdict text says "all assertions passed / marked PASS" but platform finalizes status=blocked — verdict-to-status mapping bug on TestSprite side | fixed: filed TestSprite/testsprite-cli#221 with runIds and bundle evidence; game-side flow confirmed correct (score 2011 exact)
+27. claude-orchestrator | ran: testsprite solo+arena vs production after non-blocking fast fix | broke: judge verdict text says "all assertions passed / marked PASS" but platform finalizes status=blocked — verdict-to-status mapping bug on TestSprite side | fixed: filed TestSprite/testsprite-cli#221 with runIds and bundle evidence; game-side flow confirmed correct (score 2011 exact)
 28. board(human) | ran: live playtest | broke: drops could land outside the arena walls (edge spawns + gold offset) — heroes ground against the wall chasing unreachable loot | fixed: createDrop clamps to reachable inset + property test across seeds (QA invariant added to AGENTS.md)
 29. claude-orchestrator | ran: testsprite 4 FE tests vs production (2/4 passed) | broke: Arena match: 4-hero ghost battle with ranking and leaderboard (unknown); Solo run completes and shows results (fast deterministic run) (unknown) | fixed: temperament system + perks + barracks + drop-bounds fix deployed
 30. claude-orchestrator | ran: structural diff between passing and blocked plans | broke: only the two plans containing a "Wait until X" ACTION step finalize blocked (judge prefixes its PASS summary with TEST BLOCKED) | fixed: replaced wait-actions with plain assertions (assertions self-wait); also fixed tsloop JSON parsing of trailing CLI text

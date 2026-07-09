@@ -14,6 +14,7 @@ type ResultEntry = {
   class: string;
   score: number;
   survived: boolean;
+  temperament?: string;
 };
 
 function isResultEntry(value: unknown): value is ResultEntry & {
@@ -26,6 +27,7 @@ function isResultEntry(value: unknown): value is ResultEntry & {
   if (typeof obj.class !== "string") return false;
   if (typeof obj.score !== "number" || !Number.isFinite(obj.score)) return false;
   if (typeof obj.survived !== "boolean") return false;
+  if (obj.temperament !== undefined && typeof obj.temperament !== "string") return false;
   return true;
 }
 
@@ -56,6 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
           class: data.class,
           score: data.score,
           survived: data.survived,
+          ...(data.temperament !== undefined ? { temperament: data.temperament } : {}),
         };
 
         const existing = bestByName.get(entry.name);
@@ -70,11 +73,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const leaderboard = Array.from(bestByName.values())
       .sort((a, b) => b.score - a.score)
       .slice(0, 20)
-      .map(({ name, class: heroClass, score, survived }) => ({
+      .map(({ name, class: heroClass, score, survived, temperament }) => ({
         name,
         class: heroClass,
         score,
         survived,
+        ...(temperament !== undefined ? { temperament } : {}),
       }));
 
     res.status(200).json(leaderboard);

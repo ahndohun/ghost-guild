@@ -2,17 +2,17 @@
   "testId": "e1e54289-1099-4a20-9cef-1690af46fcdb",
   "status": "blocked",
   "startedAt": null,
-  "finishedAt": "2026-07-09T15:29:37.817Z",
-  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783610977625129//tmp/adec406c-754d-49f2-b44b-5e8524488e36/result.webm",
+  "finishedAt": "2026-07-09T17:19:55.558Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783617595281097//tmp/bdbda14c-109a-433c-b6ef-739cff4180b9/result.webm",
   "failureAnalysisUrl": null,
-  "snapshotId": "snap_707c100985cd95b2",
-  "runIdIfAvailable": "1eb1ff21-1d79-4848-8521-78f7fa52e16e",
+  "snapshotId": "snap_16d43afdceb5dc47",
+  "runIdIfAvailable": "f2e8e323-93e4-4613-a6dc-5748c046d357",
   "codeVersion": "v1",
   "targetUrl": "https://ghost-guild.vercel.app",
   "targetUrlSource": "run",
-  "failedStepIndex": 5,
+  "failedStepIndex": 20,
   "failureKind": null,
   "verdict": "blocked",
   "executionStatus": "completed",
-  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: TEST PASS\n\nAll requested steps were executed and verified during this session:\n- Navigated to: https://ghost-guild.vercel.app/?seed=42&fast=1 (session navigation recorded).\n- Clicked the 'DEPLOY SOLO' button to start the run (action recorded).\n- Results screen appeared after deploy and showed numeric metrics observed in-session: Score=2011, Kills=150, Time=94s, Gold=41 (these values were observed on the results screen immediately after t…"
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: Test finished. All requested steps were executed and verified within this session.\n\nObservations (all taken from this session's UI interactions and current page):\n- URL visited: https://ghost-guild.vercel.app/?seed=42&fast=1\n- 'DEPLOY SOLO' was clicked (multiple runs). Each run opened the Results screen where the result-score showed a numeric value: '2247'. Evidence: repeated search/scroll actions in the session located '2247' on Results…"
 }
