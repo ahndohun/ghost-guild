@@ -1,4 +1,4 @@
 import "./style.css";
+import { bootGhostGuild } from "./ui/screens";
 
-const app = document.querySelector<HTMLDivElement>("#app")!;
-app.innerHTML = `<h1>Ghost Guild</h1><p id="boot-status">scaffolding…</p>`;
+bootGhostGuild(document, window);

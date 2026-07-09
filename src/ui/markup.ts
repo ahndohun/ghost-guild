@@ -1,0 +1,95 @@
+import { classDefinitions } from "../sim";
+import type { HeroClassId, TraitProfile } from "../sim";
+
+export function screenMarkup(): string {
+  return `
+    <section id="screen-guild" class="screen">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">GHOST GUILD</p>
+          <h1>Guildmaster Console</h1>
+        </div>
+        <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
+      </header>
+      <main class="guild-layout">
+        <section class="panel">
+          <h2>Traits</h2>
+          ${traitMarkup("bravery", "Bravery")}
+          ${traitMarkup("greed", "Greed")}
+          ${traitMarkup("focus", "Focus")}
+        </section>
+        <section class="panel">
+          <h2>Class</h2>
+          <div class="class-grid">
+            ${classMarkup("knight")}
+            ${classMarkup("mage")}
+            ${classMarkup("priest")}
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Guild Upgrades</h2>
+          <div class="upgrade-grid">
+            <button type="button" data-testid="buy-atk" disabled>ATK 50g</button>
+            <button type="button" data-testid="buy-hp" disabled>HP 50g</button>
+            <button type="button" data-testid="buy-spd" disabled>SPD 80g</button>
+            <button type="button" data-testid="buy-luck" disabled>LUCK 100g</button>
+            <button type="button" data-testid="buy-lvl" disabled>LVL 200g</button>
+          </div>
+        </section>
+      </main>
+      <footer class="actions">
+        <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
+        <button type="button" data-testid="deploy-arena" disabled>DEPLOY ARENA</button>
+        <button type="button" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
+      </footer>
+    </section>
+    <section id="screen-run" class="screen hidden">
+      <div class="run-shell">
+        <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
+        <div class="hud">
+          <span>HP <strong id="hud-hp">0</strong></span>
+          <span>LV <strong id="hud-level">1</strong></span>
+          <span>KILLS <strong id="hud-kills">0</strong></span>
+          <span>TIME <strong id="hud-time">0s</strong></span>
+        </div>
+        <div id="game-state" class="mirror" hidden></div>
+      </div>
+    </section>
+    <section id="screen-results" class="screen hidden">
+      <div class="results-panel">
+        <p class="eyebrow">RESULTS</p>
+        <h1>Run Complete</h1>
+        <dl class="result-grid">
+          <div><dt>Score</dt><dd id="result-score" data-testid="result-score">0</dd></div>
+          <div><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
+          <div><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">0</dd></div>
+          <div><dt>Time</dt><dd id="result-time" data-testid="result-time">0s</dd></div>
+          <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">0</dd></div>
+        </dl>
+        <ol id="result-ranking" data-testid="result-ranking"></ol>
+        <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
+      </div>
+    </section>
+  `;
+}
+
+function traitMarkup(id: keyof TraitProfile, label: string): string {
+  return `
+    <label class="trait-row">
+      <span>${label}</span>
+      <input data-testid="trait-${id}" type="range" min="0" max="100" value="50" />
+      <strong id="trait-${id}-value">50</strong>
+    </label>
+  `;
+}
+
+function classMarkup(classId: HeroClassId): string {
+  const definition = classDefinitions[classId];
+  return `
+    <button type="button" class="class-card" data-testid="class-${classId}">
+      <span class="class-glyph">${definition.glyph}</span>
+      <strong>${definition.name}</strong>
+      <small>${definition.startingWeapon}</small>
+    </button>
+  `;
+}

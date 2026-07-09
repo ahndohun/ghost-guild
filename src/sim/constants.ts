@@ -1,0 +1,10 @@
+export const TICKS_PER_SECOND = 30;
+export const DT_SECONDS = 1 / TICKS_PER_SECOND;
+export const RUN_SECONDS = 180;
+export const MAX_TICKS = RUN_SECONDS * TICKS_PER_SECOND;
+export const WORLD_WIDTH = 960;
+export const WORLD_HEIGHT = 540;
+export const LEVEL_UP_PAUSE_TICKS = 36;
+export const HERO_RADIUS = 14;
+export const BASE_MAGNET_RADIUS = 44;
+export const AI_REEVALUATE_TICKS = 5;
