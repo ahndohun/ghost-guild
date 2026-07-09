@@ -14,11 +14,32 @@ const note = process.argv.slice(3).join(" ");
 function sh(cmd) {
   return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 }
+// The CLI can print several JSON objects (e.g. the run info followed by an
+// {"error": ...} wrapper when a run finalizes `blocked`). Extract every
+// balanced top-level object and return the one that looks like run info.
+function allJsonObjects(raw) {
+  const objs = [];
+  let depth = 0, start = -1, inStr = false, esc = false;
+  for (let i = 0; i < raw.length; i++) {
+    const c = raw[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "{") { if (depth === 0) start = i; depth++; }
+    else if (c === "}") { depth--; if (depth === 0 && start !== -1) { try { objs.push(JSON.parse(raw.slice(start, i + 1))); } catch { /* skip */ } start = -1; } }
+  }
+  return objs;
+}
 function lastJson(raw) {
-  const start = raw.indexOf("{");
-  const end = raw.lastIndexOf("}");
-  if (start === -1 || end <= start) return null;
-  try { return JSON.parse(raw.slice(start, end + 1)); } catch { return null; }
+  const objs = allJsonObjects(raw);
+  if (objs.length === 0) return null;
+  // Prefer an object that carries run info; fall back to the last object.
+  const runObj = objs.find((o) => o && (o.status || o.stepSummary || o.testId || o.runId || o.items));
+  return runObj ?? objs[objs.length - 1];
 }
 
 const listRaw = sh(`testsprite test list --project ${PROJECT_ID} --output json`);
