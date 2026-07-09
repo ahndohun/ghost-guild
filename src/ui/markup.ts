@@ -6,8 +6,9 @@ export function screenMarkup(): string {
     <section id="screen-guild" class="screen">
       <header class="topbar">
         <div>
-          <p class="eyebrow">GHOST GUILD</p>
-          <h1>Guildmaster Console</h1>
+          <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
+          <h1>Ghost Colosseum</h1>
+          <p class="tagline">Coach your gladiator. The crowd remembers.</p>
         </div>
         <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
       </header>
@@ -59,7 +60,7 @@ export function screenMarkup(): string {
     <section id="screen-results" class="screen hidden">
       <div class="results-panel">
         <p class="eyebrow">RESULTS</p>
-        <h1>Run Complete</h1>
+        <h1>The Sand Settles</h1>
         <dl class="result-grid">
           <div><dt>Score</dt><dd id="result-score" data-testid="result-score">0</dd></div>
           <div><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>

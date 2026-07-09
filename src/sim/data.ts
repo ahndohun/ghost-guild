@@ -126,29 +126,29 @@ export const passiveDefinitions: Record<PassiveId, PassiveDefinition> = {
 
 export const dialogLines: Record<OptionFlavor, readonly string[]> = {
   damage: [
-    "I shall strike harder.",
-    "Let the blade decide.",
-    "A stronger spell, then.",
+    "For the crowd!",
+    "My blade drinks the roar.",
+    "Let the sand learn fire.",
   ],
   economy: [
-    "Treasure should not wait.",
-    "I will gather every glimmer.",
-    "The guild needs coin.",
+    "Spoils for the victor.",
+    "Every coin has a witness.",
+    "The crowd pays in gold.",
   ],
   defense: [
-    "I must endure.",
-    "A steady heart holds.",
-    "Light keep me standing.",
+    "I will not die on this sand.",
+    "Shield high. Eyes forward.",
+    "Stone outlasts the cheer.",
   ],
   speed: [
-    "Swift feet, clear mind.",
-    "I will outrun their claws.",
-    "Speed is its own shield.",
+    "Fast feet shame the grave.",
+    "I move before they chant.",
+    "The arena cannot hold me.",
   ],
   focus: [
-    "I choose discipline.",
-    "One path, sharpened.",
-    "Again, but better.",
+    "One form. One finish.",
+    "Again, for the stands.",
+    "Discipline wins the sand.",
   ],
 };
 

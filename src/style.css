@@ -106,7 +106,8 @@ button:disabled {
 
 h1,
 h2,
-p {
+p,
+.tagline {
   margin-top: 0;
 }
 
@@ -114,6 +115,14 @@ h1 {
   margin-bottom: 0;
   font-size: 30px;
   line-height: 1.15;
+}
+
+.tagline {
+  max-width: 560px;
+  margin: 10px 0 0;
+  color: rgba(232, 227, 213, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 h2 {

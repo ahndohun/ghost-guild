@@ -191,14 +191,25 @@ function createScreenController(
   }
 
   function runFast(match: ReturnType<typeof createMatch>): void {
+    // Chunked so the main thread never freezes — cloud E2E browsers judge a
+    // multi-second synchronous loop as an unresponsive page.
     let guard = 30000;
-    while (match.state.phase !== "finished" && guard > 0) {
-      match.step();
-      guard -= 1;
-    }
-    renderMatch(canvas, match.state);
-    updateMirror(documentRef, gameState, match.state);
-    finishRun(resultFromState(match.state));
+    const chunk = (): void => {
+      let budget = 600;
+      while (match.state.phase !== "finished" && guard > 0 && budget > 0) {
+        match.step();
+        guard -= 1;
+        budget -= 1;
+      }
+      renderMatch(canvas, match.state);
+      updateMirror(documentRef, gameState, match.state);
+      if (match.state.phase !== "finished" && guard > 0) {
+        windowRef.setTimeout(chunk, 0);
+        return;
+      }
+      finishRun(resultFromState(match.state));
+    };
+    chunk();
   }
 
   function runFrame(time: number): void {

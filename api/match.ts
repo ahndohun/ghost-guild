@@ -14,6 +14,8 @@ type Loadout = {
   name: string;
   class: string;
   traits: { bravery: number; greed: number; focus: number };
+  temperament?: string;
+  perks?: { tier1: string | null; tier2: string | null; tier3: string | null };
   permStats: { atk: number; hp: number; spd: number; luck: number; lvl: number };
 };
 
@@ -30,6 +32,18 @@ function isLoadout(value: unknown): value is Loadout {
   if (typeof obj.class !== "string") return false;
   if (typeof obj.traits !== "object" || obj.traits === null) return false;
   if (typeof obj.permStats !== "object" || obj.permStats === null) return false;
+
+  // temperament / perks: structural checks only (strict validation is loadout.ts)
+  if (obj.temperament !== undefined && typeof obj.temperament !== "string") return false;
+  if (obj.perks !== undefined) {
+    if (typeof obj.perks !== "object" || obj.perks === null || Array.isArray(obj.perks)) return false;
+    const perks = obj.perks as Record<string, unknown>;
+    for (const key of ["tier1", "tier2", "tier3"] as const) {
+      const choice = perks[key];
+      if (choice !== undefined && choice !== null && typeof choice !== "string") return false;
+    }
+  }
+
   return true;
 }
 
@@ -81,7 +95,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       }
     }
 
-    const opponents = candidates;
+    // Pass through temperament/perks when present on stored loadouts
+    const opponents = candidates.map((c) => ({
+      name: c.name,
+      class: c.class,
+      traits: c.traits,
+      ...(c.temperament !== undefined ? { temperament: c.temperament } : {}),
+      ...(c.perks !== undefined ? { perks: c.perks } : {}),
+      permStats: c.permStats,
+    }));
 
     res.status(200).json({ seed, opponents });
   } catch (err) {
