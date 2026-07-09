@@ -4,8 +4,8 @@
     <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost Colosseum</title>
-    <script type="module" crossorigin="" src="/assets/index-CrI6Y2KX.js"></script>
-    <style data-original-href="https://ghost-guild.vercel.app/assets/index-D0lrxzf2.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+    <script type="module" crossorigin="" src="/assets/index-Cu7vg0um.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-C8BFKZ4s.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
 :root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 * { box-sizing: border-box; }
 body { background: radial-gradient(circle at 20% 0px, rgba(184, 69, 63, 0.18), rgba(0, 0, 0, 0) 28rem), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 52%, rgb(8, 7, 13) 100%); min-width: 320px; min-height: 100dvh; margin: 0px; }
@@ -18,11 +18,11 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 .screen { width: min(1120px, 100%); min-height: 100dvh; margin: 0px auto; padding: 24px; }
 .guild-screen { background: linear-gradient(rgba(11, 10, 15, 0.86) 0%, rgba(14, 12, 21, 0.76) 48%, rgba(8, 7, 11, 0.92) 100%), radial-gradient(circle at 50% 18%, rgba(217, 164, 65, 0.22), rgba(0, 0, 0, 0) 18rem), rgb(14, 12, 21); width: min(1180px, 100%); position: relative; overflow: hidden; }
 .guild-screen > :not(.barracks-scene) { z-index: 1; position: relative; }
-.barracks-scene { pointer-events: none; position: absolute; inset: 0px; overflow: hidden; }
-.barracks-scene::before { content: ""; filter: blur(3px); transform-origin: center top; background: linear-gradient(rgba(232, 227, 213, 0.18), rgba(217, 164, 65, 0.05) 38%, rgba(0, 0, 0, 0) 100%); width: 240px; height: 520px; position: absolute; top: 120px; left: 50%; transform: translate(-50%) perspective(320px) rotateX(32deg); }
+.barracks-scene { opacity: 0.42; pointer-events: none; position: absolute; inset: 0px; overflow: hidden; }
+.barracks-scene::before { content: ""; filter: blur(3px); transform-origin: center top; background: linear-gradient(rgba(232, 227, 213, 0.08), rgba(217, 164, 65, 0.03) 38%, rgba(0, 0, 0, 0) 100%); width: 190px; height: 420px; position: absolute; top: 128px; left: max(20px, 50% - 560px); transform: perspective(320px) rotateX(32deg); }
 .barracks-scene::after { content: ""; background: linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(7, 6, 10, 0.72) 45%, rgba(5, 4, 8, 0.94) 100%), repeating-linear-gradient(90deg, rgba(232, 227, 213, 0.04) 0px, rgba(232, 227, 213, 0.04) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 46px); height: 46%; position: absolute; inset: auto -5% 0px; }
-.barracks-scene img { image-rendering: pixelated; opacity: 0.9; display: block; position: absolute; }
-.barracks-gate { filter: drop-shadow(rgba(0, 0, 0, 0.58) 0px 24px 26px); width: 320px; height: 256px; top: 92px; left: 50%; transform: translate(-50%); }
+.barracks-scene img { image-rendering: pixelated; opacity: 0.72; display: block; position: absolute; }
+.barracks-gate { filter: drop-shadow(rgba(0, 0, 0, 0.58) 0px 24px 26px); opacity: 0.34; width: 320px; height: 256px; top: 92px; left: max(28px, 50% - 560px); }
 .barracks-banner { opacity: 0.72; width: 128px; height: 192px; top: 110px; left: max(30px, 50% - 470px); }
 .barracks-rack { opacity: 0.76; width: 192px; height: 160px; top: 192px; right: max(32px, 50% - 510px); }
 .barracks-brazier { filter: brightness(0.95); width: 128px; height: 160px; top: 292px; }
@@ -35,9 +35,15 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
 h1, h2, p, .tagline { margin-top: 0px; }
 h1 { margin-bottom: 0px; font-size: 30px; line-height: 1.15; }
 .tagline { color: rgba(232, 227, 213, 0.72); max-width: 560px; margin: 10px 0px 0px; font-size: 14px; line-height: 1.5; }
+.onboarding-line { color: rgba(232, 227, 213, 0.56); max-width: 720px; margin: 10px 0px 0px; font-size: 12px; line-height: 1.5; }
 h2 { font-size: 13px; line-height: 1.5; }
-.gold, .panel, .results-panel { background: rgba(10, 8, 14, 0.9); border: 2px solid rgb(232, 227, 213); box-shadow: rgb(5, 4, 10) 6px 6px; }
+.gold, .panel, .results-panel { background: rgb(10, 8, 14); border: 2px solid rgb(232, 227, 213); box-shadow: rgb(5, 4, 10) 6px 6px; }
 .gold { white-space: nowrap; padding: 14px 16px; }
+.topbar-meta { gap: 10px; min-width: min(100%, 320px); display: grid; }
+.player-name-field { background: rgb(10, 8, 14); border: 2px solid rgb(232, 227, 213); gap: 8px; padding: 12px 14px; display: grid; box-shadow: rgb(5, 4, 10) 6px 6px; }
+.player-name-field span { color: rgb(88, 214, 201); font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 9px; }
+.player-name-field input { color: rgb(255, 244, 207); background: 0px 0px; border-width: 0px 0px 2px; border-top-style: initial; border-right-style: initial; border-left-style: initial; border-top-color: initial; border-right-color: initial; border-left-color: initial; border-image: initial; border-bottom-style: solid; border-bottom-color: rgba(232, 227, 213, 0.42); outline: 0px; width: 100%; min-width: 0px; font-size: 13px; line-height: 1.5; }
+.player-name-field input:focus-visible { border-bottom-color: rgb(88, 214, 201); }
 .guild-layout { grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr); gap: 16px; margin: 28px 0px; display: grid; }
 .panel { padding: 18px; }
 .class-grid, .upgrade-grid, .temperament-grid, .perk-grid { gap: 12px; display: grid; }
@@ -75,6 +81,7 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
   .screen { padding: 16px; }
   h1 { font-size: 22px; }
   .topbar { flex-direction: column; align-items: flex-start; }
+  .topbar-meta { width: 100%; }
   .guild-layout, .temperament-grid, .perk-grid, .class-grid, .result-grid { grid-template-columns: 1fr; }
   .barracks-gate { width: 256px; height: 205px; top: 128px; }
   .barracks-banner, .barracks-rack, .brazier-right { opacity: 0.36; }
@@ -106,8 +113,15 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
           <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
           <h1>Ghost Colosseum</h1>
           <p class="tagline">Coach your gladiator. The crowd remembers.</p>
+          <p class="onboarding-line">Your gladiator fights on its own - pick a temperament, hit DEPLOY, and watch. Win gold to unlock perks, classes, and upgrades.</p>
         </div>
-        <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">1364</span></div>
+        <div class="topbar-meta">
+          <label class="player-name-field">
+            <span>Gladiator</span>
+            <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-1981">
+          </label>
+          <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">619</span></div>
+        </div>
       </header>
       <main class="guild-layout">
         <section class="panel temperament-panel">
@@ -160,7 +174,7 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
     </button>
   
             
-    <button type="button" class="class-card locked" data-testid="class-priest">
+    <button type="button" class="class-card locked" data-testid="class-priest" disabled="">
       <span class="class-glyph">P</span>
       <strong>Priest</strong>
       <small>holyBolt</small>
@@ -244,12 +258,12 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
         <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
         <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
         <div class="hud">
-          <span>HP <strong id="hud-hp">65</strong></span>
-          <span>LV <strong id="hud-level">17</strong></span>
-          <span>KILLS <strong id="hud-kills">574</strong></span>
+          <span>HP <strong id="hud-hp">80</strong></span>
+          <span>LV <strong id="hud-level">12</strong></span>
+          <span>KILLS <strong id="hud-kills">286</strong></span>
           <span>TIME <strong id="hud-time">180s</strong></span>
         </div>
-        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="180" data-hp="65" data-level="17" data-kills="574" data-gold="197" data-seed="11"></div>
+        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="180" data-hp="80" data-level="12" data-kills="286" data-gold="93" data-seed="11"></div>
       </div>
     </section>
     <section id="screen-results" class="screen hidden">
@@ -257,17 +271,17 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
         <p class="eyebrow">RESULTS</p>
         <h1>The Sand Settles</h1>
         <dl class="result-grid">
-          <div><dt>Score</dt><dd id="result-score" data-testid="result-score">7337</dd></div>
+          <div><dt>Score</dt><dd id="result-score" data-testid="result-score">4353</dd></div>
           <div><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
-          <div><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">574</dd></div>
+          <div><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">286</dd></div>
           <div><dt>Time</dt><dd id="result-time" data-testid="result-time">180s</dd></div>
-          <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">197</dd></div>
+          <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">93</dd></div>
         </dl>
         <h2>Match Ranking</h2>
-        <ol id="result-ranking" data-testid="result-ranking"><li class="local-row">#1 Guildmaster-9077 knight 7337</li><li>#2 Guildmaster-5464 knight 2406</li><li>#3 Guildmaster-4436 knight 2324</li><li>#4 Guildmaster-5464 knight 2241</li></ol>
+        <ol id="result-ranking" data-testid="result-ranking"><li class="local-row">#1 Gladiator-1981 knight 4353</li><li>#2 Gladiator-0809 knight 3558</li><li>#3 Grimm the Reckless knight 3228</li><li>#4 Gladiator-2550 knight 2710</li></ol>
         <section id="leaderboard-section" class="leaderboard-panel">
           <h2>World Leaderboard</h2>
-          <ol id="leaderboard-list" data-testid="leaderboard-list"><li>#1 Guildmaster-9077 knight 7600</li><li>#2 Guildmaster-4436 knight 3805</li><li>#3 Guildmaster-5464 knight 3690</li><li>#4 Guildmaster-3378 knight 3302</li><li>#5 Guildmaster-4717 knight 2861</li><li>#6 Guildmaster-1918 knight 2457</li><li>#7 Guildmaster-6840 knight 2343</li><li>#8 Guildmaster-3172 knight 2112</li></ol>
+          <ol id="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-4876 knight duelist 2073</li></ol>
         </section>
         <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
       </div>

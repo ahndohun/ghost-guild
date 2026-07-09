@@ -16,6 +16,7 @@ export type GuildSave = {
   temperament: TemperamentId;
   perksByTemperament: Record<TemperamentId, readonly PerkId[]>;
   autorun: boolean;
+  soundMuted?: boolean;
   nextSeed: number;
   playerName: string;
   permStats: PermStats;
@@ -29,6 +30,7 @@ export function defaultSave(): GuildSave {
     temperament: "berserker",
     perksByTemperament: emptyPerksByTemperament(),
     autorun: false,
+    soundMuted: false,
     nextSeed: 1,
     playerName: randomGladiatorName(),
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
@@ -83,6 +85,7 @@ function parseSave(value: unknown): GuildSave {
     temperament,
     perksByTemperament: parsePerksByTemperament(value["perksByTemperament"], fallback.perksByTemperament),
     autorun: typeof value["autorun"] === "boolean" ? value["autorun"] : fallback.autorun,
+    soundMuted: value["soundMuted"] === true,
     nextSeed: Math.max(1, Math.floor(parseNonNegativeNumber(value["nextSeed"], fallback.nextSeed))),
     playerName: parsePlayerName(value["playerName"], fallback.playerName),
     permStats: parsePermStats(value["permStats"], fallback.permStats),

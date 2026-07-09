@@ -2,6 +2,8 @@ import { renderMatch } from "../render/canvas";
 import { TICKS_PER_SECOND } from "../sim/constants";
 import { createMatch, resultFromState } from "../sim";
 import type { MatchResult } from "../sim";
+import { createAudioEngine } from "./audio";
+import { createMatchSoundObserver } from "./audioEvents";
 import { fetchLeaderboard, ignoreExpectedApiError } from "./arenaApi";
 import type { ServerLoadout } from "./arenaApi";
 import { createArenaRunPlan } from "./arenaRun";
@@ -61,6 +63,16 @@ function createScreenController(
   let save = loadSave(windowRef.localStorage);
   let session: RunSession | undefined;
   let autorunTimer: number | undefined;
+
+  const audio = createAudioEngine(documentRef, {
+    enabled: !fastMode,
+    muted: save.soundMuted === true,
+    onMutedChange: (soundMuted) => {
+      save = { ...save, soundMuted };
+      persist(windowRef, save);
+    },
+  });
+  const matchSound = createMatchSoundObserver(audio, !fastMode);
 
   const canvas = requiredCanvas(documentRef, "run-canvas");
   const guildScreen = requiredElement(documentRef, "screen-guild");
@@ -130,6 +142,7 @@ function createScreenController(
       lastMirrorTime: 0,
     };
 
+    matchSound.startMatch(input.match.state);
     setVisibleScreen(screenElements, "run");
     requiredElement(documentRef, "arena-offline-badge").classList.toggle("hidden", !input.arenaOffline);
     updateMirror(documentRef, gameState, input.match.state);
@@ -181,6 +194,7 @@ function createScreenController(
       session.accumulatorMs -= tickMs;
     }
 
+    matchSound.observeMatch(session.match.state);
     renderMatch(canvas, session.match.state);
     if (time - session.lastMirrorTime >= 500) {
       updateMirror(documentRef, gameState, session.match.state);

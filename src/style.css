@@ -435,7 +435,9 @@ h2 {
 canvas {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
+  aspect-ratio: 16 / 9;
   border: 2px solid #e8e3d5;
   background: #0e0c15;
   box-shadow: 6px 6px 0 #05040a;
@@ -551,6 +553,22 @@ canvas {
 
   .barracks-gladiator {
     opacity: 0.42;
+  }
+}
+
+@media (max-width: 720px) {
+  .result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .result-grid div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  #result-ranking li,
+  #leaderboard-list li {
+    font-size: 10px;
+    line-height: 1.8;
   }
 }
 

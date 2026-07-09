@@ -68,6 +68,7 @@ export function screenMarkup(): string {
         <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
         <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>
         <button type="button" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
+        <button type="button" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false">SOUND ON</button>
       </footer>
     </section>
     <section id="screen-run" class="screen hidden">
@@ -79,6 +80,7 @@ export function screenMarkup(): string {
           <span>LV <strong id="hud-level">1</strong></span>
           <span>KILLS <strong id="hud-kills">0</strong></span>
           <span>TIME <strong id="hud-time">0s</strong></span>
+          <button type="button" id="run-sound-toggle" data-testid="sound-toggle" aria-pressed="false">SOUND ON</button>
         </div>
         <div id="game-state" class="mirror" hidden></div>
       </div>

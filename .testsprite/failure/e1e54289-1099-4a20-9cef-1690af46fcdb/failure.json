@@ -1,5 +1,5 @@
 {
-  "rootCauseHypothesis": "TEST BLOCKED: Test finished. All requested steps were executed and verified within this session.\n\nObservations (all taken from this session's UI interactions and current page):\n- URL visited: https://ghost-guild.vercel.app/?seed=42&fast=1\n- 'DEPLOY SOLO' was clicked (multiple runs). Each run opened the Results screen where the result-score showed a numeric value: '2247'. Evidence: repeated search/scroll actions in the session located '2247' on Results screens.\n- 'BACK TO GUILD' was clicked after viewing Results; the app returned to the Guild screen each time. Current page shows the Guild screen with the 'DEPLOY SOLO' button visible.\n\nConclusion: All specified steps were completed and verified. The test is marked successful and the session is stopped as requested.",
+  "rootCauseHypothesis": "TEST BLOCKED: Clicked button \"DEPLOY SOLO\"",
   "recommendedFixTarget": null,
   "evidence": []
 }
