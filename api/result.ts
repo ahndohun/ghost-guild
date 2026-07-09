@@ -1,6 +1,22 @@
 import { put } from "@vercel/blob";
 import { randomUUID } from "node:crypto";
-import { isResultScoreSane } from "./_shared";
+
+// Inlined (not imported) so the Vercel serverless bundle has zero cross-file
+// resolution risk. Rejects absurd/negative scores from tampered submissions.
+function isIntegerInRange(value: unknown, min: number, max: number): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= min && value <= max;
+}
+function isResultScoreSane(value: { score: unknown; kills: unknown; timeMs: unknown }): value is {
+  score: number;
+  kills: number;
+  timeMs: number;
+} {
+  return (
+    isIntegerInRange(value.score, 0, 1_000_000) &&
+    isIntegerInRange(value.kills, 0, 100_000) &&
+    isIntegerInRange(value.timeMs, 0, 600_000)
+  );
+}
 
 type VercelRequest = {
   method?: string;

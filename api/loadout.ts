@@ -1,5 +1,10 @@
 import { put } from "@vercel/blob";
-import { loadoutBlobKey } from "./_shared";
+
+// Inlined (not imported) so the Vercel serverless bundle has zero cross-file
+// resolution risk. Upsert by name key so re-submits overwrite, not accumulate.
+function loadoutBlobKey(name: string): string {
+  return `loadouts/${encodeURIComponent(name)}.json`;
+}
 
 type VercelRequest = {
   method?: string;

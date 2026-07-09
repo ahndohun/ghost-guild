@@ -1,4 +1,6 @@
-// NOTE: keep in sync with api/_shared.ts (serverless copy). See that file.
+// Client-side arena rules (bundled by Vite). The serverless functions in api/
+// inline their own copies because Vercel function bundles can't import across
+// the api/ boundary — keep the two in sync if the rules change.
 export type NamedLoadout = {
   readonly name: string;
 };

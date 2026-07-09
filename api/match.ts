@@ -1,5 +1,22 @@
 import { list } from "@vercel/blob";
-import { selectUniqueByName } from "./_shared";
+
+// Inlined (not imported) so the Vercel serverless bundle has zero cross-file
+// resolution risk. Picks up to `limit` opponents, deduped by name, excluding self.
+function selectUniqueByName<T extends { readonly name: string }>(
+  candidates: readonly T[],
+  excludeName: string,
+  limit: number,
+): readonly T[] {
+  const selected: T[] = [];
+  const seen = new Set<string>();
+  for (const candidate of candidates) {
+    if (selected.length >= limit) break;
+    if (candidate.name === excludeName || seen.has(candidate.name)) continue;
+    seen.add(candidate.name);
+    selected.push(candidate);
+  }
+  return selected;
+}
 
 type VercelRequest = {
   method?: string;
