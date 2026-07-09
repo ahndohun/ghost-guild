@@ -11,6 +11,7 @@ export type {
   MatchConfig,
   MatchResult,
   MatchState,
+  PermStats,
   ProjectileState,
   TraitProfile,
 } from "./types";

@@ -11,6 +11,7 @@ type WeaponLevelOption = {
   readonly action: "new" | "upgrade";
   readonly label: string;
   readonly flavor: OptionFlavor;
+  readonly quality: number;
 };
 
 type PassiveLevelOption = {
@@ -19,6 +20,7 @@ type PassiveLevelOption = {
   readonly action: "new" | "upgrade";
   readonly label: string;
   readonly flavor: OptionFlavor;
+  readonly quality: number;
 };
 
 type LevelOption = WeaponLevelOption | PassiveLevelOption;
@@ -36,7 +38,7 @@ export function resolvePendingLevelUp(hero: HeroState, rng: Rng): LevelDialogSta
   hero.level += 1;
   hero.xpToNext = xpNeededForLevel(hero.level);
 
-  const options = rollOptions(buildOptions(hero), rng);
+  const options = rollOptions(hero, buildOptions(hero), rng);
   const picked = chooseOption(hero, options);
   if (picked === undefined) {
     return {
@@ -69,6 +71,7 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
         action: "upgrade",
         label: `${definition.name} Lv.${owned.level + 1}`,
         flavor: definition.flavor,
+        quality: 4 + owned.level,
       });
     } else if (owned === undefined && hero.weapons.length < 4) {
       options.push({
@@ -77,6 +80,7 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
         action: "new",
         label: definition.name,
         flavor: definition.flavor,
+        quality: definition.flavor === "damage" ? 3 : 2,
       });
     }
   }
@@ -91,6 +95,7 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
         action: level === 0 ? "new" : "upgrade",
         label: `${definition.name}${level > 0 ? ` Lv.${level + 1}` : ""}`,
         flavor: definition.flavor,
+        quality: level === 0 ? 2 : 3 + level,
       });
     }
   }
@@ -98,7 +103,27 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
   return options;
 }
 
-function rollOptions(options: readonly LevelOption[], rng: Rng): readonly LevelOption[] {
+function rollOptions(hero: HeroState, options: readonly LevelOption[], rng: Rng): readonly LevelOption[] {
+  if (hero.permStats.luck <= 0) {
+    return rollUniformOptions(options, rng);
+  }
+
+  const remaining = [...options];
+  const picked: LevelOption[] = [];
+
+  while (picked.length < 3 && remaining.length > 0) {
+    const index = pickWeightedIndex(remaining, rng, hero.permStats.luck);
+    const removed = remaining.splice(index, 1);
+    const option = removed[0];
+    if (option !== undefined) {
+      picked.push(option);
+    }
+  }
+
+  return picked;
+}
+
+function rollUniformOptions(options: readonly LevelOption[], rng: Rng): readonly LevelOption[] {
   const remaining = [...options];
   const picked: LevelOption[] = [];
 
@@ -112,6 +137,32 @@ function rollOptions(options: readonly LevelOption[], rng: Rng): readonly LevelO
   }
 
   return picked;
+}
+
+function pickWeightedIndex(options: readonly LevelOption[], rng: Rng, luck: number): number {
+  const luckBonus = luck * 0.05;
+  let totalWeight = 0;
+  for (const option of options) {
+    totalWeight += optionWeight(option, luckBonus);
+  }
+
+  let cursor = rng.next() * totalWeight;
+  for (let index = 0; index < options.length; index += 1) {
+    const option = options[index];
+    if (option === undefined) {
+      continue;
+    }
+    cursor -= optionWeight(option, luckBonus);
+    if (cursor <= 0) {
+      return index;
+    }
+  }
+
+  return options.length - 1;
+}
+
+function optionWeight(option: LevelOption, luckBonus: number): number {
+  return 1 + option.quality * luckBonus;
 }
 
 function chooseOption(hero: HeroState, options: readonly LevelOption[]): LevelOption | undefined {

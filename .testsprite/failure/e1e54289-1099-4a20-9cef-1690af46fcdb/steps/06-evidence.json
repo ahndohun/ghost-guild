@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 6,
+    "summary": "Step 6 'The Bravery trait label on the guild screen is visible.' failed. Error: TEST BLOCKED: All requested steps completed and verified:\n- Opened: https://ghost-guild.vercel.app/?seed=42&fast=1\n- Action taken: Clicked 'DEPLOY SOLO' to start the seeded fast run.\n- Result observed: Results screen appeared showing Score=2011, Kills=150, Time=94s, Gold=41 (as recorded in the session).\n- Action taken: Clicked 'BACK TO GUILD'.\n- Final state: Returned to the Guildmaster Console (guild screen). The page shows trait sliders, class selection, and the 'DEPLOY SOLO' button.\nAll assertions in the task were satisfied and verified from the session outputs and the page screenshot.",
+    "path": "steps/06-snapshot.html"
+  }
+]

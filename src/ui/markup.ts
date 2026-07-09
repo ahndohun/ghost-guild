@@ -39,13 +39,14 @@ export function screenMarkup(): string {
       </main>
       <footer class="actions">
         <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
-        <button type="button" data-testid="deploy-arena" disabled>DEPLOY ARENA</button>
+        <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>
         <button type="button" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
       </footer>
     </section>
     <section id="screen-run" class="screen hidden">
       <div class="run-shell">
         <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
+        <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
         <div class="hud">
           <span>HP <strong id="hud-hp">0</strong></span>
           <span>LV <strong id="hud-level">1</strong></span>
@@ -66,7 +67,12 @@ export function screenMarkup(): string {
           <div><dt>Time</dt><dd id="result-time" data-testid="result-time">0s</dd></div>
           <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">0</dd></div>
         </dl>
+        <h2>Match Ranking</h2>
         <ol id="result-ranking" data-testid="result-ranking"></ol>
+        <section id="leaderboard-section" class="leaderboard-panel">
+          <h2>World Leaderboard</h2>
+          <ol id="leaderboard-list" data-testid="leaderboard-list"></ol>
+        </section>
         <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
       </div>
     </section>
@@ -90,6 +96,7 @@ function classMarkup(classId: HeroClassId): string {
       <span class="class-glyph">${definition.glyph}</span>
       <strong>${definition.name}</strong>
       <small>${definition.startingWeapon}</small>
+      <small id="class-${classId}-status" class="class-status">Unlocked</small>
     </button>
   `;
 }

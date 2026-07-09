@@ -1,0 +1,14 @@
+{
+  "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
+  "type": "frontend",
+  "name": "Arena match: 4-hero ghost battle with ranking and leaderboard",
+  "planSteps": [
+    { "type": "action", "description": "Navigate to https://ghost-guild.vercel.app/?seed=11&fast=1" },
+    { "type": "action", "description": "Click the arena deploy button (data-testid deploy-arena)" },
+    { "type": "assertion", "description": "Within about 40 seconds the results screen (#screen-results) becomes visible" },
+    { "type": "assertion", "description": "The ranking list (data-testid result-ranking) shows more than one hero row (opponents fetched from matchmaking or bot fallback)" },
+    { "type": "assertion", "description": "A world leaderboard section (data-testid leaderboard-list) is visible with at least one entry" },
+    { "type": "action", "description": "Click back-to-guild (data-testid back-to-guild)" },
+    { "type": "assertion", "description": "The guild screen (#screen-guild) is visible" }
+  ]
+}

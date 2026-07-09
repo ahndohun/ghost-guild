@@ -1,0 +1,18 @@
+{
+  "testId": "e1e54289-1099-4a20-9cef-1690af46fcdb",
+  "status": "blocked",
+  "startedAt": null,
+  "finishedAt": "2026-07-09T15:09:50.066Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783609789852449//tmp/fd3d8558-77df-4cdb-abbb-c8d614c1ee12/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_d055db6197bbbc4b",
+  "runIdIfAvailable": "e56c3664-7715-44b5-a120-f75006b5699d",
+  "codeVersion": "v1",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 5,
+  "failureKind": null,
+  "verdict": "blocked",
+  "executionStatus": "completed",
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: All requested steps completed and verified:\n- Opened: https://ghost-guild.vercel.app/?seed=42&fast=1\n- Action taken: Clicked 'DEPLOY SOLO' to start the seeded fast run.\n- Result observed: Results screen appeared showing Score=2011, Kills=150, Time=94s, Gold=41 (as recorded in the session).\n- Action taken: Clicked 'BACK TO GUILD'.\n- Final state: Returned to the Guildmaster Console (guild screen). The page shows trait sliders, class select…"
+}

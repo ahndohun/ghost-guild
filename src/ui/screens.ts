@@ -1,19 +1,36 @@
 import { renderMatch } from "../render/canvas";
 import { TICKS_PER_SECOND } from "../sim/constants";
 import { createMatch, heroClassIds, resultFromState } from "../sim";
-import type { MatchResult, TraitProfile } from "../sim";
+import type { MatchResult } from "../sim";
+import { ignoreExpectedApiError } from "./arenaApi";
+import type { ServerLoadout } from "./arenaApi";
+import { createArenaRunPlan } from "./arenaRun";
+import { leaderboardFromResult, submitArenaResult } from "./arenaResults";
 import { requiredButton, requiredCanvas, requiredElement, requiredInput } from "./dom";
+import { renderGuildView, traitInputEntries, updateTrait } from "./guildView";
 import { screenMarkup } from "./markup";
-import { renderRanking, updateMirror } from "./runHud";
-import { loadSave, storeSave } from "./save";
-import type { GuildSave } from "./save";
+import { classUnlockCosts, currentLoadout, nextUpgradeCost, permStatUpgrades } from "./meta";
+import { renderLeaderboard, renderRanking, updateMirror } from "./runHud";
+import { loadSave } from "./save";
+import { clearAutorun, parseSeed, persist, setVisibleScreen } from "./screenUtils";
+
+type RunMode = "solo" | "arena";
 
 type RunSession = {
   match: ReturnType<typeof createMatch>;
+  mode: RunMode;
+  serverLoadout: ServerLoadout | undefined;
   animationFrame: number | undefined;
   lastFrameTime: number | undefined;
   accumulatorMs: number;
   lastMirrorTime: number;
+};
+
+type RunStart = {
+  readonly match: ReturnType<typeof createMatch>;
+  readonly mode: RunMode;
+  readonly arenaOffline: boolean;
+  readonly serverLoadout: ServerLoadout | undefined;
 };
 
 const tickMs = 1000 / TICKS_PER_SECOND;
@@ -48,29 +65,58 @@ function createScreenController(
   const guildScreen = requiredElement(documentRef, "screen-guild");
   const runScreen = requiredElement(documentRef, "screen-run");
   const resultsScreen = requiredElement(documentRef, "screen-results");
+  const screenElements = { guild: guildScreen, run: runScreen, results: resultsScreen };
   const gameState = requiredElement(documentRef, "game-state");
 
   const braveryInput = requiredInput(documentRef, "trait-bravery");
   const greedInput = requiredInput(documentRef, "trait-greed");
   const focusInput = requiredInput(documentRef, "trait-focus");
   const deploySoloButton = requiredButton(documentRef, "deploy-solo");
+  const deployArenaButton = requiredButton(documentRef, "deploy-arena");
   const autorunButton = requiredButton(documentRef, "toggle-autorun");
   const backButton = requiredButton(documentRef, "back-to-guild");
+  const guildControls = { braveryInput, greedInput, focusInput, autorunButton };
 
   for (const classId of heroClassIds) {
     requiredButton(documentRef, `class-${classId}`).addEventListener("click", () => {
-      save = { ...save, classId };
+      if (save.unlockedClasses[classId]) {
+        save = { ...save, classId };
+      } else {
+        const cost = classUnlockCosts[classId];
+        if (save.gold < cost) {
+          return;
+        }
+        save = {
+          ...save,
+          gold: save.gold - cost,
+          classId,
+          unlockedClasses: { ...save.unlockedClasses, [classId]: true },
+        };
+      }
       persist(windowRef, save);
       renderGuild();
     });
   }
 
-  const traitInputs = [
-    { input: braveryInput, id: "bravery" },
-    { input: greedInput, id: "greed" },
-    { input: focusInput, id: "focus" },
-  ];
-  for (const entry of traitInputs) {
+  for (const upgrade of permStatUpgrades) {
+    requiredButton(documentRef, `buy-${upgrade.id}`).addEventListener("click", () => {
+      const owned = save.permStats[upgrade.id];
+      const cost = nextUpgradeCost(upgrade.id, owned);
+      if (save.gold < cost) {
+        return;
+      }
+
+      save = {
+        ...save,
+        gold: save.gold - cost,
+        permStats: { ...save.permStats, [upgrade.id]: owned + 1 },
+      };
+      persist(windowRef, save);
+      renderGuild();
+    });
+  }
+
+  for (const entry of traitInputEntries(guildControls)) {
     entry.input.addEventListener("input", () => {
       save = { ...save, traits: updateTrait(save.traits, entry.id, Number(entry.input.value)) };
       persist(windowRef, save);
@@ -79,6 +125,9 @@ function createScreenController(
   }
 
   deploySoloButton.addEventListener("click", () => deploySolo());
+  deployArenaButton.addEventListener("click", () => {
+    void deployArena();
+  });
   autorunButton.addEventListener("click", () => {
     save = { ...save, autorun: !save.autorun };
     persist(windowRef, save);
@@ -88,58 +137,53 @@ function createScreenController(
     clearAutorun(windowRef, autorunTimer);
     autorunTimer = undefined;
     renderGuild();
-    setScreen(guildScreen, runScreen, resultsScreen, "guild");
+    setVisibleScreen(screenElements, "guild");
   });
 
   function renderGuild(): void {
-    braveryInput.value = String(save.traits.bravery);
-    greedInput.value = String(save.traits.greed);
-    focusInput.value = String(save.traits.focus);
-    requiredElement(documentRef, "trait-bravery-value").textContent = String(save.traits.bravery);
-    requiredElement(documentRef, "trait-greed-value").textContent = String(save.traits.greed);
-    requiredElement(documentRef, "trait-focus-value").textContent = String(save.traits.focus);
-    requiredElement(documentRef, "gold-amount").textContent = String(Math.floor(save.gold));
-    autorunButton.textContent = save.autorun ? "AUTO-RUN ON" : "AUTO-RUN OFF";
-    autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
-
-    for (const classId of heroClassIds) {
-      const button = requiredButton(documentRef, `class-${classId}`);
-      button.classList.toggle("selected", save.classId === classId);
-    }
+    renderGuildView(documentRef, save, guildControls);
   }
 
   function deploySolo(): void {
     clearAutorun(windowRef, autorunTimer);
     autorunTimer = undefined;
-    const seed = fixedSeed ?? save.nextSeed;
-    if (fixedSeed === undefined) {
-      save = { ...save, nextSeed: save.nextSeed + 1 };
-      persist(windowRef, save);
-    }
-
     const match = createMatch({
-      seed,
-      heroes: [
-        {
-          classId: save.classId,
-          traits: save.traits,
-        },
-      ],
+      seed: consumeLocalSeed(),
+      heroes: [currentLoadout(save)],
     });
+    startRun({ match, mode: "solo", arenaOffline: false, serverLoadout: undefined });
+  }
+
+  async function deployArena(): Promise<void> {
+    clearAutorun(windowRef, autorunTimer);
+    autorunTimer = undefined;
+
+    const arenaRun = await createArenaRunPlan(save, fixedSeed, consumeLocalSeed);
+    const match = createMatch({
+      seed: arenaRun.seed,
+      heroes: arenaRun.heroes,
+    });
+    startRun({ match, mode: "arena", arenaOffline: arenaRun.offline, serverLoadout: arenaRun.serverLoadout });
+  }
+
+  function startRun(input: RunStart): void {
     session = {
-      match,
+      match: input.match,
+      mode: input.mode,
+      serverLoadout: input.serverLoadout,
       animationFrame: undefined,
       lastFrameTime: undefined,
       accumulatorMs: 0,
       lastMirrorTime: 0,
     };
 
-    setScreen(guildScreen, runScreen, resultsScreen, "run");
-    updateMirror(documentRef, gameState, match.state);
-    renderMatch(canvas, match.state);
+    setVisibleScreen(screenElements, "run");
+    requiredElement(documentRef, "arena-offline-badge").classList.toggle("hidden", !input.arenaOffline);
+    updateMirror(documentRef, gameState, input.match.state);
+    renderMatch(canvas, input.match.state);
 
     if (fastMode) {
-      runFast(match);
+      runFast(input.match);
       return;
     }
 
@@ -154,7 +198,7 @@ function createScreenController(
     }
     renderMatch(canvas, match.state);
     updateMirror(documentRef, gameState, match.state);
-    showResults(resultFromState(match.state));
+    finishRun(resultFromState(match.state));
   }
 
   function runFrame(time: number): void {
@@ -181,14 +225,22 @@ function createScreenController(
 
     if (session.match.state.phase === "finished") {
       updateMirror(documentRef, gameState, session.match.state);
-      showResults(resultFromState(session.match.state));
+      finishRun(resultFromState(session.match.state));
       return;
     }
 
     session.animationFrame = windowRef.requestAnimationFrame(runFrame);
   }
 
-  function showResults(result: MatchResult): void {
+  function finishRun(result: MatchResult): void {
+    if (session === undefined) {
+      return;
+    }
+
+    showResults(result, session.mode, session.serverLoadout);
+  }
+
+  function showResults(result: MatchResult, mode: RunMode, serverLoadout: ServerLoadout | undefined): void {
     const primary = result.heroes.find((hero) => hero.heroId === 1) ?? result.heroes[0];
     if (primary === undefined) {
       return;
@@ -201,52 +253,28 @@ function createScreenController(
     requiredElement(documentRef, "result-kills").textContent = String(primary.kills);
     requiredElement(documentRef, "result-time").textContent = `${primary.survivedSeconds}s`;
     requiredElement(documentRef, "result-gold-earned").textContent = String(primary.gold);
-    renderRanking(documentRef, result);
-    setScreen(guildScreen, runScreen, resultsScreen, "results");
+    renderRanking(documentRef, result, primary.heroId);
+    renderLeaderboard(documentRef, mode === "arena" ? leaderboardFromResult(result) : []);
+    setVisibleScreen(screenElements, "results");
     session = undefined;
 
-    if (save.autorun) {
+    if (mode === "arena" && serverLoadout !== undefined) {
+      void submitArenaResult(documentRef, serverLoadout, primary, result).catch(ignoreExpectedApiError);
+    }
+
+    if (mode === "solo" && save.autorun) {
       autorunTimer = windowRef.setTimeout(() => deploySolo(), 4000);
     }
   }
 
+  function consumeLocalSeed(): number {
+    const seed = fixedSeed ?? save.nextSeed;
+    if (fixedSeed === undefined) {
+      save = { ...save, nextSeed: save.nextSeed + 1 };
+      persist(windowRef, save);
+    }
+    return seed;
+  }
+
   return { renderGuild, deploySolo };
-}
-
-function updateTrait(traits: TraitProfile, id: string, value: number): TraitProfile {
-  const nextValue = Math.max(0, Math.min(100, Math.round(value)));
-  switch (id) {
-    case "bravery":
-      return { ...traits, bravery: nextValue };
-    case "greed":
-      return { ...traits, greed: nextValue };
-    case "focus":
-      return { ...traits, focus: nextValue };
-    default:
-      return traits;
-  }
-}
-
-function setScreen(guild: HTMLElement, run: HTMLElement, results: HTMLElement, visible: "guild" | "run" | "results"): void {
-  guild.classList.toggle("hidden", visible !== "guild");
-  run.classList.toggle("hidden", visible !== "run");
-  results.classList.toggle("hidden", visible !== "results");
-}
-
-function parseSeed(value: string | null): number | undefined {
-  if (value === null) {
-    return undefined;
-  }
-  const seed = Number.parseInt(value, 10);
-  return Number.isFinite(seed) ? seed : undefined;
-}
-
-function persist(windowRef: Window, save: GuildSave): void {
-  storeSave(windowRef.localStorage, save);
-}
-
-function clearAutorun(windowRef: Window, timer: number | undefined): void {
-  if (timer !== undefined) {
-    windowRef.clearTimeout(timer);
-  }
 }

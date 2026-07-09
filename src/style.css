@@ -148,6 +148,10 @@ input[type="range"] {
   background: #231d2c;
 }
 
+.class-card.locked {
+  border-color: rgba(217, 164, 65, 0.42);
+}
+
 .class-glyph {
   display: grid;
   width: 46px;
@@ -166,6 +170,10 @@ input[type="range"] {
   line-height: 1.4;
   overflow-wrap: anywhere;
   text-align: center;
+}
+
+.class-status {
+  color: #d9a441;
 }
 
 .actions {
@@ -187,6 +195,17 @@ input[type="range"] {
   position: relative;
   width: min(100%, 960px);
   margin: 0 auto;
+}
+
+.offline-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  border: 1px solid rgba(217, 164, 65, 0.72);
+  padding: 8px 10px;
+  background: rgba(5, 4, 10, 0.86);
+  color: #fff4cf;
+  font-size: 9px;
 }
 
 canvas {
@@ -214,7 +233,7 @@ canvas {
 }
 
 .results-panel {
-  width: min(680px, 100%);
+  width: min(780px, 100%);
   margin: 56px auto 0;
   padding: 24px;
 }
@@ -227,10 +246,13 @@ canvas {
 }
 
 .result-grid div,
-#result-ranking li {
+#result-ranking li,
+#leaderboard-list li {
   border: 1px solid rgba(232, 227, 213, 0.22);
   padding: 12px;
   background: #17111c;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .result-grid dt {
@@ -244,11 +266,22 @@ canvas {
   font-size: 16px;
 }
 
-#result-ranking {
+#result-ranking,
+#leaderboard-list {
   display: grid;
   gap: 8px;
   padding-left: 0;
   list-style: none;
+}
+
+#result-ranking .local-row {
+  border-color: #58d6c9;
+  background: #1f2730;
+  color: #ffffff;
+}
+
+.leaderboard-panel {
+  margin: 24px 0;
 }
 
 @media (max-width: 860px) {

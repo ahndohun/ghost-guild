@@ -18,6 +18,7 @@ import type {
   MatchResult,
   MatchState,
   PassiveState,
+  PermStats,
   WeaponState,
 } from "./types";
 
@@ -32,6 +33,8 @@ const heroSpawnOffsets = [
   { x: 32, y: -24 },
   { x: 0, y: 32 },
 ];
+
+const defaultPermStats: PermStats = { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 };
 
 export function createMatch(config: MatchConfig): MatchController {
   const loadouts = normalizeLoadouts(config.heroes);
@@ -131,6 +134,7 @@ function normalizeLoadouts(loadouts: readonly HeroLoadout[]): readonly HeroLoado
 
 function createHero(loadout: HeroLoadout, index: number): HeroState {
   const definition = classDefinitions[loadout.classId];
+  const permStats = normalizePermStats(loadout.permStats);
   const offset = heroSpawnOffsets[index] ?? heroSpawnOffsets[0];
   const weapon: WeaponState = {
     id: definition.startingWeapon,
@@ -143,6 +147,7 @@ function createHero(loadout: HeroLoadout, index: number): HeroState {
     id: index + 1,
     name: loadout.name ?? definition.name,
     classId: loadout.classId,
+    permStats,
     traits: {
       bravery: clamp(loadout.traits.bravery, 0, 100),
       greed: clamp(loadout.traits.greed, 0, 100),
@@ -153,18 +158,18 @@ function createHero(loadout: HeroLoadout, index: number): HeroState {
     vx: 0,
     vy: 0,
     radius: HERO_RADIUS,
-    hp: definition.maxHp,
-    maxHp: definition.maxHp,
-    baseMaxHp: definition.maxHp,
-    baseSpeed: definition.speed,
+    hp: definition.maxHp * (1 + permStats.hp * 0.08),
+    maxHp: definition.maxHp * (1 + permStats.hp * 0.08),
+    baseMaxHp: definition.maxHp * (1 + permStats.hp * 0.08),
+    baseSpeed: definition.speed * (1 + permStats.spd * 0.03),
     moveDirX: 1,
     moveDirY: 0,
     reevaluateTicks: 0,
     weapons: [weapon],
     passives,
-    level: 1,
+    level: 1 + permStats.lvl,
     xp: 0,
-    xpToNext: xpNeededForLevel(1),
+    xpToNext: xpNeededForLevel(1 + permStats.lvl),
     kills: 0,
     gold: 0,
     alive: true,
@@ -174,6 +179,24 @@ function createHero(loadout: HeroLoadout, index: number): HeroState {
   };
   recomputeMaxHp(hero);
   return hero;
+}
+
+function normalizePermStats(permStats: PermStats | undefined): PermStats {
+  if (permStats === undefined) {
+    return defaultPermStats;
+  }
+
+  return {
+    atk: normalizePermStat(permStats.atk),
+    hp: normalizePermStat(permStats.hp),
+    spd: normalizePermStat(permStats.spd),
+    luck: normalizePermStat(permStats.luck),
+    lvl: normalizePermStat(permStats.lvl),
+  };
+}
+
+function normalizePermStat(value: number): number {
+  return Math.floor(clamp(value, 0, 50));
 }
 
 function resolveLevelUps(state: MatchState, rng: ReturnType<typeof createMulberry32>): void {

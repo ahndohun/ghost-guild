@@ -29,10 +29,19 @@ export type TraitProfile = {
   focus: number;
 };
 
+export type PermStats = {
+  atk: number;
+  hp: number;
+  spd: number;
+  luck: number;
+  lvl: number;
+};
+
 export type HeroLoadout = {
   readonly name?: string;
   readonly classId: HeroClassId;
   readonly traits: TraitProfile;
+  readonly permStats?: PermStats;
 };
 
 export type MatchConfig = {
@@ -84,6 +93,7 @@ export type HeroState = {
   name: string;
   classId: HeroClassId;
   traits: TraitProfile;
+  permStats: PermStats;
   x: number;
   y: number;
   vx: number;

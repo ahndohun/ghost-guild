@@ -116,6 +116,8 @@ function drawEnemy(context: CanvasRenderingContext2D, enemy: EnemyState): void {
 
 function drawHero(context: CanvasRenderingContext2D, hero: HeroState): void {
   const definition = classDefinitions[hero.classId];
+  drawHeroName(context, hero, definition.color);
+
   context.fillStyle = hero.hitFlashTicks > 0 ? palette.white : definition.color;
   context.beginPath();
   context.arc(hero.x, hero.y, hero.radius, 0, Math.PI * 2);
@@ -130,6 +132,23 @@ function drawHero(context: CanvasRenderingContext2D, hero: HeroState): void {
   context.fillRect(hero.x - 18, hero.y - 26, 36, 4);
   context.fillStyle = definition.color;
   context.fillRect(hero.x - 18, hero.y - 26, 36 * (hero.hp / hero.maxHp), 4);
+}
+
+function drawHeroName(context: CanvasRenderingContext2D, hero: HeroState, color: string): void {
+  context.font = "9px 'Press Start 2P', monospace";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  const width = Math.min(180, context.measureText(hero.name).width + 12);
+  const x = Math.max(4, Math.min(WORLD_WIDTH - width - 4, hero.x - width / 2));
+  const y = Math.max(4, hero.y - 48);
+
+  context.fillStyle = "rgba(5, 4, 10, 0.78)";
+  context.fillRect(x, y, width, 16);
+  context.strokeStyle = color;
+  context.lineWidth = 1;
+  context.strokeRect(x, y, width, 16);
+  context.fillStyle = palette.ink;
+  context.fillText(hero.name, x + width / 2, y + 8, width - 8);
 }
 
 function drawDamageNumbers(context: CanvasRenderingContext2D, state: MatchState): void {

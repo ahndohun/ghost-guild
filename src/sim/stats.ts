@@ -7,7 +7,7 @@ export function passiveLevel(hero: HeroState, passiveId: PassiveId): number {
 }
 
 export function damageMultiplier(hero: HeroState): number {
-  return 1 + passiveLevel(hero, "damage") * 0.15;
+  return (1 + passiveLevel(hero, "damage") * 0.15) * (1 + hero.permStats.atk * 0.05);
 }
 
 export function speedMultiplier(hero: HeroState): number {

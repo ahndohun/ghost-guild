@@ -1,5 +1,5 @@
 import { heroClassIds } from "../sim";
-import type { HeroClassId, TraitProfile } from "../sim";
+import type { HeroClassId, PermStats, TraitProfile } from "../sim";
 
 const saveKey = "ghost-guild-save-v1";
 
@@ -7,6 +7,9 @@ export type GuildSave = {
   gold: number;
   traits: TraitProfile;
   classId: HeroClassId;
+  permStats: PermStats;
+  unlockedClasses: Record<HeroClassId, boolean>;
+  playerName: string;
   autorun: boolean;
   nextSeed: number;
 };
@@ -16,6 +19,9 @@ export function defaultSave(): GuildSave {
     gold: 0,
     traits: { bravery: 50, greed: 50, focus: 50 },
     classId: "knight",
+    permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+    unlockedClasses: { knight: true, mage: false, priest: false },
+    playerName: `Guildmaster-${String(Math.floor(Math.random() * 10000)).padStart(4, "0")}`,
     autorun: false,
     nextSeed: 1,
   };
@@ -24,14 +30,20 @@ export function defaultSave(): GuildSave {
 export function loadSave(storage: Storage): GuildSave {
   const raw = storage.getItem(saveKey);
   if (raw === null) {
-    return defaultSave();
+    const save = defaultSave();
+    storeSave(storage, save);
+    return save;
   }
 
   try {
-    return parseSave(JSON.parse(raw));
+    const save = parseSave(JSON.parse(raw));
+    storeSave(storage, save);
+    return save;
   } catch (error) {
     if (error instanceof SyntaxError) {
-      return defaultSave();
+      const save = defaultSave();
+      storeSave(storage, save);
+      return save;
     }
     throw error;
   }
@@ -48,6 +60,7 @@ function parseSave(value: unknown): GuildSave {
 
   const fallback = defaultSave();
   const classId = parseClassId(value["classId"], fallback.classId);
+  const unlockedClasses = parseUnlockedClasses(value["unlockedClasses"], fallback.unlockedClasses);
   const traitsValue = value["traits"];
   const traits = isRecord(traitsValue)
     ? {
@@ -60,9 +73,41 @@ function parseSave(value: unknown): GuildSave {
   return {
     gold: parseNonNegativeNumber(value["gold"], fallback.gold),
     traits,
-    classId,
+    classId: unlockedClasses[classId] ? classId : "knight",
+    permStats: parsePermStats(value["permStats"], fallback.permStats),
+    unlockedClasses,
+    playerName: parsePlayerName(value["playerName"], fallback.playerName),
     autorun: typeof value["autorun"] === "boolean" ? value["autorun"] : fallback.autorun,
     nextSeed: Math.max(1, Math.floor(parseNonNegativeNumber(value["nextSeed"], fallback.nextSeed))),
+  };
+}
+
+function parsePermStats(value: unknown, fallback: PermStats): PermStats {
+  if (!isRecord(value)) {
+    return fallback;
+  }
+
+  return {
+    atk: parseOwnedCount(value["atk"], fallback.atk),
+    hp: parseOwnedCount(value["hp"], fallback.hp),
+    spd: parseOwnedCount(value["spd"], fallback.spd),
+    luck: parseOwnedCount(value["luck"], fallback.luck),
+    lvl: parseOwnedCount(value["lvl"], fallback.lvl),
+  };
+}
+
+function parseUnlockedClasses(
+  value: unknown,
+  fallback: Record<HeroClassId, boolean>,
+): Record<HeroClassId, boolean> {
+  if (!isRecord(value)) {
+    return fallback;
+  }
+
+  return {
+    knight: true,
+    mage: value["mage"] === true,
+    priest: value["priest"] === true,
   };
 }
 
@@ -79,8 +124,20 @@ function parsePercent(value: unknown, fallback: number): number {
   return clampPercent(parseNonNegativeNumber(value, fallback));
 }
 
+function parseOwnedCount(value: unknown, fallback: number): number {
+  return Math.max(0, Math.floor(parseNonNegativeNumber(value, fallback)));
+}
+
 function parseNonNegativeNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
+function parsePlayerName(value: unknown, fallback: string): string {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+  const trimmed = value.trim();
+  return trimmed.length >= 1 && trimmed.length <= 20 ? trimmed : fallback;
 }
 
 function clampPercent(value: number): number {

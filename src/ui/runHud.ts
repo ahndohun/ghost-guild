@@ -1,5 +1,6 @@
 import { TICKS_PER_SECOND } from "../sim/constants";
 import type { MatchResult, MatchState } from "../sim";
+import type { LeaderboardEntry } from "./arenaApi";
 import { requiredElement } from "./dom";
 
 export function updateMirror(documentRef: Document, element: HTMLElement, state: MatchState): void {
@@ -22,14 +23,29 @@ export function updateMirror(documentRef: Document, element: HTMLElement, state:
   requiredElement(documentRef, "hud-time").textContent = `${time}s`;
 }
 
-export function renderRanking(documentRef: Document, result: MatchResult): void {
+export function renderRanking(documentRef: Document, result: MatchResult, localHeroId: number): void {
   const list = requiredElement(documentRef, "result-ranking");
   const items: HTMLLIElement[] = [];
   for (const heroId of result.ranking) {
     const hero = result.heroes.find((entry) => entry.heroId === heroId);
     if (hero !== undefined) {
       const item = documentRef.createElement("li");
-      item.textContent = `#${hero.rank} ${hero.name} ${hero.score}`;
+      item.classList.toggle("local-row", hero.heroId === localHeroId);
+      item.textContent = `#${hero.rank} ${hero.name} ${hero.classId} ${hero.score}`;
+      items.push(item);
+    }
+  }
+  list.replaceChildren(...items);
+}
+
+export function renderLeaderboard(documentRef: Document, entries: readonly LeaderboardEntry[]): void {
+  const list = requiredElement(documentRef, "leaderboard-list");
+  const items: HTMLLIElement[] = [];
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index];
+    if (entry !== undefined) {
+      const item = documentRef.createElement("li");
+      item.textContent = `#${index + 1} ${entry.name} ${entry.classId} ${entry.score}`;
       items.push(item);
     }
   }

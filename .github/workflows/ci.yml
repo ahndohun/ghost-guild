@@ -36,17 +36,9 @@ jobs:
       - name: Wait for Vercel deploy to go live
         run: sleep 90
       - name: Run TestSprite suite against production
-        run: |
-          testsprite test run --all --project "$PROJECT_ID" \
-            --wait --timeout 900 --output json \
-            --idempotency-key "ci-run-${{ github.run_id }}-${{ github.run_attempt }}" \
-            | tee ts-result.json
-      - name: Download failure bundles
-        if: failure()
-        run: |
-          for id in $(jq -r '..|.testId? // empty' ts-result.json | sort -u); do
-            testsprite test failure get "$id" --out "./.testsprite/failure/$id" || true
-          done
+        # FE tests must run individually (`test run --all` is BE-only) —
+        # the loop runner handles that and downloads failure bundles.
+        run: node scripts/tsloop.mjs github-actions "CI run ${{ github.sha }}"
       - name: Upload failure bundles
         if: failure()
         uses: actions/upload-artifact@v4
