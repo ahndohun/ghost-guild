@@ -1,9 +1,12 @@
-# Ghost Guild — Design Spec
+# Ghost Colosseum — Design Spec
 
-> **You don't play the hero. You manage them.**
+> **You don't play the gladiator. You coach them.**
+> (display title: **Ghost Colosseum**; repo/URL codename remains ghost-guild)
 > An idle management survivors-like: your hero fights, chooses upgrades, and dies **on their own judgment**. You tune who they *are* between runs — then watch your coaching pay off (or backfire) against ghosts of players worldwide.
 
-One-line for judges: *Vampire Survivors where the hero plays itself — you're the guildmaster tuning its personality, then racing it against the world.*
+One-line for judges: *An idle colosseum survivors where the gladiator fights on its own judgment — you tune who they are, then pit them against ghost loadouts of the world.*
+
+**Setting (2026-07-10 확정)**: 검투사 콜로세움. 영웅 = 모래 위에서 처절하게 살아남으려는 검투사(직업은 다양). 아레나 = 관중석에 둘러싸인 투기장. 멀티의 고스트 = 전 세계 검투사들의 그림자. JRPG 2%는 DQ 클래스 문법 + 다이얼로그로 유지.
 
 ## Pillars (모든 결정의 근거 축)
 
@@ -41,7 +44,22 @@ Attack is automatic: each weapon fires on cooldown at nearest enemy in its range
 - `bravery` high → prefers damage over defense/speed.
 Dialog box shows the pick with a one-liner (from a fixed 12-line table keyed by option type — deterministic).
 
-**Traits (0–100 sliders, free to adjust in guild):** `bravery` (용맹 — engage vs kite), `greed` (탐욕 — loot detours under fire), `focus` (집중 — specialize vs diversify builds). Defaults 50/50/50.
+**Traits v2 — 기질(Temperament) 시스템 (2026-07-10 재기획, 슬라이더 폐지):**
+
+검투사의 정체성은 카드 1장으로 선택한다. 각 기질 = 내부 가중치 프리셋(bravery/greed/focus는 내부 파라미터로 유지) + **화면에서 보이는 하드룰 1개** + 시그니처 패시브 1개 + 레벨업 선호.
+
+| 기질 | 내부 프리셋 (b/g/f) | 하드룰 (유틸리티 가중치가 아니라 규칙) | 시그니처 | 레벨업 선호 |
+|---|---|---|---|---|
+| **광전사 Berserker** | 90/20/50 | 적이 200px 안에 있으면 전리품 무시(greed 신호 0), HP<35% 도주 보정 없음(돌진) | 처치 시 HP +1 | 공격 옵션만 |
+| **보물꾼 Hoarder** | 35/95/45 | 전리품이 있으면 HP<35%에서도 우회한다 | 골드 획득 +30% | 경제 옵션 우선 |
+| **냉혈검사 Duelist** | 60/25/95 | 무기 사거리의 80~100%를 유지하려 함(정밀 카이팅) | 최고레벨 무기 피해 +15% | 보유 무기 강화만 |
+| **생존자 Survivor** | 20/40/60 | 위험 감지 반경 1.5배, HP<50%부터 도주 보정 | 생존초 점수 ×1.4 | 방어/이속 선호 |
+
+기본 기질 = 광전사. UI: `#screen-guild`의 슬라이더 섹션 → 기질 카드 4장(data-testid `temperament-berserker|hoarder|duelist|survivor`), 선택 무료 교체 가능(코칭 판타지). 카드에 하드룰·시그니처 한 줄 명기.
+
+**특성 노드(Perks) — 정체성을 벼리는 질적 성장 (만능화 금지):** 기질별 3티어 × 2택 1, 골드 해금(150/400/900g), 티어 순차, 기질 교체 시 노드는 기질별로 보존. 모든 노드는 해당 기질을 증폭하는 방향만 — 약점 보완 노드 없음. 예(광전사): T1 '피의 갈증'(처치 회복 +1) vs '전투 본능'(공격속도 +8%), T2 '광란'(HP<35%에서 피해 +25%) vs '철피부'(접촉피해 -20%), T3 '학살자'(엘리트 처치 시 전무기 쿨다운 초기화) vs '불멸의 분노'(치명타 1회 생존). 데이터 테이블로 구현, data-testid `perk-<tier>-<a|b>`.
+
+로드아웃 호환: loadout에 `temperament`·`perks` 필드 추가. traits만 있는 구버전 로드아웃은 가장 가까운 기질로 매핑(서버·클라 공통 함수).
 
 ## 3. Classes (DQ 문법, 3종)
 
