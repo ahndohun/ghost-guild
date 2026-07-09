@@ -36,7 +36,8 @@ export function currentLoadout(save: GuildSave): HeroLoadout {
   return {
     name: save.playerName,
     classId: save.classId,
-    traits: save.traits,
+    temperament: save.temperament,
+    perks: save.perksByTemperament[save.temperament],
     permStats: save.permStats,
   };
 }

@@ -1,7 +1,8 @@
 import { TICKS_PER_SECOND } from "./constants";
 import { weaponDefinitions } from "./data";
 import { assertNever, distanceSquared, normalize } from "./math";
-import { damageMultiplier } from "./stats";
+import { damageMultiplier, isHighestLevelWeapon } from "./stats";
+import { hasPerk } from "./perks";
 import type {
   DamageNumberState,
   EnemyState,
@@ -48,7 +49,7 @@ export function tickHeroWeapons(hero: HeroState, runtime: WeaponRuntime): void {
 
     const fired = fireWeapon(hero, weapon, runtime);
     if (fired) {
-      weapon.cooldownTicks = cooldownFor(weapon);
+      weapon.cooldownTicks = cooldownFor(hero, weapon);
     }
   }
 }
@@ -236,12 +237,15 @@ function addDamageNumber(
   });
 }
 
-function cooldownFor(weapon: WeaponState): number {
+function cooldownFor(hero: HeroState, weapon: WeaponState): number {
   const base = weaponDefinitions[weapon.id].cooldownTicks;
-  return Math.max(6, Math.round(base * (1 - (weapon.level - 1) * 0.05)));
+  const levelMultiplier = 1 - (weapon.level - 1) * 0.05;
+  const berserkerMultiplier = hasPerk(hero.perks, "berserkerCombatInstinct") ? 0.92 : 1;
+  const duelistMultiplier = hasPerk(hero.perks, "duelistExecutionForm") && isHighestLevelWeapon(hero, weapon.id) ? 0.88 : 1;
+  return Math.max(6, Math.round(base * levelMultiplier * berserkerMultiplier * duelistMultiplier));
 }
 
 function weaponDamage(weaponId: WeaponId, level: number, hero: HeroState): number {
   const definition = weaponDefinitions[weaponId];
-  return definition.damage * (1 + (level - 1) * 0.25) * damageMultiplier(hero);
+  return definition.damage * (1 + (level - 1) * 0.25) * damageMultiplier(hero, weaponId);
 }

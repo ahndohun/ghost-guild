@@ -3,6 +3,7 @@ import { dialogLines, passiveDefinitions, passiveIds, weaponDefinitions, weaponI
 import { assertNever } from "./math";
 import type { Rng } from "./rng";
 import { passiveLevel, recomputeMaxHp } from "./stats";
+import { hasPerk } from "./perks";
 import type { HeroState, LevelDialogState, OptionFlavor, PassiveId, WeaponId } from "./types";
 
 type WeaponLevelOption = {
@@ -38,7 +39,7 @@ export function resolvePendingLevelUp(hero: HeroState, rng: Rng): LevelDialogSta
   hero.level += 1;
   hero.xpToNext = xpNeededForLevel(hero.level);
 
-  const options = rollOptions(hero, buildOptions(hero), rng);
+  const options = rollOptions(hero, filterOptionsForTemperament(hero, buildOptions(hero)), rng);
   const picked = chooseOption(hero, options);
   if (picked === undefined) {
     return {
@@ -180,12 +181,37 @@ function chooseOption(hero: HeroState, options: readonly LevelOption[]): LevelOp
   return bestOption;
 }
 
+function filterOptionsForTemperament(hero: HeroState, options: readonly LevelOption[]): readonly LevelOption[] {
+  switch (hero.temperament) {
+    case "berserker":
+      return options.filter((option) => option.flavor === "damage");
+    case "hoarder": {
+      const economyOptions = options.filter((option) => option.flavor === "economy");
+      return economyOptions.length > 0 ? economyOptions : options;
+    }
+    case "duelist": {
+      const ownedWeaponUpgrades = options.filter((option) => option.kind === "weapon" && option.action === "upgrade");
+      return ownedWeaponUpgrades.length > 0 ? ownedWeaponUpgrades : options;
+    }
+    case "survivor": {
+      const survivalOptions = options.filter((option) => option.flavor === "defense" || option.flavor === "speed");
+      return survivalOptions.length > 0 ? survivalOptions : options;
+    }
+    default:
+      return assertNever(hero.temperament);
+  }
+}
+
 function optionUtility(hero: HeroState, option: LevelOption): number {
   switch (option.kind) {
     case "weapon": {
       const focusValue = option.action === "upgrade" ? hero.traits.focus * 1.4 : (100 - hero.traits.focus) * 0.85;
       const braveryValue = weaponDefinitions[option.id].flavor === "damage" ? hero.traits.bravery * 0.75 : hero.traits.bravery * 0.25;
-      return 12 + focusValue + braveryValue;
+      const duelistPerkValue =
+        hero.temperament === "duelist" && option.action === "upgrade"
+          ? (hasPerk(hero.perks, "duelistEdgeStudy") ? 25 : 0) + (hasPerk(hero.perks, "duelistMastersChoice") ? 50 : 0)
+          : 0;
+      return 12 + focusValue + braveryValue + duelistPerkValue;
     }
     case "passive":
       return passiveUtility(hero, option.id) + (option.action === "upgrade" ? hero.traits.focus * 0.15 : 0);

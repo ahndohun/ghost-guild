@@ -52,8 +52,12 @@ describe("Ghost Guild UI data boundaries", () => {
 
     expect(save.permStats).toEqual({ atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 });
     expect(save.unlockedClasses).toEqual({ knight: true, mage: false, priest: false });
+    expect(save.temperament).toBe("duelist");
+    expect(save.perksByTemperament).toEqual({ berserker: [], hoarder: [], duelist: [], survivor: [] });
     expect(save.playerName).toMatch(/^Guildmaster-[0-9]{4}$/);
     expect(stored).not.toBeNull();
+    expect(stored).toContain("\"temperament\":\"duelist\"");
+    expect(stored).not.toContain("\"traits\"");
   });
 
   it("builds an offline arena plan with bundled bots when the API is unreachable", async () => {
@@ -74,6 +78,12 @@ describe("Ghost Guild UI data boundaries", () => {
         "Vex the Hoarder",
         "Sister Calm",
       ]);
+      expect(plan.heroes.map((hero) => hero.temperament)).toEqual([
+        "berserker",
+        "berserker",
+        "hoarder",
+        "survivor",
+      ]);
     } finally {
       globalThis.fetch = originalFetch;
     }
@@ -83,12 +93,13 @@ describe("Ghost Guild UI data boundaries", () => {
 function testSave(): GuildSave {
   return {
     gold: 0,
-    traits: { bravery: 50, greed: 50, focus: 50 },
     classId: "knight",
-    permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
-    unlockedClasses: { knight: true, mage: false, priest: false },
-    playerName: "Guildmaster-0001",
+    temperament: "berserker",
+    perksByTemperament: { berserker: [], hoarder: [], duelist: [], survivor: [] },
     autorun: false,
     nextSeed: 1,
+    playerName: "Guildmaster-0001",
+    permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+    unlockedClasses: { knight: true, mage: false, priest: false },
   };
 }

@@ -1,9 +1,17 @@
-import { classDefinitions } from "../sim";
-import type { HeroClassId, TraitProfile } from "../sim";
+import { classDefinitions, perkDefinitions, temperamentDefinitions, temperamentIds } from "../sim";
+import type { HeroClassId, PerkChoice, PerkTier, TemperamentId } from "../sim";
 
 export function screenMarkup(): string {
   return `
-    <section id="screen-guild" class="screen">
+    <section id="screen-guild" class="screen guild-screen">
+      <div class="barracks-scene" aria-hidden="true">
+        <img class="barracks-gate" src="/assets/barracks/arena-gate.png" alt="" width="160" height="128" />
+        <img class="barracks-banner" src="/assets/barracks/banner.png" alt="" width="64" height="96" />
+        <img class="barracks-rack" src="/assets/barracks/weapon-rack.png" alt="" width="96" height="80" />
+        <img class="barracks-brazier brazier-left" src="/assets/barracks/brazier.png" alt="" width="64" height="80" />
+        <img class="barracks-brazier brazier-right" src="/assets/barracks/brazier.png" alt="" width="64" height="80" />
+        <img class="barracks-gladiator" src="/assets/barracks/gladiator-resting.png" alt="" width="96" height="80" />
+      </div>
       <header class="topbar">
         <div>
           <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
@@ -13,11 +21,11 @@ export function screenMarkup(): string {
         <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
       </header>
       <main class="guild-layout">
-        <section class="panel">
-          <h2>Traits</h2>
-          ${traitMarkup("bravery", "Bravery")}
-          ${traitMarkup("greed", "Greed")}
-          ${traitMarkup("focus", "Focus")}
+        <section class="panel temperament-panel">
+          <h2>Temperament</h2>
+          <div class="temperament-grid">
+            ${temperamentIds.map(temperamentMarkup).join("")}
+          </div>
         </section>
         <section class="panel">
           <h2>Class</h2>
@@ -35,6 +43,17 @@ export function screenMarkup(): string {
             <button type="button" data-testid="buy-spd" disabled>SPD 80g</button>
             <button type="button" data-testid="buy-luck" disabled>LUCK 100g</button>
             <button type="button" data-testid="buy-lvl" disabled>LVL 200g</button>
+          </div>
+        </section>
+        <section class="panel perk-panel">
+          <h2>Perks</h2>
+          <div class="perk-grid">
+            ${perkSlotMarkup(1, "a")}
+            ${perkSlotMarkup(1, "b")}
+            ${perkSlotMarkup(2, "a")}
+            ${perkSlotMarkup(2, "b")}
+            ${perkSlotMarkup(3, "a")}
+            ${perkSlotMarkup(3, "b")}
           </div>
         </section>
       </main>
@@ -80,13 +99,28 @@ export function screenMarkup(): string {
   `;
 }
 
-function traitMarkup(id: keyof TraitProfile, label: string): string {
+function temperamentMarkup(temperament: TemperamentId): string {
+  const definition = temperamentDefinitions[temperament];
   return `
-    <label class="trait-row">
-      <span>${label}</span>
-      <input data-testid="trait-${id}" type="range" min="0" max="100" value="50" />
-      <strong id="trait-${id}-value">50</strong>
-    </label>
+    <button type="button" class="temperament-card" data-testid="temperament-${temperament}" aria-pressed="false">
+      <strong>${definition.name}</strong>
+      <span>${definition.hardRule}</span>
+      <small>${definition.signature}</small>
+    </button>
+  `;
+}
+
+function perkSlotMarkup(tier: PerkTier, choice: PerkChoice): string {
+  const fallback = perkDefinitions.berserker.find((perk) => perk.tier === tier && perk.choice === choice);
+  const name = fallback === undefined ? "Locked" : fallback.name;
+  const effect = fallback === undefined ? "Choose the previous tier first." : fallback.effect;
+  return `
+    <button type="button" class="perk-card" data-testid="perk-t${tier}-${choice}" aria-pressed="false">
+      <span class="perk-tier">T${tier}${choice.toUpperCase()}</span>
+      <strong id="perk-t${tier}-${choice}-name">${name}</strong>
+      <small id="perk-t${tier}-${choice}-effect">${effect}</small>
+      <em id="perk-t${tier}-${choice}-cost">0g</em>
+    </button>
   `;
 }
 

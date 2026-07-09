@@ -1,5 +1,6 @@
-import { TICKS_PER_SECOND } from "./constants";
-import { distanceSquared, normalize } from "./math";
+import { HERO_RADIUS, TICKS_PER_SECOND, WORLD_HEIGHT, WORLD_WIDTH } from "./constants";
+import { clamp, distanceSquared, normalize } from "./math";
+import { hasPerk } from "./perks";
 import type { DropState, EnemyState, HeroState, MatchState } from "./types";
 import type { Rng } from "./rng";
 
@@ -15,12 +16,19 @@ export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: (
     const killer = state.heroes.find((hero) => hero.id === enemy.lastHitHeroId);
     if (killer !== undefined) {
       killer.kills += 1;
+      healKiller(killer);
+      if (enemy.kind === "eliteBrute" && hasPerk(killer.perks, "berserkerSlaughterer")) {
+        resetWeaponCooldowns(killer);
+      }
     }
 
     const xpValue = enemy.kind === "eliteBrute" ? 5 : 1;
     state.drops.push(createDrop("xp", enemy.x, enemy.y, xpValue, nextDropId()));
     if (enemy.kind === "eliteBrute") {
       state.drops.push(createDrop("gold", enemy.x + 10, enemy.y, 10, nextDropId()));
+      if (killer !== undefined && hasPerk(killer.perks, "hoarderTributeCart")) {
+        state.drops.push(createDrop("gold", enemy.x + 18, enemy.y, 10, nextDropId()));
+      }
       state.screenShakeTicks = 8;
     } else if (rng.chance(0.3)) {
       state.drops.push(createDrop("gold", enemy.x + 6, enemy.y, 1, nextDropId()));
@@ -94,11 +102,16 @@ function applyTouchDamage(enemy: EnemyState, hero: HeroState, tick: number): voi
     return;
   }
 
-  hero.hp -= enemy.damage;
+  hero.hp -= contactDamage(enemy.damage, hero);
   hero.hitFlashTicks = 2;
   hero.touchRecoveryTicks = TICKS_PER_SECOND;
   enemy.attackCooldownTicks = 2 * TICKS_PER_SECOND;
   if (hero.hp <= 0) {
+    if (hero.undyingRageAvailable) {
+      hero.undyingRageAvailable = false;
+      hero.hp = 1;
+      return;
+    }
     hero.hp = 0;
     hero.alive = false;
     hero.deathTick = tick;
@@ -106,5 +119,31 @@ function applyTouchDamage(enemy: EnemyState, hero: HeroState, tick: number): voi
 }
 
 function createDrop(kind: DropState["kind"], x: number, y: number, value: number, id: number): DropState {
-  return { id, kind, x, y, value };
+  return {
+    id,
+    kind,
+    x: clamp(x, HERO_RADIUS, WORLD_WIDTH - HERO_RADIUS),
+    y: clamp(y, HERO_RADIUS, WORLD_HEIGHT - HERO_RADIUS),
+    value,
+  };
+}
+
+function healKiller(hero: HeroState): void {
+  if (hero.temperament !== "berserker") {
+    return;
+  }
+  const amount = hasPerk(hero.perks, "berserkerBloodThirst") ? 2 : 1;
+  hero.hp = Math.min(hero.maxHp, hero.hp + amount);
+}
+
+function resetWeaponCooldowns(hero: HeroState): void {
+  for (const weapon of hero.weapons) {
+    weapon.cooldownTicks = 0;
+  }
+}
+
+function contactDamage(amount: number, hero: HeroState): number {
+  const berserkerIronSkin = hasPerk(hero.perks, "berserkerIronSkin") ? 0.8 : 1;
+  const survivorLastLine = hasPerk(hero.perks, "survivorLastLine") && hero.hp / hero.maxHp < 0.5 ? 0.85 : 1;
+  return amount * berserkerIronSkin * survivorLastLine;
 }

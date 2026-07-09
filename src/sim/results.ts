@@ -1,4 +1,5 @@
 import { MAX_TICKS, RUN_SECONDS, TICKS_PER_SECOND } from "./constants";
+import { hasPerk } from "./perks";
 import type { HeroResult, HeroState, MatchResult, MatchState } from "./types";
 
 export function resultFromState(state: MatchState): MatchResult {
@@ -36,7 +37,10 @@ function heroResult(hero: HeroState, finalTick: number): HeroResult {
   const survived = hero.alive && finalTick >= MAX_TICKS;
   const survivedSeconds = survived ? RUN_SECONDS : Math.floor(lifeTick / TICKS_PER_SECOND);
   const gold = Math.floor(hero.gold);
-  const score = hero.kills * 10 + gold + survivedSeconds * 5 + (survived ? 500 : 0);
+  const survivalMultiplier = hero.temperament === "survivor"
+    ? hasPerk(hero.perks, "survivorOutlast") ? 1.6 : 1.4
+    : 1;
+  const score = Math.floor(hero.kills * 10 + gold + survivedSeconds * 5 * survivalMultiplier + (survived ? 500 : 0));
 
   return {
     heroId: hero.id,

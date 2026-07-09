@@ -2,6 +2,12 @@
 
 Read DESIGN.md first — it is the single source of truth for game rules and numbers.
 
+## QA invariants (모든 게임플레이 작업의 완료 조건)
+
+- **도달 가능성 불변식**: 위치를 갖는 모든 생성물(적 스폰·드롭·투사체 목표·순찰 지점)은 영웅이 물리적으로 도달 가능한 영역 안에 있어야 한다 — 드롭은 벽 안쪽 inset으로 클램프. 위반은 "영웅이 벽에 대고 버벅거리는" 부류의 버그가 된다 (2026-07-10 보드 실플레이에서 발견된 실제 사례).
+- 위치·이동을 만지면 property 테스트를 추가/갱신: 여러 시드 완주 후 전 드롭 좌표가 도달 영역 안인지 assert.
+- 새 행동 규칙(AI)을 넣으면 "영웅 장기 정지"가 생기지 않는지 확인: 정상 런에서 3초 이상 20px 반경에 갇혀 있는 구간이 없어야 한다 (전투 포위 제외).
+
 ## Hard rules
 - `src/sim/` is pure TS: no DOM, no Date.now, no Math.random, no imports from render/ui. All randomness via the seeded PRNG passed in. Violating this breaks multiplayer determinism (Pillar 3).
 - Every interactive DOM element gets a `data-testid` exactly as named in DESIGN.md §9 — the E2E suite depends on them.

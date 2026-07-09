@@ -1,39 +1,33 @@
-import { heroClassIds } from "../sim";
-import type { TraitProfile } from "../sim";
+import { heroClassIds, perkCosts, perkDefinitions, temperamentDefinitions, temperamentIds } from "../sim";
+import type { PerkChoice, PerkId, PerkTier, TemperamentId } from "../sim";
 import { requiredButton, requiredElement } from "./dom";
 import { classUnlockCosts, formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
 import type { GuildSave } from "./save";
 
-export type TraitInputEntry = {
-  readonly input: HTMLInputElement;
-  readonly id: keyof TraitProfile;
+export type PerkSlot = {
+  readonly tier: PerkTier;
+  readonly choice: PerkChoice;
 };
 
 export type GuildViewControls = {
-  readonly braveryInput: HTMLInputElement;
-  readonly greedInput: HTMLInputElement;
-  readonly focusInput: HTMLInputElement;
   readonly autorunButton: HTMLButtonElement;
 };
 
-export function traitInputEntries(controls: GuildViewControls): readonly TraitInputEntry[] {
-  return [
-    { input: controls.braveryInput, id: "bravery" },
-    { input: controls.greedInput, id: "greed" },
-    { input: controls.focusInput, id: "focus" },
-  ];
-}
+export const perkSlots: readonly PerkSlot[] = [
+  { tier: 1, choice: "a" },
+  { tier: 1, choice: "b" },
+  { tier: 2, choice: "a" },
+  { tier: 2, choice: "b" },
+  { tier: 3, choice: "a" },
+  { tier: 3, choice: "b" },
+];
 
 export function renderGuildView(documentRef: Document, save: GuildSave, controls: GuildViewControls): void {
-  controls.braveryInput.value = String(save.traits.bravery);
-  controls.greedInput.value = String(save.traits.greed);
-  controls.focusInput.value = String(save.traits.focus);
-  requiredElement(documentRef, "trait-bravery-value").textContent = String(save.traits.bravery);
-  requiredElement(documentRef, "trait-greed-value").textContent = String(save.traits.greed);
-  requiredElement(documentRef, "trait-focus-value").textContent = String(save.traits.focus);
   requiredElement(documentRef, "gold-amount").textContent = formatGold(save.gold);
   controls.autorunButton.textContent = save.autorun ? "AUTO-RUN ON" : "AUTO-RUN OFF";
   controls.autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
+  renderTemperaments(documentRef, save.temperament);
+  renderPerks(documentRef, save);
 
   for (const upgrade of permStatUpgrades) {
     const button = requiredButton(documentRef, `buy-${upgrade.id}`);
@@ -56,18 +50,56 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
   }
 }
 
-export function updateTrait(traits: TraitProfile, id: keyof TraitProfile, value: number): TraitProfile {
-  const nextValue = Math.max(0, Math.min(100, Math.round(value)));
-  switch (id) {
-    case "bravery":
-      return { ...traits, bravery: nextValue };
-    case "greed":
-      return { ...traits, greed: nextValue };
-    case "focus":
-      return { ...traits, focus: nextValue };
+function classStatus(selected: boolean): string {
+  return selected ? "Selected" : "Unlocked";
+}
+
+function renderTemperaments(documentRef: Document, selectedTemperament: TemperamentId): void {
+  for (const temperament of temperamentIds) {
+    const button = requiredButton(documentRef, `temperament-${temperament}`);
+    const selected = selectedTemperament === temperament;
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", selected ? "true" : "false");
+    button.setAttribute("aria-label", `${temperamentDefinitions[temperament].name} temperament`);
   }
 }
 
-function classStatus(selected: boolean): string {
-  return selected ? "Selected" : "Unlocked";
+function renderPerks(documentRef: Document, save: GuildSave): void {
+  const selectedPerks = save.perksByTemperament[save.temperament];
+
+  for (const slot of perkSlots) {
+    const perk = perkForSlot(save.temperament, slot);
+    const button = requiredButton(documentRef, `perk-t${slot.tier}-${slot.choice}`);
+    if (perk === undefined) {
+      button.disabled = true;
+      continue;
+    }
+
+    const tierChosen = hasTierPerk(save.temperament, selectedPerks, slot.tier);
+    const previousTierChosen = slot.tier === 1 || hasTierPerk(save.temperament, selectedPerks, previousTier(slot.tier));
+    const selected = selectedPerks.includes(perk.id);
+    const locked = !selected && (tierChosen || !previousTierChosen || save.gold < perkCosts[slot.tier]);
+    requiredElement(documentRef, `perk-t${slot.tier}-${slot.choice}-name`).textContent = perk.name;
+    requiredElement(documentRef, `perk-t${slot.tier}-${slot.choice}-effect`).textContent = perk.effect;
+    requiredElement(documentRef, `perk-t${slot.tier}-${slot.choice}-cost`).textContent = `${formatGold(perkCosts[slot.tier])}g`;
+    button.disabled = locked;
+    button.classList.toggle("selected", selected);
+    button.classList.toggle("locked", locked);
+    button.setAttribute("aria-pressed", selected ? "true" : "false");
+  }
+}
+
+function perkForSlot(temperament: TemperamentId, slot: PerkSlot): (typeof perkDefinitions)[TemperamentId][number] | undefined {
+  return perkDefinitions[temperament].find((perk) => perk.tier === slot.tier && perk.choice === slot.choice);
+}
+
+function hasTierPerk(temperament: TemperamentId, perks: readonly PerkId[], tier: PerkTier): boolean {
+  return perkDefinitions[temperament].some((perk) => perk.tier === tier && perks.includes(perk.id));
+}
+
+function previousTier(tier: PerkTier): PerkTier {
+  if (tier === 3) {
+    return 2;
+  }
+  return 1;
 }

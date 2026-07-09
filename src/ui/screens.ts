@@ -1,15 +1,16 @@
 import { renderMatch } from "../render/canvas";
 import { TICKS_PER_SECOND } from "../sim/constants";
-import { createMatch, heroClassIds, resultFromState } from "../sim";
+import { createMatch, resultFromState } from "../sim";
 import type { MatchResult } from "../sim";
 import { ignoreExpectedApiError } from "./arenaApi";
 import type { ServerLoadout } from "./arenaApi";
 import { createArenaRunPlan } from "./arenaRun";
 import { leaderboardFromResult, submitArenaResult } from "./arenaResults";
-import { requiredButton, requiredCanvas, requiredElement, requiredInput } from "./dom";
-import { renderGuildView, traitInputEntries, updateTrait } from "./guildView";
+import { requiredButton, requiredCanvas, requiredElement } from "./dom";
+import { wireGuildInteractions } from "./guildInteractions";
+import { renderGuildView } from "./guildView";
 import { screenMarkup } from "./markup";
-import { classUnlockCosts, currentLoadout, nextUpgradeCost, permStatUpgrades } from "./meta";
+import { currentLoadout } from "./meta";
 import { renderLeaderboard, renderRanking, updateMirror } from "./runHud";
 import { loadSave } from "./save";
 import { clearAutorun, parseSeed, persist, setVisibleScreen } from "./screenUtils";
@@ -68,70 +69,22 @@ function createScreenController(
   const screenElements = { guild: guildScreen, run: runScreen, results: resultsScreen };
   const gameState = requiredElement(documentRef, "game-state");
 
-  const braveryInput = requiredInput(documentRef, "trait-bravery");
-  const greedInput = requiredInput(documentRef, "trait-greed");
-  const focusInput = requiredInput(documentRef, "trait-focus");
   const deploySoloButton = requiredButton(documentRef, "deploy-solo");
   const deployArenaButton = requiredButton(documentRef, "deploy-arena");
-  const autorunButton = requiredButton(documentRef, "toggle-autorun");
   const backButton = requiredButton(documentRef, "back-to-guild");
-  const guildControls = { braveryInput, greedInput, focusInput, autorunButton };
-
-  for (const classId of heroClassIds) {
-    requiredButton(documentRef, `class-${classId}`).addEventListener("click", () => {
-      if (save.unlockedClasses[classId]) {
-        save = { ...save, classId };
-      } else {
-        const cost = classUnlockCosts[classId];
-        if (save.gold < cost) {
-          return;
-        }
-        save = {
-          ...save,
-          gold: save.gold - cost,
-          classId,
-          unlockedClasses: { ...save.unlockedClasses, [classId]: true },
-        };
-      }
-      persist(windowRef, save);
-      renderGuild();
-    });
-  }
-
-  for (const upgrade of permStatUpgrades) {
-    requiredButton(documentRef, `buy-${upgrade.id}`).addEventListener("click", () => {
-      const owned = save.permStats[upgrade.id];
-      const cost = nextUpgradeCost(upgrade.id, owned);
-      if (save.gold < cost) {
-        return;
-      }
-
-      save = {
-        ...save,
-        gold: save.gold - cost,
-        permStats: { ...save.permStats, [upgrade.id]: owned + 1 },
-      };
-      persist(windowRef, save);
-      renderGuild();
-    });
-  }
-
-  for (const entry of traitInputEntries(guildControls)) {
-    entry.input.addEventListener("input", () => {
-      save = { ...save, traits: updateTrait(save.traits, entry.id, Number(entry.input.value)) };
-      persist(windowRef, save);
-      renderGuild();
-    });
-  }
+  const guildControls = wireGuildInteractions({
+    documentRef,
+    windowRef,
+    getSave: () => save,
+    setSave: (nextSave) => {
+      save = nextSave;
+    },
+    renderGuild: () => renderGuild(),
+  });
 
   deploySoloButton.addEventListener("click", () => deploySolo());
   deployArenaButton.addEventListener("click", () => {
     void deployArena();
-  });
-  autorunButton.addEventListener("click", () => {
-    save = { ...save, autorun: !save.autorun };
-    persist(windowRef, save);
-    renderGuild();
   });
   backButton.addEventListener("click", () => {
     clearAutorun(windowRef, autorunTimer);

@@ -8,6 +8,8 @@ import { tickProjectiles } from "./projectiles";
 import { createMulberry32 } from "./rng";
 import { resultFromState } from "./results";
 import { recomputeMaxHp } from "./stats";
+import { sanitizePerks } from "./perks";
+import { traitsForTemperament } from "./temperament";
 import { resolvePendingLevelUp, xpNeededForLevel } from "./levelup";
 import { createWaveDirector } from "./waves";
 import { tickHeroWeapons } from "./weapons";
@@ -124,7 +126,8 @@ function normalizeLoadouts(loadouts: readonly HeroLoadout[]): readonly HeroLoado
     return [
       {
         classId: "knight",
-        traits: { bravery: 50, greed: 50, focus: 50 },
+        temperament: "berserker",
+        perks: [],
       },
     ];
   }
@@ -135,6 +138,7 @@ function normalizeLoadouts(loadouts: readonly HeroLoadout[]): readonly HeroLoado
 function createHero(loadout: HeroLoadout, index: number): HeroState {
   const definition = classDefinitions[loadout.classId];
   const permStats = normalizePermStats(loadout.permStats);
+  const perks = sanitizePerks(loadout.temperament, loadout.perks);
   const offset = heroSpawnOffsets[index] ?? heroSpawnOffsets[0];
   const weapon: WeaponState = {
     id: definition.startingWeapon,
@@ -147,12 +151,10 @@ function createHero(loadout: HeroLoadout, index: number): HeroState {
     id: index + 1,
     name: loadout.name ?? definition.name,
     classId: loadout.classId,
+    temperament: loadout.temperament,
+    perks,
     permStats,
-    traits: {
-      bravery: clamp(loadout.traits.bravery, 0, 100),
-      greed: clamp(loadout.traits.greed, 0, 100),
-      focus: clamp(loadout.traits.focus, 0, 100),
-    },
+    traits: clampTraits(traitsForTemperament(loadout.temperament)),
     x: WORLD_WIDTH / 2 + offset.x,
     y: WORLD_HEIGHT / 2 + offset.y,
     vx: 0,
@@ -176,6 +178,7 @@ function createHero(loadout: HeroLoadout, index: number): HeroState {
     deathTick: undefined,
     hitFlashTicks: 0,
     touchRecoveryTicks: 0,
+    undyingRageAvailable: perks.includes("berserkerUndyingRage"),
   };
   recomputeMaxHp(hero);
   return hero;
@@ -197,6 +200,14 @@ function normalizePermStats(permStats: PermStats | undefined): PermStats {
 
 function normalizePermStat(value: number): number {
   return Math.floor(clamp(value, 0, 50));
+}
+
+function clampTraits(traits: HeroState["traits"]): HeroState["traits"] {
+  return {
+    bravery: clamp(traits.bravery, 0, 100),
+    greed: clamp(traits.greed, 0, 100),
+    focus: clamp(traits.focus, 0, 100),
+  };
 }
 
 function resolveLevelUps(state: MatchState, rng: ReturnType<typeof createMulberry32>): void {

@@ -1,14 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { createMatch, simulateMatch } from "../src/sim";
-import { LEVEL_UP_PAUSE_TICKS } from "../src/sim/constants";
-import type { HeroResult, MatchConfig, MatchResult } from "../src/sim";
+import { HERO_RADIUS, LEVEL_UP_PAUSE_TICKS, WORLD_HEIGHT, WORLD_WIDTH } from "../src/sim/constants";
+import type { EnemyState, HeroLoadout, HeroResult, MatchConfig, MatchResult } from "../src/sim";
 
-const knight505050: MatchConfig = {
+const berserkerKnight: MatchConfig = {
   seed: 42,
   heroes: [
     {
       classId: "knight",
-      traits: { bravery: 50, greed: 50, focus: 50 },
+      temperament: "berserker",
+      perks: [],
     },
   ],
 };
@@ -16,8 +17,9 @@ const knight505050: MatchConfig = {
 const fullDurationMatch: MatchConfig = {
   seed: 42,
   heroes: [0, 1, 2, 3].map(() => ({
-    classId: "knight",
-    traits: { bravery: 0, greed: 100, focus: 100 },
+    classId: "priest",
+    temperament: "survivor",
+    perks: ["survivorWideEyes", "survivorLastLine", "survivorOutlast"],
   })),
 };
 
@@ -26,7 +28,8 @@ const permanentStatsMatch: MatchConfig = {
   heroes: [
     {
       classId: "mage",
-      traits: { bravery: 70, greed: 45, focus: 80 },
+      temperament: "duelist",
+      perks: ["duelistEdgeStudy"],
       permStats: { atk: 3, hp: 2, spd: 1, luck: 4, lvl: 2 },
     },
   ],
@@ -38,25 +41,29 @@ const arenaMatch: MatchConfig = {
     {
       name: "Guildmaster-1234",
       classId: "knight",
-      traits: { bravery: 55, greed: 60, focus: 45 },
+      temperament: "berserker",
+      perks: ["berserkerBloodThirst"],
       permStats: { atk: 1, hp: 1, spd: 1, luck: 1, lvl: 1 },
     },
     {
       name: "Grimm the Reckless",
       classId: "knight",
-      traits: { bravery: 90, greed: 30, focus: 70 },
+      temperament: "berserker",
+      perks: ["berserkerBloodThirst", "berserkerFrenzy", "berserkerSlaughterer"],
       permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     },
     {
       name: "Vex the Hoarder",
       classId: "mage",
-      traits: { bravery: 25, greed: 95, focus: 40 },
+      temperament: "hoarder",
+      perks: ["hoarderDeepPockets", "hoarderPrizeScent", "hoarderTributeCart"],
       permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     },
     {
       name: "Sister Calm",
       classId: "priest",
-      traits: { bravery: 40, greed: 20, focus: 90 },
+      temperament: "survivor",
+      perks: ["survivorWideEyes", "survivorLastLine", "survivorOutlast"],
       permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     },
   ],
@@ -64,8 +71,25 @@ const arenaMatch: MatchConfig = {
 
 describe("Ghost Guild deterministic simulation", () => {
   it("returns an identical MatchResult hash when the same seed runs twice", () => {
-    const first = JSON.stringify(simulateMatch(knight505050));
-    const second = JSON.stringify(simulateMatch(knight505050));
+    const first = JSON.stringify(simulateMatch(berserkerKnight));
+    const second = JSON.stringify(simulateMatch(berserkerKnight));
+
+    expect(second).toBe(first);
+  });
+
+  it("returns an identical MatchResult hash when temperament perks are present", () => {
+    const config: MatchConfig = {
+      seed: 909,
+      heroes: [
+        {
+          classId: "mage",
+          temperament: "duelist",
+          perks: ["duelistEdgeStudy", "duelistSingleEdge", "duelistExecutionForm"],
+        },
+      ],
+    };
+    const first = JSON.stringify(simulateMatch(config));
+    const second = JSON.stringify(simulateMatch(config));
 
     expect(second).toBe(first);
   });
@@ -94,7 +118,7 @@ describe("Ghost Guild deterministic simulation", () => {
   });
 
   it("enters a JRPG level-up dialog pause during normal-speed stepping", () => {
-    const match = createMatch(knight505050);
+    const match = createMatch(berserkerKnight);
     let guard = 2000;
     while (match.state.phase !== "levelup" && guard > 0) {
       match.step();
@@ -121,22 +145,112 @@ describe("Ghost Guild deterministic simulation", () => {
     expect(elapsedMs).toBeLessThan(2000);
   });
 
-  it("matches the seed 42 Knight 50/50/50 golden score", () => {
-    const result = simulateMatch(knight505050);
+  it("keeps a nearby berserker from detouring to a gem before a hoarder does", () => {
+    const berserkerXp = collectedGemCount({
+      classId: "knight",
+      temperament: "berserker",
+      perks: [],
+    });
+    const hoarderXp = collectedGemCount({
+      classId: "knight",
+      temperament: "hoarder",
+      perks: [],
+    });
+
+    expect(hoarderXp).toBeGreaterThan(berserkerXp);
+    expect(hoarderXp).toBeGreaterThan(0);
+    expect(berserkerXp).toBe(0);
+  });
+
+  it("keeps generated drops inside the reachable arena across seeds", () => {
+    for (const seed of [7, 42]) {
+      const match = createMatch({
+        seed,
+        heroes: [
+          {
+            classId: "knight",
+            temperament: "survivor",
+            perks: ["survivorWideEyes", "survivorLastLine", "survivorOutlast"],
+            permStats: { atk: 50, hp: 50, spd: 50, luck: 0, lvl: 50 },
+          },
+        ],
+      });
+      let guard = 30000;
+      let checkedDrops = 0;
+      while (match.state.phase !== "finished" && guard > 0) {
+        match.step();
+        guard -= 1;
+        for (const drop of match.state.drops) {
+          checkedDrops += 1;
+          expect(drop.x).toBeGreaterThanOrEqual(HERO_RADIUS);
+          expect(drop.x).toBeLessThanOrEqual(WORLD_WIDTH - HERO_RADIUS);
+          expect(drop.y).toBeGreaterThanOrEqual(HERO_RADIUS);
+          expect(drop.y).toBeLessThanOrEqual(WORLD_HEIGHT - HERO_RADIUS);
+        }
+      }
+
+      expect(match.state.phase).toBe("finished");
+      expect(match.state.tick).toBe(5400);
+      expect(checkedDrops).toBeGreaterThan(0);
+    }
+  });
+
+  it("matches the seed 42 berserker Knight golden score", () => {
+    const result = simulateMatch(berserkerKnight);
     const hero = primaryHero(result);
 
-    // Observed from the P0 deterministic implementation on 2026-07-09.
     expect({
       score: hero.score,
       kills: hero.kills,
       level: hero.level,
     }).toEqual({
-      score: 2011,
-      kills: 150,
-      level: 8,
+      score: 2247,
+      kills: 171,
+      level: 9,
     });
   });
 });
+
+function collectedGemCount(loadout: HeroLoadout): number {
+  const match = createMatch({
+    seed: 321,
+    heroes: [loadout],
+  });
+  const hero = match.state.heroes[0];
+  if (hero === undefined) {
+    throw new Error("Missing hard-rule hero");
+  }
+
+  hero.x = 480;
+  hero.y = 270;
+  hero.reevaluateTicks = 0;
+  match.state.enemies = [stationaryEnemy()];
+  match.state.drops = [{ id: 1, kind: "xp", x: 480, y: 330, value: 1 }];
+
+  for (let tick = 0; tick < 30; tick += 1) {
+    match.step();
+  }
+
+  return hero.xp;
+}
+
+function stationaryEnemy(): EnemyState {
+  return {
+    id: 900,
+    kind: "slime",
+    x: 620,
+    y: 270,
+    hp: 10,
+    maxHp: 10,
+    speed: 0,
+    damage: 0,
+    radius: 11,
+    slowTicks: 0,
+    attackCooldownTicks: 0,
+    hitFlashTicks: 0,
+    lastHitHeroId: undefined,
+  };
+}
 
 function primaryHero(result: MatchResult): HeroResult {
   const hero = result.heroes.find((entry) => entry.heroId === 1);

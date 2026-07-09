@@ -1,29 +1,38 @@
-import { heroClassIds } from "../sim";
-import type { HeroClassId, PermStats, TraitProfile } from "../sim";
+import {
+  heroClassIds,
+  isPerkId,
+  isTemperamentId,
+  mapTraitsToTemperament,
+  sanitizePerks,
+  temperamentIds,
+} from "../sim";
+import type { HeroClassId, PerkId, PermStats, TemperamentId, TraitProfile } from "../sim";
 
 const saveKey = "ghost-guild-save-v1";
 
 export type GuildSave = {
   gold: number;
-  traits: TraitProfile;
   classId: HeroClassId;
-  permStats: PermStats;
-  unlockedClasses: Record<HeroClassId, boolean>;
-  playerName: string;
+  temperament: TemperamentId;
+  perksByTemperament: Record<TemperamentId, readonly PerkId[]>;
   autorun: boolean;
   nextSeed: number;
+  playerName: string;
+  permStats: PermStats;
+  unlockedClasses: Record<HeroClassId, boolean>;
 };
 
 export function defaultSave(): GuildSave {
   return {
     gold: 0,
-    traits: { bravery: 50, greed: 50, focus: 50 },
     classId: "knight",
-    permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
-    unlockedClasses: { knight: true, mage: false, priest: false },
-    playerName: `Guildmaster-${String(Math.floor(Math.random() * 10000)).padStart(4, "0")}`,
+    temperament: "berserker",
+    perksByTemperament: emptyPerksByTemperament(),
     autorun: false,
     nextSeed: 1,
+    playerName: `Guildmaster-${String(Math.floor(Math.random() * 10000)).padStart(4, "0")}`,
+    permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+    unlockedClasses: { knight: true, mage: false, priest: false },
   };
 }
 
@@ -61,25 +70,76 @@ function parseSave(value: unknown): GuildSave {
   const fallback = defaultSave();
   const classId = parseClassId(value["classId"], fallback.classId);
   const unlockedClasses = parseUnlockedClasses(value["unlockedClasses"], fallback.unlockedClasses);
-  const traitsValue = value["traits"];
-  const traits = isRecord(traitsValue)
-    ? {
-        bravery: parsePercent(traitsValue["bravery"], fallback.traits.bravery),
-        greed: parsePercent(traitsValue["greed"], fallback.traits.greed),
-        focus: parsePercent(traitsValue["focus"], fallback.traits.focus),
-      }
-    : fallback.traits;
+  const temperament = parseTemperament(value["temperament"], value["traits"], fallback.temperament);
 
   return {
     gold: parseNonNegativeNumber(value["gold"], fallback.gold),
-    traits,
     classId: unlockedClasses[classId] ? classId : "knight",
-    permStats: parsePermStats(value["permStats"], fallback.permStats),
-    unlockedClasses,
-    playerName: parsePlayerName(value["playerName"], fallback.playerName),
+    temperament,
+    perksByTemperament: parsePerksByTemperament(value["perksByTemperament"], fallback.perksByTemperament),
     autorun: typeof value["autorun"] === "boolean" ? value["autorun"] : fallback.autorun,
     nextSeed: Math.max(1, Math.floor(parseNonNegativeNumber(value["nextSeed"], fallback.nextSeed))),
+    playerName: parsePlayerName(value["playerName"], fallback.playerName),
+    permStats: parsePermStats(value["permStats"], fallback.permStats),
+    unlockedClasses,
   };
+}
+
+function emptyPerksByTemperament(): Record<TemperamentId, readonly PerkId[]> {
+  return {
+    berserker: [],
+    hoarder: [],
+    duelist: [],
+    survivor: [],
+  };
+}
+
+function parseTemperament(
+  value: unknown,
+  legacyTraitsValue: unknown,
+  fallback: TemperamentId,
+): TemperamentId {
+  if (isTemperamentId(value)) {
+    return value;
+  }
+
+  const traits = parseTraits(legacyTraitsValue);
+  return traits === undefined ? fallback : mapTraitsToTemperament(traits);
+}
+
+function parseTraits(value: unknown): TraitProfile | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  return {
+    bravery: parsePercent(value["bravery"], 50),
+    greed: parsePercent(value["greed"], 50),
+    focus: parsePercent(value["focus"], 50),
+  };
+}
+
+function parsePerksByTemperament(
+  value: unknown,
+  fallback: Record<TemperamentId, readonly PerkId[]>,
+): Record<TemperamentId, readonly PerkId[]> {
+  if (!isRecord(value)) {
+    return fallback;
+  }
+
+  const perksByTemperament = emptyPerksByTemperament();
+  for (const temperament of temperamentIds) {
+    perksByTemperament[temperament] = parsePerks(temperament, value[temperament]);
+  }
+  return perksByTemperament;
+}
+
+function parsePerks(temperament: TemperamentId, value: unknown): readonly PerkId[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return sanitizePerks(temperament, value.filter(isPerkId));
 }
 
 function parsePermStats(value: unknown, fallback: PermStats): PermStats {

@@ -1,7 +1,7 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "trait-tuning",
+  "name": "Temperament selection persists into a run",
   "planSteps": [
     {
       "type": "action",
@@ -9,11 +9,11 @@
     },
     {
       "type": "action",
-      "description": "Set the slider with data-testid trait-bravery to 90"
+      "description": "Click the temperament card with data-testid temperament-hoarder"
     },
     {
-      "type": "action",
-      "description": "Set the slider with data-testid trait-greed to 20"
+      "type": "assertion",
+      "description": "The hoarder temperament card shows a selected state (aria-pressed true)"
     },
     {
       "type": "action",
@@ -29,7 +29,7 @@
     },
     {
       "type": "assertion",
-      "description": "The slider with data-testid trait-bravery has value 90"
+      "description": "The temperament card with data-testid temperament-hoarder still shows aria-pressed true (selection persisted)"
     }
   ]
 }

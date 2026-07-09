@@ -18,6 +18,38 @@ export type DropKind = "xp" | "gold";
 
 export type OptionFlavor = "damage" | "economy" | "defense" | "speed" | "focus";
 
+export type TemperamentId = "berserker" | "hoarder" | "duelist" | "survivor";
+
+export type PerkTier = 1 | 2 | 3;
+
+export type PerkChoice = "a" | "b";
+
+export type PerkId =
+  | "berserkerBloodThirst"
+  | "berserkerCombatInstinct"
+  | "berserkerFrenzy"
+  | "berserkerIronSkin"
+  | "berserkerSlaughterer"
+  | "berserkerUndyingRage"
+  | "hoarderDeepPockets"
+  | "hoarderLongFingers"
+  | "hoarderPrizeScent"
+  | "hoarderSpoilsBeforeBlood"
+  | "hoarderTributeCart"
+  | "hoarderNoCoinLeft"
+  | "duelistEdgeStudy"
+  | "duelistMeasuredSteps"
+  | "duelistSingleEdge"
+  | "duelistPerfectDistance"
+  | "duelistExecutionForm"
+  | "duelistMastersChoice"
+  | "survivorWideEyes"
+  | "survivorQuickRetreat"
+  | "survivorLastLine"
+  | "survivorSecondWind"
+  | "survivorOutlast"
+  | "survivorEnduringPace";
+
 export type Vec2 = {
   x: number;
   y: number;
@@ -40,7 +72,8 @@ export type PermStats = {
 export type HeroLoadout = {
   readonly name?: string;
   readonly classId: HeroClassId;
-  readonly traits: TraitProfile;
+  readonly temperament: TemperamentId;
+  readonly perks: readonly PerkId[];
   readonly permStats?: PermStats;
 };
 
@@ -92,6 +125,8 @@ export type HeroState = {
   id: number;
   name: string;
   classId: HeroClassId;
+  temperament: TemperamentId;
+  perks: readonly PerkId[];
   traits: TraitProfile;
   permStats: PermStats;
   x: number;
@@ -117,6 +152,7 @@ export type HeroState = {
   deathTick: number | undefined;
   hitFlashTicks: number;
   touchRecoveryTicks: number;
+  undyingRageAvailable: boolean;
 };
 
 export type EnemyState = {

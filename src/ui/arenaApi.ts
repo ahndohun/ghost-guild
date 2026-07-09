@@ -1,10 +1,11 @@
-import { heroClassIds } from "../sim";
-import type { HeroClassId, HeroLoadout, HeroResult, PermStats, TraitProfile } from "../sim";
+import { heroClassIds, isPerkId, isTemperamentId, mapTraitsToTemperament, sanitizePerks } from "../sim";
+import type { HeroClassId, HeroLoadout, HeroResult, PerkId, PermStats, TemperamentId, TraitProfile } from "../sim";
 
 export type ServerLoadout = {
   readonly name: string;
   readonly class: HeroClassId;
-  readonly traits: TraitProfile;
+  readonly temperament: TemperamentId;
+  readonly perks: readonly PerkId[];
   readonly permStats: PermStats;
 };
 
@@ -37,7 +38,8 @@ export function toServerLoadout(loadout: HeroLoadout): ServerLoadout {
   return {
     name: loadout.name ?? "Guildmaster",
     class: loadout.classId,
-    traits: loadout.traits,
+    temperament: loadout.temperament,
+    perks: loadout.perks,
     permStats: loadout.permStats ?? { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
   };
 }
@@ -46,7 +48,8 @@ export function toHeroLoadout(loadout: ServerLoadout): HeroLoadout {
   return {
     name: loadout.name,
     classId: loadout.class,
-    traits: loadout.traits,
+    temperament: loadout.temperament,
+    perks: loadout.perks,
     permStats: loadout.permStats,
   };
 }
@@ -153,16 +156,17 @@ function parseServerLoadout(value: unknown): ServerLoadout | undefined {
 
   const name = parseName(value["name"]);
   const heroClass = parseHeroClass(value["class"]);
-  const traits = parseTraits(value["traits"]);
+  const temperament = parseTemperament(value["temperament"], value["traits"]);
   const permStats = parsePermStats(value["permStats"]);
-  if (name === undefined || heroClass === undefined || traits === undefined || permStats === undefined) {
+  if (name === undefined || heroClass === undefined || temperament === undefined || permStats === undefined) {
     return undefined;
   }
 
   return {
     name,
     class: heroClass,
-    traits,
+    temperament,
+    perks: parsePerks(temperament, value["perks"]),
     permStats,
   };
 }
@@ -199,6 +203,23 @@ function parseTraits(value: unknown): TraitProfile | undefined {
   }
 
   return { bravery, greed, focus };
+}
+
+function parseTemperament(value: unknown, legacyTraitsValue: unknown): TemperamentId | undefined {
+  if (isTemperamentId(value)) {
+    return value;
+  }
+
+  const traits = parseTraits(legacyTraitsValue);
+  return traits === undefined ? undefined : mapTraitsToTemperament(traits);
+}
+
+function parsePerks(temperament: TemperamentId, value: unknown): readonly PerkId[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return sanitizePerks(temperament, value.filter(isPerkId));
 }
 
 function parsePermStats(value: unknown): PermStats | undefined {

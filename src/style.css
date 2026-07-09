@@ -85,6 +85,106 @@ button:disabled {
   padding: 24px;
 }
 
+.guild-screen {
+  position: relative;
+  width: min(1180px, 100%);
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(11, 10, 15, 0.86) 0%, rgba(14, 12, 21, 0.76) 48%, rgba(8, 7, 11, 0.92) 100%),
+    radial-gradient(circle at 50% 18%, rgba(217, 164, 65, 0.22), transparent 18rem),
+    #0e0c15;
+}
+
+.guild-screen > :not(.barracks-scene) {
+  position: relative;
+  z-index: 1;
+}
+
+.barracks-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.barracks-scene::before {
+  position: absolute;
+  top: 120px;
+  left: 50%;
+  width: 240px;
+  height: 520px;
+  background: linear-gradient(180deg, rgba(232, 227, 213, 0.18), rgba(217, 164, 65, 0.05) 38%, transparent 100%);
+  content: "";
+  filter: blur(3px);
+  transform: translateX(-50%) perspective(320px) rotateX(32deg);
+  transform-origin: top center;
+}
+
+.barracks-scene::after {
+  position: absolute;
+  inset: auto -5% 0;
+  height: 46%;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(7, 6, 10, 0.72) 45%, rgba(5, 4, 8, 0.94) 100%),
+    repeating-linear-gradient(90deg, rgba(232, 227, 213, 0.04) 0 2px, transparent 2px 46px);
+  content: "";
+}
+
+.barracks-scene img {
+  position: absolute;
+  display: block;
+  image-rendering: pixelated;
+  opacity: 0.9;
+}
+
+.barracks-gate {
+  top: 92px;
+  left: 50%;
+  width: 320px;
+  height: 256px;
+  filter: drop-shadow(0 24px 26px rgba(0, 0, 0, 0.58));
+  transform: translateX(-50%);
+}
+
+.barracks-banner {
+  top: 110px;
+  left: max(30px, calc(50% - 470px));
+  width: 128px;
+  height: 192px;
+  opacity: 0.72;
+}
+
+.barracks-rack {
+  top: 192px;
+  right: max(32px, calc(50% - 510px));
+  width: 192px;
+  height: 160px;
+  opacity: 0.76;
+}
+
+.barracks-brazier {
+  top: 292px;
+  width: 128px;
+  height: 160px;
+  filter: brightness(0.95);
+}
+
+.brazier-left {
+  left: max(82px, calc(50% - 390px));
+}
+
+.brazier-right {
+  right: max(82px, calc(50% - 390px));
+}
+
+.barracks-gladiator {
+  bottom: 72px;
+  left: max(30px, calc(50% - 520px));
+  width: 192px;
+  height: 160px;
+  opacity: 0.84;
+}
+
 .hidden {
   display: none;
 }
@@ -134,7 +234,7 @@ h2 {
 .panel,
 .results-panel {
   border: 2px solid #e8e3d5;
-  background: rgba(14, 12, 21, 0.84);
+  background: rgba(10, 8, 14, 0.9);
   box-shadow: 6px 6px 0 #05040a;
 }
 
@@ -145,7 +245,7 @@ h2 {
 
 .guild-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1.2fr) minmax(240px, 0.8fr);
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
   gap: 16px;
   margin: 28px 0;
 }
@@ -154,22 +254,10 @@ h2 {
   padding: 18px;
 }
 
-.trait-row {
-  display: grid;
-  grid-template-columns: 92px 1fr 42px;
-  align-items: center;
-  gap: 12px;
-  min-height: 48px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 10px;
-}
-
-input[type="range"] {
-  accent-color: #58d6c9;
-}
-
 .class-grid,
-.upgrade-grid {
+.upgrade-grid,
+.temperament-grid,
+.perk-grid {
   display: grid;
   gap: 12px;
 }
@@ -178,20 +266,43 @@ input[type="range"] {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.class-card {
+.temperament-grid,
+.perk-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.class-card,
+.temperament-card,
+.perk-card {
   display: grid;
-  min-height: 148px;
   place-items: center;
   gap: 8px;
   padding: 14px;
 }
 
-.class-card.selected {
+.class-card {
+  min-height: 148px;
+}
+
+.temperament-card {
+  min-height: 156px;
+  align-content: start;
+}
+
+.perk-card {
+  min-height: 138px;
+  align-content: start;
+}
+
+.class-card.selected,
+.temperament-card.selected,
+.perk-card.selected {
   border-color: #58d6c9;
   background: #231d2c;
 }
 
-.class-card.locked {
+.class-card.locked,
+.perk-card.locked {
   border-color: rgba(217, 164, 65, 0.42);
 }
 
@@ -206,13 +317,36 @@ input[type="range"] {
   font-size: 18px;
 }
 
-.class-card small {
+.class-card small,
+.temperament-card span,
+.temperament-card small,
+.perk-card small,
+.perk-card em,
+.perk-tier {
   max-width: 100%;
   color: rgba(232, 227, 213, 0.72);
   font-size: 9px;
   line-height: 1.4;
   overflow-wrap: anywhere;
   text-align: center;
+}
+
+.temperament-card strong,
+.perk-card strong {
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.temperament-card span {
+  color: rgba(232, 227, 213, 0.86);
+}
+
+.perk-card em,
+.perk-tier {
+  color: #d9a441;
+  font-style: normal;
 }
 
 .class-status {
@@ -346,8 +480,54 @@ canvas {
   }
 
   .guild-layout,
+  .temperament-grid,
+  .perk-grid,
   .class-grid,
   .result-grid {
     grid-template-columns: 1fr;
+  }
+
+  .barracks-gate {
+    top: 128px;
+    width: 256px;
+    height: 205px;
+  }
+
+  .barracks-banner,
+  .barracks-rack,
+  .brazier-right {
+    opacity: 0.36;
+  }
+
+  .barracks-gladiator {
+    opacity: 0.42;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .barracks-brazier {
+    animation: brazier-flicker 2.4s steps(3, end) infinite;
+  }
+
+  .brazier-right {
+    animation-delay: 0.7s;
+  }
+}
+
+@keyframes brazier-flicker {
+  0%,
+  100% {
+    opacity: 0.86;
+    filter: brightness(0.92);
+  }
+
+  42% {
+    opacity: 1;
+    filter: brightness(1.16);
+  }
+
+  70% {
+    opacity: 0.78;
+    filter: brightness(0.84);
   }
 }
