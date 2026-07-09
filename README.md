@@ -2,7 +2,7 @@
 
 > **You don't play the hero. You manage them.**
 
-A survivors-like (Vampire Survivors × a 2% pinch of Dragon Quest) where the hero fights **entirely on its own judgment**. You are the guildmaster: between runs you buy permanent upgrades, unlock classes, and tune your hero's *personality* — **bravery, greed, focus**. Then you hit DEPLOY and watch your coaching pay off (or backfire) against ghost loadouts of players worldwide.
+A colosseum survivors (Vampire Survivors × a 2% pinch of Dragon Quest) where your gladiator fights **entirely on its own judgment**. You are the guildmaster: between bouts you pick their **temperament** — a Berserker ignores loot while enemies stand and never flees; a Hoarder detours for gold even at death's door — carve their identity deeper with **perk nodes** (no weakness-fixing allowed), buy permanent upgrades, unlock classes. Then you hit DEPLOY and watch your coaching pay off (or backfire) against ghost loadouts of players worldwide.
 
 **🎮 Play it now: https://ghost-guild.vercel.app**
 
@@ -14,12 +14,12 @@ Built for **TestSprite Hackathon Season 3** — by an AI agent organization, ver
 
 ## How to play (30 seconds)
 
-1. Drag the three personality sliders. They change how the hero *behaves*, not how strong it is — bravery sets engage distance (dive vs kite), greed sets loot detours under fire, focus sets build specialization at level-ups.
+1. Pick a temperament card. It changes how the gladiator *behaves*, not how strong it is — each has a visible hard rule (Berserker: won't loot while enemies are near; Duelist: kites at exactly weapon range; Survivor: flees early; Hoarder: loots through pain) plus a signature passive.
 2. Hit **DEPLOY SOLO**. The hero moves, fights, loots, and announces its own level-up picks in a DQ-style dialog. You can only watch.
-3. Death or 180s survival → gold → permanent upgrades (ATK/HP/SPD/LUCK/starting level) and class unlocks (Knight → Mage 400g → Priest 1200g) → tune → repeat. Toggle **AUTO-RUN** and it becomes an idle game.
+3. Death or 180s survival → gold → **perk nodes** (3 tiers × pick-1-of-2 per temperament — every perk amplifies the identity, none patch weaknesses), permanent upgrades (ATK/HP/SPD/LUCK/starting level), class unlocks (Knight → Mage 400g → Priest 1200g) → tune → repeat. Toggle **AUTO-RUN** and it becomes an idle game.
 4. **DEPLOY ARENA**: your hero + up to 3 real players' loadouts fight the same waves in one arena, ranked by score, feeding a world leaderboard. If the matchmaking API is unreachable you fight bundled bot ghosts instead — the arena never dead-ends.
 
-Same personality sliders, same seed, wildly different runs: a timid hoarder (bravery 5) kites the edges and out-scores a reckless diver (bravery 95) by 400 points — and the default coach beats both. Tuning is the game.
+Same seed, different temperament, wildly different battles — you can watch a Berserker walk straight past a gem pile mid-brawl while a Hoarder dies reaching for it. Coaching is the game.
 
 ## Architecture: multiplayer without netcode
 
