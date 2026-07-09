@@ -6,6 +6,8 @@ A colosseum survivors (Vampire Survivors × a 2% pinch of Dragon Quest) where yo
 
 **🎮 Play it now: https://ghost-guild.vercel.app**
 
+![demo](docs/screenshots/demo.gif)
+
 | Guild console | Mid-battle |
 |---|---|
 | ![guild](docs/screenshots/guild.png) | ![battle](docs/screenshots/battle-late.jpg) |
