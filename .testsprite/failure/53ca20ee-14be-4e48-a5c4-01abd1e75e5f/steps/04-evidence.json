@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 4,
+    "summary": "Step 4 'Expected the bravery slider to still read 90.' failed. Error: TEST BLOCKED\n\nThe test cannot continue because the Mage class card is locked and cannot be selected.\n\nObservations:\n- The Mage class card is disabled and displays 'Unlock 400g'.\n- The page header shows Gold = 0, which is insufficient to unlock the Mage.\n\nBecause the required step 'Select the mage class card' cannot be performed through the UI in this session, the remaining steps (deploying as Mage, verifying results screen, and persistence of the bravery slider) cannot be executed. The test is therefore blocked.",
+    "path": "steps/04-snapshot.html"
+  }
+]

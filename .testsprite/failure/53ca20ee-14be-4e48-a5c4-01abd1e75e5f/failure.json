@@ -1,0 +1,28 @@
+{
+  "rootCauseHypothesis": "TEST BLOCKED\n\nThe test cannot continue because the Mage class card is locked and cannot be selected.\n\nObservations:\n- The Mage class card is disabled and displays 'Unlock 400g'.\n- The page header shows Gold = 0, which is insufficient to unlock the Mage.\n\nBecause the required step 'Select the mage class card' cannot be performed through the UI in this session, the remaining steps (deploying as Mage, verifying results screen, and persistence of the bravery slider) cannot be executed. The test is therefore blocked.",
+  "recommendedFixTarget": {
+    "kind": "code",
+    "reference": null,
+    "rationale": null
+  },
+  "evidence": [
+    {
+      "kind": "snapshot",
+      "stepIndex": 2,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/53ca20ee-14be-4e48-a5c4-01abd1e75e5f/002.html?REDACTED",
+      "summary": "Step 2 'Open the seeded Ghost Guild URL: https://ghost-guild.vercel.app/?seed=7&fast=1 (Ghost Guild) so the app state may change and the Mage card may become selectable' passed."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 3,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/53ca20ee-14be-4e48-a5c4-01abd1e75e5f/003.html?REDACTED",
+      "summary": "Step 3 'Expected the guild screen to be visible again.' failed. Error: TEST BLOCKED\n\nThe test cannot continue because the Mage class card is locked and cannot be selected.\n\nObservations:\n- The Mage class card is disabled and displays 'Unlock 400g'.\n- The page header shows Gold = 0, which is insufficient to unlock the Mage.\n\nBecause the required step 'Select the mage class card' cannot be performed through the UI in this session, the remaining steps (deploying as Mage, verifying results screen, and persistence of the bravery slider) cannot be executed. The test is therefore blocked."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 4,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/53ca20ee-14be-4e48-a5c4-01abd1e75e5f/003.html?REDACTED",
+      "summary": "Step 4 'Expected the bravery slider to still read 90.' failed. Error: TEST BLOCKED\n\nThe test cannot continue because the Mage class card is locked and cannot be selected.\n\nObservations:\n- The Mage class card is disabled and displays 'Unlock 400g'.\n- The page header shows Gold = 0, which is insufficient to unlock the Mage.\n\nBecause the required step 'Select the mage class card' cannot be performed through the UI in this session, the remaining steps (deploying as Mage, verifying results screen, and persistence of the bravery slider) cannot be executed. The test is therefore blocked."
+    }
+  ]
+}

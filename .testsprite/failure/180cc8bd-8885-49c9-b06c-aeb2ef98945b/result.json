@@ -1,0 +1,18 @@
+{
+  "testId": "180cc8bd-8885-49c9-b06c-aeb2ef98945b",
+  "status": "blocked",
+  "startedAt": null,
+  "finishedAt": "2026-07-09T15:24:38.473Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783610678197046//tmp/e0c0937e-f2e0-4765-9209-cfe7eebf0fa7/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_2f0773a718da50b9",
+  "runIdIfAvailable": "5c4374b2-2aac-469e-b10f-7b4b515074f2",
+  "codeVersion": "v1",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 5,
+  "failureKind": null,
+  "verdict": "blocked",
+  "executionStatus": "completed",
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: Test summary and verification (all observations come from this session):\n\nRequirements from the user request:\n- Navigate to https://ghost-guild.vercel.app/?seed=11&fast=1\n- Click the arena deploy button\n- Within ~40s, the results screen appears\n- Ranking list shows more than one hero row\n- World leaderboard is visible with at least one entry\n- Click back-to-guild\n- Guild screen becomes visible\n\nVerification (observed):\n- Navigation: The …"
+}

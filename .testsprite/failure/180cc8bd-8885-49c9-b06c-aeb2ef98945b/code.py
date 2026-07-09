@@ -40,32 +40,38 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Navigate to https://ghost-guild.vercel.app/?seed=42&fast=1
-        await page.goto("https://ghost-guild.vercel.app/?seed=42&fast=1")
+        # -> Navigate to the seeded guild page: open https://ghost-guild.vercel.app/?seed=11&fast=1
+        await page.goto("https://ghost-guild.vercel.app/?seed=11&fast=1")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
         
-        # -> Click the 'DEPLOY SOLO' button
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
+        # -> Click the 'DEPLOY ARENA' button
+        # DEPLOY ARENA button
+        elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button
+        # -> Click the 'BACK TO GUILD' button to return to the guild screen and verify the guild screen (#screen-guild) becomes visible.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The guild screen (#screen-guild) is visible again
-        await page.locator("xpath=/html/body/div[1]/section[1]/footer/button[1]").nth(0).scroll_into_view_if_needed()
-        # Assert: The 'DEPLOY SOLO' button is visible on the guild screen.
-        await expect(page.locator("xpath=/html/body/div[1]/section[1]/footer/button[1]").nth(0)).to_be_visible(timeout=15000), "The 'DEPLOY SOLO' button is visible on the guild screen."
+        # --> The guild screen (#screen-guild) is visible
+        await page.locator("xpath=/html/body/div[1]/section[1]/footer/button[2]").nth(0).scroll_into_view_if_needed()
+        # Assert: The 'DEPLOY ARENA' button is visible on the guild screen.
+        await expect(page.locator("xpath=/html/body/div[1]/section[1]/footer/button[2]").nth(0)).to_be_visible(timeout=15000), "The 'DEPLOY ARENA' button is visible on the guild screen."
         await page.locator("xpath=/html/body/div[1]/section[1]/main/section[1]/label[1]").nth(0).scroll_into_view_if_needed()
-        # Assert: The Bravery trait control (50) is visible on the guild screen.
-        await expect(page.locator("xpath=/html/body/div[1]/section[1]/main/section[1]/label[1]").nth(0)).to_be_visible(timeout=15000), "The Bravery trait control (50) is visible on the guild screen."
+        # Assert: The Bravery trait slider label is visible on the guild screen.
+        await expect(page.locator("xpath=/html/body/div[1]/section[1]/main/section[1]/label[1]").nth(0)).to_be_visible(timeout=15000), "The Bravery trait slider label is visible on the guild screen."
+        await page.locator("xpath=/html/body/div[1]/section[1]/main/section[2]/div/button[1]").nth(0).scroll_into_view_if_needed()
+        # Assert: The Knight class card is visible on the guild screen.
+        await expect(page.locator("xpath=/html/body/div[1]/section[1]/main/section[2]/div/button[1]").nth(0)).to_be_visible(timeout=15000), "The Knight class card is visible on the guild screen."
+        current_url = await page.evaluate("() => window.location.href")
+        # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
+        assert current_url, 'Page should have loaded with a URL'
         current_url = await page.evaluate("() => window.location.href")
         # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
         assert current_url, 'Page should have loaded with a URL'

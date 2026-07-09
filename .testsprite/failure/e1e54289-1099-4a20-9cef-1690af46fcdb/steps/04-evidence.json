@@ -2,7 +2,7 @@
   {
     "kind": "snapshot",
     "stepIndex": 4,
-    "summary": "Step 4 'Click the 'BACK TO GUILD' button to return to the guild screen' passed.",
+    "summary": "Step 4 'Click the 'BACK TO GUILD' button' passed.",
     "path": "steps/04-snapshot.html"
   }
 ]

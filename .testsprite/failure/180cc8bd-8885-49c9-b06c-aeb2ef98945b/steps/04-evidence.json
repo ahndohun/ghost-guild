@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 4,
+    "summary": "Step 4 'Click the 'BACK TO GUILD' button to return to the guild screen and verify the guild screen (#screen-guild) becomes visible' passed.",
+    "path": "steps/04-snapshot.html"
+  }
+]

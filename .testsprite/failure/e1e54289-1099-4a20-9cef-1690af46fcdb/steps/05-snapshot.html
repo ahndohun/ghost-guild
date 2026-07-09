@@ -3,8 +3,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost Guild</title>
-    <script type="module" crossorigin="" src="/assets/index-CXtNcYOK.js"></script>
-    <style data-original-href="https://ghost-guild.vercel.app/assets/index-DohArhBt.css">:root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; background: rgb(14, 12, 21); font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    <script type="module" crossorigin="" src="/assets/index-Cbe1V37k.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-M8z1poU6.css">:root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; background: rgb(14, 12, 21); font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 * { box-sizing: border-box; }
 body { background: radial-gradient(circle at 20% 0px, rgba(184, 69, 63, 0.18), rgba(0, 0, 0, 0) 28rem), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 52%, rgb(8, 7, 13) 100%); min-width: 320px; min-height: 100dvh; margin: 0px; }
 button, input { font: inherit; }
@@ -28,21 +28,26 @@ input[type="range"] { accent-color: rgb(88, 214, 201); }
 .class-grid { grid-template-columns: repeat(3, minmax(0px, 1fr)); }
 .class-card { place-items: center; gap: 8px; min-height: 148px; padding: 14px; display: grid; }
 .class-card.selected { background: rgb(35, 29, 44); border-color: rgb(88, 214, 201); }
+.class-card.locked { border-color: rgba(217, 164, 65, 0.42); }
 .class-glyph { color: rgb(14, 12, 21); background: rgb(232, 227, 213); border-radius: 50%; place-items: center; width: 46px; height: 46px; font-size: 18px; display: grid; }
 .class-card small { color: rgba(232, 227, 213, 0.72); overflow-wrap: anywhere; text-align: center; max-width: 100%; font-size: 9px; line-height: 1.4; }
+.class-status { color: rgb(217, 164, 65); }
 .actions { flex-wrap: wrap; }
 .actions button, .results-panel button { padding: 12px 18px; }
 .primary { color: rgb(255, 244, 207); background: rgb(58, 40, 24); border-color: rgb(217, 164, 65); }
 .run-shell { width: min(100%, 960px); margin: 0px auto; position: relative; }
+.offline-badge { color: rgb(255, 244, 207); background: rgba(5, 4, 10, 0.86); border: 1px solid rgba(217, 164, 65, 0.72); padding: 8px 10px; font-size: 9px; position: absolute; top: 12px; left: 12px; }
 canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(14, 12, 21); border: 2px solid rgba(232, 227, 213, 0.32); display: block; }
 .hud { flex-wrap: wrap; justify-content: center; gap: 10px; padding: 14px 0px; font-size: 11px; display: flex; }
 .hud span { background: rgba(14, 12, 21, 0.86); border: 1px solid rgba(232, 227, 213, 0.24); padding: 8px 10px; }
-.results-panel { width: min(680px, 100%); margin: 56px auto 0px; padding: 24px; }
+.results-panel { width: min(780px, 100%); margin: 56px auto 0px; padding: 24px; }
 .result-grid { grid-template-columns: repeat(5, minmax(0px, 1fr)); gap: 10px; margin: 22px 0px; display: grid; }
-.result-grid div, #result-ranking li { background: rgb(23, 17, 28); border: 1px solid rgba(232, 227, 213, 0.22); padding: 12px; }
+.result-grid div, #result-ranking li, #leaderboard-list li { overflow-wrap: anywhere; background: rgb(23, 17, 28); border: 1px solid rgba(232, 227, 213, 0.22); padding: 12px; line-height: 1.5; }
 .result-grid dt { color: rgb(88, 214, 201); margin-bottom: 8px; font-size: 9px; }
 .result-grid dd { margin: 0px; font-size: 16px; }
-#result-ranking { gap: 8px; padding-left: 0px; list-style: none; display: grid; }
+#result-ranking, #leaderboard-list { gap: 8px; padding-left: 0px; list-style: none; display: grid; }
+#result-ranking .local-row { color: rgb(255, 255, 255); background: rgb(31, 39, 48); border-color: rgb(88, 214, 201); }
+.leaderboard-panel { margin: 24px 0px; }
 @media (width <= 860px) {
   .screen { padding: 16px; }
   .topbar { flex-direction: column; align-items: flex-start; }
@@ -92,20 +97,23 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
       <span class="class-glyph">K</span>
       <strong>Knight</strong>
       <small>swordSweep</small>
+      <small id="class-knight-status" class="class-status">Selected</small>
     </button>
   
             
-    <button type="button" class="class-card" data-testid="class-mage">
+    <button type="button" class="class-card locked" data-testid="class-mage" disabled="">
       <span class="class-glyph">M</span>
       <strong>Mage</strong>
       <small>fireBolt</small>
+      <small id="class-mage-status" class="class-status">Unlock 400g</small>
     </button>
   
             
-    <button type="button" class="class-card" data-testid="class-priest">
+    <button type="button" class="class-card locked" data-testid="class-priest" disabled="">
       <span class="class-glyph">P</span>
       <strong>Priest</strong>
       <small>holyBolt</small>
+      <small id="class-priest-status" class="class-status">Unlock 1200g</small>
     </button>
   
           </div>
@@ -113,23 +121,24 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
         <section class="panel">
           <h2>Guild Upgrades</h2>
           <div class="upgrade-grid">
-            <button type="button" data-testid="buy-atk" disabled="">ATK 50g</button>
-            <button type="button" data-testid="buy-hp" disabled="">HP 50g</button>
-            <button type="button" data-testid="buy-spd" disabled="">SPD 80g</button>
-            <button type="button" data-testid="buy-luck" disabled="">LUCK 100g</button>
-            <button type="button" data-testid="buy-lvl" disabled="">LVL 200g</button>
+            <button type="button" data-testid="buy-atk" disabled="">ATK Lv.0 50g</button>
+            <button type="button" data-testid="buy-hp" disabled="">HP Lv.0 50g</button>
+            <button type="button" data-testid="buy-spd" disabled="">SPD Lv.0 80g</button>
+            <button type="button" data-testid="buy-luck" disabled="">LUCK Lv.0 100g</button>
+            <button type="button" data-testid="buy-lvl" disabled="">LVL Lv.0 200g</button>
           </div>
         </section>
       </main>
       <footer class="actions">
         <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
-        <button type="button" data-testid="deploy-arena" disabled="">DEPLOY ARENA</button>
+        <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>
         <button type="button" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
       </footer>
     </section>
     <section id="screen-run" class="screen hidden">
       <div class="run-shell">
         <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
+        <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
         <div class="hud">
           <span>HP <strong id="hud-hp">0</strong></span>
           <span>LV <strong id="hud-level">8</strong></span>
@@ -150,7 +159,12 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
           <div><dt>Time</dt><dd id="result-time" data-testid="result-time">94s</dd></div>
           <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">41</dd></div>
         </dl>
-        <ol id="result-ranking" data-testid="result-ranking"><li>#1 Knight 2011</li></ol>
+        <h2>Match Ranking</h2>
+        <ol id="result-ranking" data-testid="result-ranking"><li class="local-row">#1 Guildmaster-6853 knight 2011</li></ol>
+        <section id="leaderboard-section" class="leaderboard-panel">
+          <h2>World Leaderboard</h2>
+          <ol id="leaderboard-list" data-testid="leaderboard-list"></ol>
+        </section>
         <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
       </div>
     </section>

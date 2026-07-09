@@ -1,16 +1,56 @@
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../sim/constants";
 import { classDefinitions } from "../sim/data";
-import type { EnemyState, HeroState, MatchState, ProjectileState } from "../sim";
+import type { EnemyState, HeroClassId, HeroState, MatchState, ProjectileState } from "../sim";
+import { facingFor, prepareRenderEffects, renderEffectsFor, shakeOffset } from "./effects";
+import type { Facing, RenderEffects } from "./effects";
+import { drawSprite, spriteScale } from "./sprites";
+import type { SpriteId } from "./sprites";
 
 const palette = {
   background: "#0e0c15",
   ink: "#e8e3d5",
-  enemy: "#b8453f",
-  enemyDark: "#7d2e3a",
-  xp: "#58d6c9",
-  gold: "#d9a441",
   black: "#05040a",
   white: "#ffffff",
+};
+
+type DropState = MatchState["drops"][number];
+type EnemyKind = EnemyState["kind"];
+
+type PixelBoltInput = {
+  readonly x: number;
+  readonly y: number;
+  readonly size: number;
+  readonly color: string;
+};
+
+type ShadowInput = {
+  readonly x: number;
+  readonly y: number;
+  readonly radius: number;
+};
+
+type PoofPixelInput = {
+  readonly x: number;
+  readonly y: number;
+  readonly size: number;
+};
+
+const heroSprites: Record<HeroClassId, SpriteId> = {
+  knight: "heroKnight",
+  mage: "heroMage",
+  priest: "heroPriest",
+};
+
+const enemySprites: Record<EnemyKind, SpriteId> = {
+  slime: "slime",
+  bat: "bat",
+  brute: "brute",
+  eliteBrute: "eliteBrute",
+};
+
+const dropSprites: Record<DropState["kind"], SpriteId> = {
+  xp: "xpGem",
+  gold: "goldCoin",
 };
 
 export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void {
@@ -19,18 +59,19 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
     return;
   }
 
+  const effects = renderEffectsFor(canvas);
+  prepareRenderEffects(effects, state);
+
   context.save();
+  context.imageSmoothingEnabled = false;
   context.clearRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   drawBackground(context);
 
-  const shake = state.screenShakeTicks > 0 ? (state.screenShakeTicks % 2 === 0 ? 3 : -3) : 0;
-  context.translate(shake, 0);
+  const shake = shakeOffset(effects, state.tick);
+  context.translate(shake.x, shake.y);
 
   for (const drop of state.drops) {
-    context.fillStyle = drop.kind === "xp" ? palette.xp : palette.gold;
-    context.beginPath();
-    context.arc(drop.x, drop.y, drop.kind === "xp" ? 4 : 5, 0, Math.PI * 2);
-    context.fill();
+    drawDrop(context, drop);
   }
 
   for (const projectile of state.projectiles) {
@@ -38,13 +79,24 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
   }
 
   for (const enemy of state.enemies) {
-    drawEnemy(context, enemy);
+    drawShadow(context, { x: enemy.x, y: enemy.y, radius: enemy.radius });
   }
 
   for (const hero of state.heroes) {
-    drawHero(context, hero);
+    if (hero.alive) {
+      drawShadow(context, { x: hero.x, y: hero.y, radius: hero.radius });
+    }
   }
 
+  for (const enemy of state.enemies) {
+    drawEnemy(context, enemy, facingFor(effects.enemyFacings, enemy.id));
+  }
+
+  for (const hero of state.heroes) {
+    drawHero(context, hero, facingFor(effects.heroFacings, hero.id));
+  }
+
+  drawDeathPoofs(context, effects, state.tick);
   drawDamageNumbers(context, state);
   context.restore();
 
@@ -73,65 +125,98 @@ function drawBackground(context: CanvasRenderingContext2D): void {
 }
 
 function drawProjectile(context: CanvasRenderingContext2D, projectile: ProjectileState): void {
-  context.fillStyle = projectile.weaponId === "holyBolt" ? "#9fe3b0" : "#e8e3d5";
-  if (projectile.weaponId === "throwingAxe") {
-    context.save();
-    context.translate(projectile.x, projectile.y);
-    context.rotate(projectile.id * 0.7);
-    context.fillRect(-8, -3, 16, 6);
-    context.restore();
-    return;
-  }
-
-  context.beginPath();
-  context.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2);
-  context.fill();
-}
-
-function drawEnemy(context: CanvasRenderingContext2D, enemy: EnemyState): void {
-  context.fillStyle = enemy.hitFlashTicks > 0 ? palette.white : enemy.kind === "eliteBrute" ? palette.enemyDark : palette.enemy;
-
-  switch (enemy.kind) {
-    case "bat":
-      context.beginPath();
-      context.moveTo(enemy.x, enemy.y - enemy.radius);
-      context.lineTo(enemy.x + enemy.radius, enemy.y + enemy.radius);
-      context.lineTo(enemy.x - enemy.radius, enemy.y + enemy.radius);
-      context.closePath();
-      context.fill();
-      return;
-    case "eliteBrute":
+  switch (projectile.weaponId) {
+    case "throwingAxe":
       context.save();
-      context.translate(enemy.x, enemy.y);
-      context.rotate(Math.PI / 4);
-      context.fillRect(-enemy.radius, -enemy.radius, enemy.radius * 2, enemy.radius * 2);
+      context.translate(Math.round(projectile.x), Math.round(projectile.y));
+      context.rotate(projectile.id * 0.7);
+      context.fillStyle = palette.black;
+      context.fillRect(-8, -4, 16, 8);
+      context.fillStyle = "#d9a441";
+      context.fillRect(-6, -2, 12, 4);
       context.restore();
       return;
-    case "slime":
-    case "brute":
-      context.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius, enemy.radius * 2, enemy.radius * 2);
+    case "fireBolt":
+      drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius + 4, color: "#ff8a4a" });
+      return;
+    case "holyBolt":
+      drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius + 4, color: "#9fe3b0" });
+      return;
+    case "frostNova":
+      drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius, color: "#7aa5ff" });
+      return;
+    case "garlicAura":
+      drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius, color: "#e8e3d5" });
+      return;
+    case "swordSweep":
+      drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius, color: "#d9a441" });
       return;
   }
 }
 
-function drawHero(context: CanvasRenderingContext2D, hero: HeroState): void {
+function drawPixelBolt(context: CanvasRenderingContext2D, input: PixelBoltInput): void {
+  const size = Math.max(4, Math.round(input.size));
+  const x = Math.round(input.x);
+  const y = Math.round(input.y);
+  context.fillStyle = palette.black;
+  context.fillRect(x - Math.floor(size / 2), y - 2, size, 4);
+  context.fillRect(x - 2, y - Math.floor(size / 2), 4, size);
+  context.fillStyle = input.color;
+  context.fillRect(x - Math.floor(size / 2) + 2, y - 1, Math.max(1, size - 4), 2);
+  context.fillRect(x - 1, y - Math.floor(size / 2) + 2, 2, Math.max(1, size - 4));
+}
+
+function drawDrop(context: CanvasRenderingContext2D, drop: DropState): void {
+  drawSprite(context, {
+    id: dropSprites[drop.kind],
+    x: drop.x,
+    y: drop.y,
+    scale: spriteScale,
+  });
+}
+
+function drawShadow(context: CanvasRenderingContext2D, input: ShadowInput): void {
+  context.fillStyle = "rgba(0, 0, 0, 0.34)";
+  context.beginPath();
+  context.ellipse(
+    Math.round(input.x),
+    Math.round(input.y + input.radius * 0.72),
+    input.radius * 1.08,
+    input.radius * 0.28,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.fill();
+}
+
+function drawEnemy(context: CanvasRenderingContext2D, enemy: EnemyState, facing: Facing): void {
+  drawSprite(context, {
+    id: enemySprites[enemy.kind],
+    x: enemy.x,
+    y: enemy.y,
+    scale: spriteScale,
+    flip: facing === "left",
+    flash: enemy.hitFlashTicks > 0,
+  });
+}
+
+function drawHero(context: CanvasRenderingContext2D, hero: HeroState, facing: Facing): void {
   const definition = classDefinitions[hero.classId];
   drawHeroName(context, hero, definition.color);
-
-  context.fillStyle = hero.hitFlashTicks > 0 ? palette.white : definition.color;
-  context.beginPath();
-  context.arc(hero.x, hero.y, hero.radius, 0, Math.PI * 2);
-  context.fill();
-  context.fillStyle = palette.black;
-  context.font = "12px 'Press Start 2P', monospace";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(definition.glyph, hero.x, hero.y + 1);
+  drawSprite(context, {
+    id: heroSprites[hero.classId],
+    x: hero.x,
+    y: hero.y,
+    scale: spriteScale,
+    flip: facing === "left",
+    flash: hero.hitFlashTicks > 0,
+  });
 
   context.fillStyle = "#1b1520";
   context.fillRect(hero.x - 18, hero.y - 26, 36, 4);
   context.fillStyle = definition.color;
-  context.fillRect(hero.x - 18, hero.y - 26, 36 * (hero.hp / hero.maxHp), 4);
+  context.fillRect(hero.x - 18, hero.y - 26, 36 * Math.max(0, Math.min(1, hero.hp / hero.maxHp)), 4);
 }
 
 function drawHeroName(context: CanvasRenderingContext2D, hero: HeroState, color: string): void {
@@ -151,6 +236,23 @@ function drawHeroName(context: CanvasRenderingContext2D, hero: HeroState, color:
   context.fillText(hero.name, x + width / 2, y + 8, width - 8);
 }
 
+function drawDeathPoofs(context: CanvasRenderingContext2D, effects: RenderEffects, tick: number): void {
+  context.fillStyle = "rgba(232, 227, 213, 0.82)";
+  for (const poof of effects.poofs) {
+    const age = tick - poof.startedTick;
+    const distance = 3 + age * 0.55;
+    const size = Math.max(2, 5 - Math.floor(age / 4));
+    drawPoofPixel(context, { x: poof.x - distance, y: poof.y, size });
+    drawPoofPixel(context, { x: poof.x + distance, y: poof.y, size });
+    drawPoofPixel(context, { x: poof.x, y: poof.y - distance, size });
+    drawPoofPixel(context, { x: poof.x, y: poof.y + distance, size });
+  }
+}
+
+function drawPoofPixel(context: CanvasRenderingContext2D, input: PoofPixelInput): void {
+  context.fillRect(Math.round(input.x - input.size / 2), Math.round(input.y - input.size / 2), input.size, input.size);
+}
+
 function drawDamageNumbers(context: CanvasRenderingContext2D, state: MatchState): void {
   context.font = "10px 'Press Start 2P', monospace";
   context.textAlign = "center";
@@ -168,8 +270,9 @@ function drawDialog(context: CanvasRenderingContext2D, text: string): void {
   context.fillStyle = palette.black;
   context.fillRect(96, 430, 768, 76);
   context.strokeStyle = palette.white;
-  context.lineWidth = 2;
+  context.lineWidth = 3;
   context.strokeRect(96, 430, 768, 76);
+  context.strokeRect(103, 437, 754, 62);
   context.fillStyle = palette.ink;
   context.font = "14px 'Press Start 2P', monospace";
   context.textAlign = "left";

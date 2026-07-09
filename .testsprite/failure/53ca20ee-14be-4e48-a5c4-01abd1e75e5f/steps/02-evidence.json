@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 2,
+    "summary": "Step 2 'Open the seeded Ghost Guild URL: https://ghost-guild.vercel.app/?seed=7&fast=1 (Ghost Guild) so the app state may change and the Mage card may become selectable' passed.",
+    "path": "steps/02-snapshot.html"
+  }
+]
