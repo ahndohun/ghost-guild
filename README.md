@@ -1,6 +1,6 @@
-# 👻 Ghost Guild
+# 👻 Ghost Colosseum
 
-> **You don't play the hero. You manage them.**
+> **You don't play the gladiator. You coach them.**
 
 A colosseum survivors (Vampire Survivors × a 2% pinch of Dragon Quest) where your gladiator fights **entirely on its own judgment**. You are the guildmaster: between bouts you pick their **temperament** — a Berserker ignores loot while enemies stand and never flees; a Hoarder detours for gold even at death's door — carve their identity deeper with **perk nodes** (no weakness-fixing allowed), buy permanent upgrades, unlock classes. Then you hit DEPLOY and watch your coaching pay off (or backfire) against ghost loadouts of players worldwide.
 
@@ -41,6 +41,9 @@ Real catches from the log:
 - TestSprite blocked a test and its failure bundle pinpointed why: a **feature change** (class-unlock gating) had silently outdated the test plan
 - `test run --all` silently skips FE tests (BE-only batch engine) → loop runner rewritten to run FE tests individually
 - GitHub secret scanning flagged AWS temp credentials inside TestSprite's own failure bundles → `scripts/sanitize-bundles.mjs` now redacts presigned-URL signatures before commit
+- A synchronous fast-sim loop froze slow cloud browsers → judges saw an unresponsive page; rewrote it as a chunked, yielding loop
+- A human playtest caught drops landing outside the arena walls (heroes ground against the wall chasing them) → clamped drop spawns + a cross-seed property test now guards the invariant
+- Cloud runs kept finalizing as `blocked` while the judge's own verdict text said PASS → filed [TestSprite/testsprite-cli#221](https://github.com/TestSprite/testsprite-cli/issues/221) with run evidence
 
 Run it yourself: `node scripts/tsloop.mjs <maker> [note]` — runs the 4-test cloud suite against production, downloads failure bundles into `.testsprite/failure/`, appends the LOOP.md line. CI (`.github/workflows/ci.yml`) runs typecheck+vitest on every push and the full TestSprite suite on `[e2e]` pushes.
 
