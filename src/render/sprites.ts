@@ -291,6 +291,39 @@ const spriteDefinitions = {
       "................",
     ],
   },
+  // Temperament hard-rule icons (offscreen-cached pixel glyphs)
+  iconBang: {
+    palette: {
+      o: outline,
+      r: "#b8453f",
+      l: "#d86753",
+    },
+    map: [
+      ".oo.",
+      "orro",
+      "orro",
+      ".oo.",
+      ".oo.",
+      "....",
+      ".oo.",
+      "orro",
+    ],
+  },
+  iconSweat: {
+    palette: {
+      o: outline,
+      c: "#7aa5ff",
+      l: "#bfd4ff",
+    },
+    map: [
+      ".oo.",
+      "occo",
+      "oclo",
+      "occo",
+      ".oo.",
+      "....",
+    ],
+  },
 } as const satisfies Record<string, SpriteDefinition>;
 
 const spriteCache: Readonly<Record<SpriteId, Sprite>> = {
@@ -303,6 +336,8 @@ const spriteCache: Readonly<Record<SpriteId, Sprite>> = {
   eliteBrute: buildSprite(spriteDefinitions.eliteBrute),
   xpGem: buildSprite(spriteDefinitions.xpGem),
   goldCoin: buildSprite(spriteDefinitions.goldCoin),
+  iconBang: buildSprite(spriteDefinitions.iconBang),
+  iconSweat: buildSprite(spriteDefinitions.iconSweat),
 };
 
 export function drawSprite(context: CanvasRenderingContext2D, input: SpriteDrawInput): void {

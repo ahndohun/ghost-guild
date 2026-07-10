@@ -1,4 +1,5 @@
-import type { EnemyKind, EnemyState, HeroState, MatchState } from "../sim/types";
+import { weaponDefinitions } from "../sim/data";
+import type { DropState, EnemyKind, EnemyState, HeroState, MatchState } from "../sim/types";
 import {
   activeHitReactions,
   addImpactSparks,
@@ -11,11 +12,32 @@ import type { Facing, Position, RenderEffects } from "./effectTypes";
 
 export type { Facing, ImpactSpark, RenderEffects, WeaponBurst } from "./effectTypes";
 
+export type GemSpark = {
+  readonly x: number;
+  readonly y: number;
+  readonly angle: number;
+  readonly speed: number;
+  readonly startedTick: number;
+};
+
+export type TemperamentFxState = {
+  heroXp: Map<number, number>;
+  trailPoints: Map<number, Position[]>;
+  ignoreLootBangUntil: Map<number, number>;
+  fleeActive: Set<number>;
+  gemSparks: GemSpark[];
+};
+
 const renderEffectsByCanvas = new WeakMap<HTMLCanvasElement, RenderEffects>();
+const temperamentFxByEffects = new WeakMap<RenderEffects, TemperamentFxState>();
 const poofDurationTicks = 14;
 const sparkDurationTicks = 6;
 const hitReactionDurationTicks = 3;
 const weaponBurstDurationTicks = 12;
+const ignoreLootBangDurationTicks = 15; // 0.5s @ 30tps
+const gemSparkDurationTicks = 12;
+const trailHistoryLength = 5;
+const maxGemSparks = 24;
 
 export function renderEffectsFor(canvas: HTMLCanvasElement): RenderEffects {
   const cached = renderEffectsByCanvas.get(canvas);
@@ -42,7 +64,18 @@ export function renderEffectsFor(canvas: HTMLCanvasElement): RenderEffects {
     screenFlashUntilTick: 0,
   };
   renderEffectsByCanvas.set(canvas, effects);
+  temperamentFxByEffects.set(effects, createTemperamentFx());
   return effects;
+}
+
+export function temperamentFxFor(effects: RenderEffects): TemperamentFxState {
+  const cached = temperamentFxByEffects.get(effects);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const created = createTemperamentFx();
+  temperamentFxByEffects.set(effects, created);
+  return created;
 }
 
 export function prepareRenderEffects(effects: RenderEffects, state: MatchState): void {
@@ -109,6 +142,7 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
   }
 
   updateDamageNumberTones(effects, state);
+  updateTemperamentFx(temperamentFxFor(effects), state);
   effects.enemyPositions = currentEnemyPositions;
   effects.enemyHealth = currentEnemyHealth;
   effects.enemyKinds = currentEnemyKinds;
@@ -120,6 +154,109 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
   effects.hitReactions = activeHitReactions(effects.hitReactions, state.tick, hitReactionDurationTicks);
   effects.seed = state.seed;
   effects.lastTick = state.tick;
+}
+
+/** Longest equipped weapon range — mirrors sim movement for duelist band visuals. */
+export function longestWeaponRange(hero: HeroState): number {
+  let longestRange = 0;
+  for (const weapon of hero.weapons) {
+    longestRange = Math.max(longestRange, weaponDefinitions[weapon.id].range);
+  }
+  return longestRange;
+}
+
+export function nearestEnemyDistance(hero: HeroState, enemies: readonly EnemyState[]): number | undefined {
+  let best = Number.POSITIVE_INFINITY;
+  for (const enemy of enemies) {
+    const dist = Math.hypot(enemy.x - hero.x, enemy.y - hero.y);
+    if (dist < best) {
+      best = dist;
+    }
+  }
+  return best === Number.POSITIVE_INFINITY ? undefined : best;
+}
+
+export function isDuelistInRangeBand(hero: HeroState, enemies: readonly EnemyState[]): boolean {
+  if (hero.temperament !== "duelist" || !hero.alive) {
+    return false;
+  }
+  const range = longestWeaponRange(hero);
+  if (range <= 0) {
+    return false;
+  }
+  const distance = nearestEnemyDistance(hero, enemies);
+  if (distance === undefined) {
+    return false;
+  }
+  return distance >= range * 0.8 && distance <= range;
+}
+
+export function hasEnemyWithin(hero: HeroState, enemies: readonly EnemyState[], radius: number): boolean {
+  const radiusSquared = radius * radius;
+  for (const enemy of enemies) {
+    const dx = enemy.x - hero.x;
+    const dy = enemy.y - hero.y;
+    if (dx * dx + dy * dy <= radiusSquared) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function nearestDropWithin(
+  hero: HeroState,
+  drops: readonly DropState[],
+  radius: number,
+): DropState | undefined {
+  const radiusSquared = radius * radius;
+  let best: DropState | undefined;
+  let bestDist = radiusSquared;
+  for (const drop of drops) {
+    const dx = drop.x - hero.x;
+    const dy = drop.y - hero.y;
+    const dist = dx * dx + dy * dy;
+    if (dist <= bestDist) {
+      bestDist = dist;
+      best = drop;
+    }
+  }
+  return best;
+}
+
+/** Survivor flee hard-rule: low HP and moving away from enemy centroid. */
+export function isSurvivorFleeing(hero: HeroState, enemies: readonly EnemyState[]): boolean {
+  if (hero.temperament !== "survivor" || !hero.alive || enemies.length === 0) {
+    return false;
+  }
+  if (hero.hp / hero.maxHp >= 0.5) {
+    return false;
+  }
+
+  let cx = 0;
+  let cy = 0;
+  for (const enemy of enemies) {
+    cx += enemy.x;
+    cy += enemy.y;
+  }
+  cx /= enemies.length;
+  cy /= enemies.length;
+
+  const fleeX = hero.x - cx;
+  const fleeY = hero.y - cy;
+  const fleeLen = Math.hypot(fleeX, fleeY);
+  if (fleeLen < 0.0001) {
+    return false;
+  }
+
+  const moveX = Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01 ? hero.vx : hero.moveDirX;
+  const moveY = Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01 ? hero.vy : hero.moveDirY;
+  const moveLen = Math.hypot(moveX, moveY);
+  if (moveLen < 0.01) {
+    return false;
+  }
+
+  const dot = (moveX / moveLen) * (fleeX / fleeLen) + (moveY / moveLen) * (fleeY / fleeLen);
+  return dot > 0.35;
 }
 
 export function facingFor(facings: Map<number, Facing>, id: number): Facing {
@@ -170,6 +307,99 @@ function resetRenderEffects(effects: RenderEffects): void {
   effects.damageNumberEliteHits = new Map();
   effects.shakeUntilTick = 0;
   effects.screenFlashUntilTick = 0;
+  temperamentFxByEffects.set(effects, createTemperamentFx());
+}
+
+function createTemperamentFx(): TemperamentFxState {
+  return {
+    heroXp: new Map(),
+    trailPoints: new Map(),
+    ignoreLootBangUntil: new Map(),
+    fleeActive: new Set(),
+    gemSparks: [],
+  };
+}
+
+function updateTemperamentFx(fx: TemperamentFxState, state: MatchState): void {
+  const nextXp = new Map<number, number>();
+  const nextTrails = new Map<number, Position[]>();
+  const nextBangs = new Map<number, number>();
+  const nextFlee = new Set<number>();
+
+  for (const hero of state.heroes) {
+    if (!hero.alive) {
+      continue;
+    }
+
+    // Hoarder: gem pickup → gold sparkle burst (xp delta)
+    const previousXp = fx.heroXp.get(hero.id);
+    if (hero.temperament === "hoarder" && previousXp !== undefined && hero.xp > previousXp) {
+      pushGemSparks(fx, hero.x, hero.y, state.tick, hero.id);
+    }
+    nextXp.set(hero.id, hero.xp);
+
+    // Survivor trail history (always track for green afterimage)
+    if (hero.temperament === "survivor") {
+      const previous = fx.trailPoints.get(hero.id) ?? [];
+      const lastPoint = previous.length > 0 ? previous[previous.length - 1] : undefined;
+      const next = lastPoint !== undefined && distanceSquared(lastPoint, hero) < 1.5
+        ? previous
+        : [...previous, { x: hero.x, y: hero.y }].slice(-trailHistoryLength);
+      nextTrails.set(hero.id, next);
+
+      if (isSurvivorFleeing(hero, state.enemies)) {
+        nextFlee.add(hero.id);
+      }
+    }
+
+    // Berserker hard rule: ignore loot while enemies near — bang on near-miss loot
+    if (hero.temperament === "berserker") {
+      const previousUntil = fx.ignoreLootBangUntil.get(hero.id) ?? 0;
+      if (
+        hasEnemyWithin(hero, state.enemies, 200)
+        && nearestDropWithin(hero, state.drops, 60) !== undefined
+      ) {
+        nextBangs.set(hero.id, state.tick + ignoreLootBangDurationTicks);
+      } else if (previousUntil > state.tick) {
+        nextBangs.set(hero.id, previousUntil);
+      }
+    }
+  }
+
+  fx.heroXp = nextXp;
+  fx.trailPoints = nextTrails;
+  fx.ignoreLootBangUntil = nextBangs;
+  fx.fleeActive = nextFlee;
+  fx.gemSparks = fx.gemSparks.filter((spark) => state.tick - spark.startedTick <= gemSparkDurationTicks);
+}
+
+function pushGemSparks(
+  fx: TemperamentFxState,
+  x: number,
+  y: number,
+  tick: number,
+  heroId: number,
+): void {
+  const count = 5;
+  for (let index = 0; index < count; index += 1) {
+    if (fx.gemSparks.length >= maxGemSparks) {
+      fx.gemSparks.shift();
+    }
+    const degrees = (heroId * 41 + tick * 17 + index * 67) % 360;
+    fx.gemSparks.push({
+      x,
+      y,
+      angle: degrees * Math.PI / 180,
+      speed: 1.4 + (index % 3) * 0.5,
+      startedTick: tick,
+    });
+  }
+}
+
+function distanceSquared(a: Position, b: Position): number {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  return dx * dx + dy * dy;
 }
 
 function nearestHeroDeltaX(enemy: EnemyState, heroes: readonly HeroState[]): number {

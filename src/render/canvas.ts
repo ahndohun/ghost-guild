@@ -2,8 +2,18 @@ import { WORLD_HEIGHT, WORLD_WIDTH } from "../sim/constants";
 import { classDefinitions } from "../sim/data";
 import type { EnemyState, HeroClassId, HeroState, MatchState } from "../sim";
 import { drawBackground } from "./background";
-import { facingFor, hasHitFlash, hitOffset, prepareRenderEffects, renderEffectsFor, shakeOffset } from "./effects";
-import type { Facing, RenderEffects } from "./effects";
+import {
+  facingFor,
+  hasHitFlash,
+  hitOffset,
+  isDuelistInRangeBand,
+  longestWeaponRange,
+  prepareRenderEffects,
+  renderEffectsFor,
+  shakeOffset,
+  temperamentFxFor,
+} from "./effects";
+import type { Facing, RenderEffects, TemperamentFxState } from "./effects";
 import { drawDamageNumbers, drawDeathPoofs, drawImpactSparks, drawScreenFlash } from "./feedback";
 import { drawDrop } from "./items";
 import { drawSprite, spriteScale } from "./sprites";
@@ -14,6 +24,14 @@ const palette = {
   ink: "#e8e3d5",
   black: "#05040a",
   white: "#ffffff",
+};
+
+// Temperament aura palette (existing sprite colors; alpha kept 0.15–0.35)
+const aura = {
+  berserker: { r: 184, g: 69, b: 63 },
+  hoarder: { r: 232, g: 195, b: 74 },
+  duelist: { r: 122, g: 165, b: 255 },
+  survivor: { r: 127, g: 192, b: 107 },
 };
 
 type EnemyKind = EnemyState["kind"];
@@ -91,9 +109,23 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
     });
   }
 
+  const temperamentFx = temperamentFxFor(effects);
+  for (const hero of state.heroes) {
+    if (hero.alive) {
+      drawTemperamentAura(context, hero, temperamentFx, state);
+    }
+  }
+
   for (const hero of state.heroes) {
     drawHero(context, hero, facingFor(effects.heroFacings, hero.id));
   }
+
+  for (const hero of state.heroes) {
+    if (hero.alive) {
+      drawTemperamentHardRules(context, hero, temperamentFx, state);
+    }
+  }
+  drawGemSparks(context, temperamentFx, state.tick);
 
   drawWeaponBursts(context, effects, state);
   drawDeathPoofs(context, effects, state.tick);
@@ -151,6 +183,253 @@ function drawHero(context: CanvasRenderingContext2D, hero: HeroState, facing: Fa
   context.fillRect(hero.x - 18, hero.y - 26, 36, 4);
   context.fillStyle = definition.color;
   context.fillRect(hero.x - 18, hero.y - 26, 36 * Math.max(0, Math.min(1, hero.hp / hero.maxHp)), 4);
+}
+
+/** Subtle always-on temperament aura drawn under the hero sprite. */
+function drawTemperamentAura(
+  context: CanvasRenderingContext2D,
+  hero: HeroState,
+  fx: TemperamentFxState,
+  state: MatchState,
+): void {
+  switch (hero.temperament) {
+    case "berserker":
+      drawBerserkerAura(context, hero, state.tick);
+      return;
+    case "hoarder":
+      drawHoarderAura(context, hero, state.tick);
+      return;
+    case "duelist":
+      drawDuelistAura(context, hero, state.tick);
+      return;
+    case "survivor":
+      drawSurvivorTrail(context, hero, fx, false);
+      return;
+  }
+}
+
+/** Hard-rule feedback derived from sim positions/HP/drops — no sim writes. */
+function drawTemperamentHardRules(
+  context: CanvasRenderingContext2D,
+  hero: HeroState,
+  fx: TemperamentFxState,
+  state: MatchState,
+): void {
+  switch (hero.temperament) {
+    case "berserker":
+      drawBerserkerIgnoreLootBang(context, hero, fx, state.tick);
+      return;
+    case "hoarder":
+      // gem sparks drawn globally via drawGemSparks
+      return;
+    case "duelist":
+      if (isDuelistInRangeBand(hero, state.enemies)) {
+        drawDuelistRangeRing(context, hero, state.tick);
+      }
+      return;
+    case "survivor":
+      if (fx.fleeActive.has(hero.id)) {
+        drawSurvivorTrail(context, hero, fx, true);
+        drawSweatIcon(context, hero, state.tick);
+      }
+      return;
+  }
+}
+
+function drawBerserkerAura(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  const hpRatio = Math.max(0, Math.min(1, hero.hp / hero.maxHp));
+  // Low HP → stronger pulse (alpha 0.15 → 0.35)
+  const baseAlpha = 0.15 + (1 - hpRatio) * 0.2;
+  const pulse = 0.5 + 0.5 * Math.sin((tick + hero.id * 7) * Math.PI / 12);
+  const alpha = baseAlpha * (0.7 + 0.3 * pulse);
+  const radius = hero.radius + 6 + pulse * (2 + (1 - hpRatio) * 4);
+  const { r, g, b } = aura.berserker;
+
+  context.save();
+  context.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.55})`;
+  context.beginPath();
+  context.arc(Math.round(hero.x), Math.round(hero.y), radius, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  context.lineWidth = 1.5;
+  context.beginPath();
+  context.arc(Math.round(hero.x), Math.round(hero.y), radius + 1, 0, Math.PI * 2);
+  context.stroke();
+  context.restore();
+}
+
+function drawHoarderAura(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  const { r, g, b } = aura.hoarder;
+  // 4 micro gold particles orbiting subtly
+  for (let index = 0; index < 4; index += 1) {
+    const phase = (tick * 0.08 + hero.id * 0.7 + index * 1.6) % (Math.PI * 2);
+    const orbit = hero.radius + 4 + (index % 2);
+    const px = hero.x + Math.cos(phase) * orbit;
+    const py = hero.y + Math.sin(phase) * orbit * 0.55 - 2;
+    const alpha = 0.18 + 0.12 * (0.5 + 0.5 * Math.sin(phase * 2 + tick * 0.1));
+    context.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    context.fillRect(Math.round(px), Math.round(py), 2, 2);
+  }
+}
+
+function drawDuelistAura(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  const { r, g, b } = aura.duelist;
+  const pulse = 0.5 + 0.5 * Math.sin((tick + hero.id * 3) * Math.PI / 18);
+  const alpha = 0.15 + pulse * 0.12;
+  const gleamLen = 14 + pulse * 3;
+  const angle = -0.55 + pulse * 0.08;
+
+  context.save();
+  context.translate(Math.round(hero.x + 6), Math.round(hero.y - 2));
+  context.rotate(angle);
+  context.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  context.lineWidth = 1.5;
+  context.beginPath();
+  context.moveTo(-gleamLen * 0.2, 0);
+  context.lineTo(gleamLen, 0);
+  context.stroke();
+  context.strokeStyle = `rgba(191, 212, 255, ${alpha * 0.7})`;
+  context.lineWidth = 1;
+  context.beginPath();
+  context.moveTo(gleamLen * 0.3, -1);
+  context.lineTo(gleamLen * 0.85, -1);
+  context.stroke();
+  context.restore();
+}
+
+function drawSurvivorTrail(
+  context: CanvasRenderingContext2D,
+  hero: HeroState,
+  fx: TemperamentFxState,
+  reinforced: boolean,
+): void {
+  const points = fx.trailPoints.get(hero.id);
+  const { r, g, b } = aura.survivor;
+
+  if (points !== undefined && points.length > 0) {
+    const count = points.length;
+    for (let index = 0; index < count; index += 1) {
+      const point = points[index];
+      if (point === undefined) {
+        continue;
+      }
+      const age = (index + 1) / (count + 1);
+      const alpha = (reinforced ? 0.22 : 0.12) * age;
+      const size = reinforced ? 3 : 2;
+      context.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      context.beginPath();
+      context.arc(Math.round(point.x), Math.round(point.y), size + age, 0, Math.PI * 2);
+      context.fill();
+    }
+  }
+
+  // Directional residue opposite movement (always-on subtle ghost)
+  const moveX = Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01 ? hero.vx : hero.moveDirX;
+  const moveY = Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01 ? hero.vy : hero.moveDirY;
+  const len = Math.hypot(moveX, moveY);
+  if (len > 0.05) {
+    const nx = moveX / len;
+    const ny = moveY / len;
+    const steps = reinforced ? 3 : 2;
+    for (let step = 1; step <= steps; step += 1) {
+      const alpha = (reinforced ? 0.2 : 0.12) * (1 - step / (steps + 1));
+      const dist = step * (reinforced ? 7 : 5);
+      context.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      context.beginPath();
+      context.arc(
+        Math.round(hero.x - nx * dist),
+        Math.round(hero.y - ny * dist),
+        reinforced ? 4 : 3,
+        0,
+        Math.PI * 2,
+      );
+      context.fill();
+    }
+  }
+}
+
+function drawBerserkerIgnoreLootBang(
+  context: CanvasRenderingContext2D,
+  hero: HeroState,
+  fx: TemperamentFxState,
+  tick: number,
+): void {
+  const until = fx.ignoreLootBangUntil.get(hero.id);
+  if (until === undefined || until <= tick) {
+    return;
+  }
+  const remaining = until - tick;
+  const alpha = Math.min(1, remaining / 5) * 0.95;
+  const bob = Math.sin(tick * Math.PI / 6) * 1.5;
+  context.save();
+  context.globalAlpha = alpha;
+  drawSprite(context, {
+    id: "iconBang",
+    x: hero.x + 10,
+    y: hero.y - 34 + bob,
+    scale: 2,
+  });
+  context.restore();
+}
+
+function drawDuelistRangeRing(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  const range = longestWeaponRange(hero);
+  if (range <= 0) {
+    return;
+  }
+  const { r, g, b } = aura.duelist;
+  const pulse = 0.5 + 0.5 * Math.sin(tick * Math.PI / 20);
+  const alpha = 0.18 + pulse * 0.1;
+  // Thin ring at feet — hints the 80–100% kiting band (radius scaled down for readability)
+  const ringRadius = Math.min(28, 10 + range * 0.06);
+
+  context.save();
+  context.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  context.lineWidth = 1.5;
+  context.beginPath();
+  context.ellipse(
+    Math.round(hero.x),
+    Math.round(hero.y + hero.radius * 0.55),
+    ringRadius,
+    ringRadius * 0.32,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  context.stroke();
+  context.restore();
+}
+
+function drawSweatIcon(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  const bob = (tick % 10) * 0.35;
+  context.save();
+  context.globalAlpha = 0.75;
+  drawSprite(context, {
+    id: "iconSweat",
+    x: hero.x - 12,
+    y: hero.y - 30 + bob,
+    scale: 2,
+  });
+  context.restore();
+}
+
+function drawGemSparks(context: CanvasRenderingContext2D, fx: TemperamentFxState, tick: number): void {
+  const { r, g, b } = aura.hoarder;
+  for (const spark of fx.gemSparks) {
+    const age = tick - spark.startedTick;
+    const progress = Math.max(0, Math.min(1, age / 12));
+    const distance = spark.speed * age * 1.1;
+    const x = spark.x + Math.cos(spark.angle) * distance;
+    const y = spark.y + Math.sin(spark.angle) * distance - age * 0.4;
+    const alpha = (1 - progress) * 0.85;
+    const size = progress < 0.3 ? 3 : 2;
+    context.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    context.fillRect(Math.round(x) - 1, Math.round(y) - 1, size, size);
+    if (progress < 0.4) {
+      context.fillStyle = `rgba(255, 242, 163, ${alpha * 0.8})`;
+      context.fillRect(Math.round(x), Math.round(y) - 2, 1, 1);
+    }
+  }
 }
 
 function drawHeroName(context: CanvasRenderingContext2D, hero: HeroState, color: string): void {

@@ -1,6 +1,7 @@
 import { heroClassIds, perkCosts, perkDefinitions, temperamentDefinitions, temperamentIds } from "../sim";
 import type { PerkChoice, PerkId, PerkTier, TemperamentId } from "../sim";
 import { requiredButton, requiredElement, requiredInput } from "./dom";
+import type { LobbyStageController } from "./lobbyStage";
 import { classUnlockCosts, formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
 import type { GuildSave } from "./save";
 
@@ -11,6 +12,7 @@ export type PerkSlot = {
 
 export type GuildViewControls = {
   readonly autorunButton: HTMLButtonElement;
+  readonly lobbyStage: LobbyStageController;
 };
 
 export const perkSlots: readonly PerkSlot[] = [
@@ -30,6 +32,12 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
   controls.autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
   renderTemperaments(documentRef, save.temperament);
   renderPerks(documentRef, save);
+  controls.lobbyStage.setAppearance({
+    playerName: save.playerName,
+    classId: save.classId,
+    temperament: save.temperament,
+    bestSurvivalSeconds: save.bestSurvivalSeconds,
+  });
 
   for (const upgrade of permStatUpgrades) {
     const button = requiredButton(documentRef, `buy-${upgrade.id}`);

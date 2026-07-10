@@ -89,105 +89,110 @@ button:disabled {
   position: relative;
   width: min(1180px, 100%);
   overflow: hidden;
+  padding-top: 12px;
   background:
-    linear-gradient(180deg, rgba(11, 10, 15, 0.86) 0%, rgba(14, 12, 21, 0.76) 48%, rgba(8, 7, 11, 0.92) 100%),
-    radial-gradient(circle at 50% 18%, rgba(217, 164, 65, 0.22), transparent 18rem),
+    linear-gradient(180deg, rgba(11, 10, 15, 0.92) 0%, rgba(14, 12, 21, 0.9) 48%, rgba(8, 7, 11, 0.96) 100%),
     #0e0c15;
-}
-
-.guild-screen > :not(.barracks-scene) {
-  position: relative;
-  z-index: 1;
-}
-
-.barracks-scene {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  opacity: 0.42;
-  pointer-events: none;
-}
-
-.barracks-scene::before {
-  position: absolute;
-  top: 128px;
-  left: max(20px, calc(50% - 560px));
-  width: 190px;
-  height: 420px;
-  background: linear-gradient(180deg, rgba(232, 227, 213, 0.08), rgba(217, 164, 65, 0.03) 38%, transparent 100%);
-  content: "";
-  filter: blur(3px);
-  transform: perspective(320px) rotateX(32deg);
-  transform-origin: top center;
-}
-
-.barracks-scene::after {
-  position: absolute;
-  inset: auto -5% 0;
-  height: 46%;
-  background:
-    linear-gradient(180deg, transparent 0%, rgba(7, 6, 10, 0.72) 45%, rgba(5, 4, 8, 0.94) 100%),
-    repeating-linear-gradient(90deg, rgba(232, 227, 213, 0.04) 0 2px, transparent 2px 46px);
-  content: "";
-}
-
-.barracks-scene img {
-  position: absolute;
-  display: block;
-  image-rendering: pixelated;
-  opacity: 0.72;
-}
-
-.barracks-gate {
-  top: 92px;
-  left: max(28px, calc(50% - 560px));
-  width: 320px;
-  height: 256px;
-  filter: drop-shadow(0 24px 26px rgba(0, 0, 0, 0.58));
-  opacity: 0.34;
-}
-
-.barracks-banner {
-  top: 110px;
-  left: max(30px, calc(50% - 470px));
-  width: 128px;
-  height: 192px;
-  opacity: 0.72;
-}
-
-.barracks-rack {
-  top: 192px;
-  right: max(32px, calc(50% - 510px));
-  width: 192px;
-  height: 160px;
-  opacity: 0.76;
-}
-
-.barracks-brazier {
-  top: 292px;
-  width: 128px;
-  height: 160px;
-  filter: brightness(0.95);
-}
-
-.brazier-left {
-  left: max(82px, calc(50% - 390px));
-}
-
-.brazier-right {
-  right: max(82px, calc(50% - 390px));
-}
-
-.barracks-gladiator {
-  bottom: 72px;
-  left: max(30px, calc(50% - 520px));
-  width: 192px;
-  height: 160px;
-  opacity: 0.84;
 }
 
 .hidden {
   display: none;
+}
+
+/* Hall-of-Torment lobby stage — hero is the protagonist */
+.lobby-stage {
+  display: grid;
+  gap: 0;
+  margin: 0 0 14px;
+  border: 2px solid #e8e3d5;
+  background: #0a080e;
+  box-shadow: 6px 6px 0 #05040a;
+}
+
+.lobby-stage-frame {
+  position: relative;
+  width: 100%;
+  height: min(40vh, 320px);
+  min-height: 220px;
+  overflow: hidden;
+  background: #0e0c15;
+}
+
+#lobby-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: auto;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  image-rendering: pixelated;
+}
+
+.lobby-title-overlay {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  z-index: 1;
+  pointer-events: none;
+  text-shadow: 2px 2px 0 #05040a;
+}
+
+.lobby-title-overlay .eyebrow {
+  margin: 0 0 6px;
+  font-size: 8px;
+}
+
+.lobby-title-overlay h1 {
+  margin: 0;
+  font-size: clamp(14px, 2.4vw, 22px);
+  line-height: 1.25;
+}
+
+.lobby-title-overlay .tagline {
+  max-width: 42rem;
+  margin: 6px 0 0;
+  color: rgba(232, 227, 213, 0.78);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.lobby-title-overlay .onboarding-line {
+  max-width: 48rem;
+  margin: 4px 0 0;
+  color: rgba(232, 227, 213, 0.52);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.lobby-nameplate {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  border-top: 2px solid #e8e3d5;
+  padding: 10px 14px 12px;
+  background:
+    linear-gradient(180deg, #17111c 0%, #0a080e 100%);
+  text-align: center;
+}
+
+.lobby-nameplate-title {
+  margin: 0;
+  color: #fff4cf;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.lobby-nameplate-rule {
+  margin: 0;
+  max-width: 52rem;
+  color: rgba(232, 227, 213, 0.78);
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  line-height: 1.6;
 }
 
 .topbar,
@@ -195,7 +200,11 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+}
+
+.guild-screen .topbar {
+  margin-bottom: 4px;
 }
 
 .eyebrow {
@@ -235,7 +244,8 @@ h1 {
 }
 
 h2 {
-  font-size: 13px;
+  margin-bottom: 10px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
@@ -248,29 +258,33 @@ h2 {
 }
 
 .gold {
-  padding: 14px 16px;
+  display: grid;
+  align-content: center;
+  padding: 10px 14px;
   white-space: nowrap;
+  font-size: 11px;
 }
 
 .topbar-meta {
   display: grid;
-  min-width: min(100%, 320px);
+  grid-template-columns: minmax(0, 1fr) auto;
+  width: 100%;
   gap: 10px;
 }
 
 .player-name-field {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   border: 2px solid #e8e3d5;
-  padding: 12px 14px;
+  padding: 8px 12px;
   background: #0a080e;
-  box-shadow: 6px 6px 0 #05040a;
+  box-shadow: 4px 4px 0 #05040a;
 }
 
 .player-name-field span {
   color: #58d6c9;
   font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .player-name-field input {
@@ -280,7 +294,7 @@ h2 {
   border-bottom: 2px solid rgba(232, 227, 213, 0.42);
   color: #fff4cf;
   background: transparent;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.5;
   outline: 0;
 }
@@ -290,13 +304,13 @@ h2 {
 }
 
 .best-survival-guild {
-  border: 2px solid #e8e3d5;
-  padding: 10px 14px;
+  border: 2px solid #58d6c9;
+  padding: 6px 10px;
   background: #0a080e;
-  box-shadow: 6px 6px 0 #05040a;
+  box-shadow: 3px 3px 0 #05040a;
   color: #9fe3b0;
   font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 9px;
+  font-size: 8px;
   line-height: 1.5;
   white-space: nowrap;
 }
@@ -325,13 +339,13 @@ h2 {
 
 .guild-layout {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
-  gap: 16px;
-  margin: 28px 0;
+  grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+  gap: 12px;
+  margin: 12px 0 16px;
 }
 
 .panel {
-  padding: 18px;
+  padding: 12px;
 }
 
 .class-grid,
@@ -339,7 +353,7 @@ h2 {
 .temperament-grid,
 .perk-grid {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .class-grid {
@@ -356,22 +370,28 @@ h2 {
 .perk-card {
   display: grid;
   place-items: center;
-  gap: 8px;
-  padding: 14px;
+  gap: 6px;
+  padding: 10px;
 }
 
 .class-card {
-  min-height: 148px;
+  min-height: 112px;
 }
 
 .temperament-card {
-  min-height: 156px;
+  min-height: 118px;
   align-content: start;
 }
 
 .perk-card {
-  min-height: 138px;
+  min-height: 108px;
   align-content: start;
+}
+
+.upgrade-grid button {
+  min-height: 40px;
+  padding: 8px 10px;
+  font-size: 9px;
 }
 
 .class-card.selected,
@@ -388,13 +408,13 @@ h2 {
 
 .class-glyph {
   display: grid;
-  width: 46px;
-  height: 46px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border: 2px solid #05040a;
   background: #e8e3d5;
   color: #0e0c15;
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .class-card small,
@@ -556,12 +576,22 @@ canvas {
     font-size: 22px;
   }
 
+  .lobby-stage-frame {
+    height: min(36vh, 260px);
+    min-height: 200px;
+  }
+
+  .lobby-title-overlay .tagline {
+    display: none;
+  }
+
   .topbar {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
   }
 
   .topbar-meta {
+    grid-template-columns: 1fr;
     width: 100%;
   }
 
@@ -571,22 +601,6 @@ canvas {
   .class-grid,
   .result-grid {
     grid-template-columns: 1fr;
-  }
-
-  .barracks-gate {
-    top: 128px;
-    width: 256px;
-    height: 205px;
-  }
-
-  .barracks-banner,
-  .barracks-rack,
-  .brazier-right {
-    opacity: 0.36;
-  }
-
-  .barracks-gladiator {
-    opacity: 0.42;
   }
 }
 
@@ -606,30 +620,4 @@ canvas {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .barracks-brazier {
-    animation: brazier-flicker 2.4s steps(3, end) infinite;
-  }
 
-  .brazier-right {
-    animation-delay: 0.7s;
-  }
-}
-
-@keyframes brazier-flicker {
-  0%,
-  100% {
-    opacity: 0.86;
-    filter: brightness(0.92);
-  }
-
-  42% {
-    opacity: 1;
-    filter: brightness(1.16);
-  }
-
-  70% {
-    opacity: 0.78;
-    filter: brightness(0.84);
-  }
-}

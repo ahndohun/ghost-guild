@@ -4,27 +4,28 @@ import type { HeroClassId, PerkChoice, PerkTier, TemperamentId } from "../sim";
 export function screenMarkup(): string {
   return `
     <section id="screen-guild" class="screen guild-screen">
-      <div class="barracks-scene" aria-hidden="true">
-        <img class="barracks-gate" src="/assets/barracks/arena-gate.png" alt="" width="160" height="128" />
-        <img class="barracks-banner" src="/assets/barracks/banner.png" alt="" width="64" height="96" />
-        <img class="barracks-rack" src="/assets/barracks/weapon-rack.png" alt="" width="96" height="80" />
-        <img class="barracks-brazier brazier-left" src="/assets/barracks/brazier.png" alt="" width="64" height="80" />
-        <img class="barracks-brazier brazier-right" src="/assets/barracks/brazier.png" alt="" width="64" height="80" />
-        <img class="barracks-gladiator" src="/assets/barracks/gladiator-resting.png" alt="" width="96" height="80" />
+      <div class="lobby-stage" aria-label="Gladiator lobby">
+        <div class="lobby-stage-frame">
+          <canvas id="lobby-canvas" width="960" height="280" aria-label="Lobby stage"></canvas>
+          <div class="lobby-title-overlay">
+            <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
+            <h1>Ghost Colosseum</h1>
+            <p class="tagline">Coach your gladiator. The crowd remembers.</p>
+            <p class="onboarding-line">Your gladiator fights on its own - pick a temperament, hit DEPLOY, and watch. Win gold to unlock perks, classes, and upgrades.</p>
+          </div>
+        </div>
+        <div class="lobby-nameplate" aria-live="polite">
+          <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Berserker</p>
+          <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Ignores loot when an enemy is within 200px and never flees at low HP.</p>
+          <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
+        </div>
       </div>
       <header class="topbar">
-        <div>
-          <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
-          <h1>Ghost Colosseum</h1>
-          <p class="tagline">Coach your gladiator. The crowd remembers.</p>
-          <p class="onboarding-line">Your gladiator fights on its own - pick a temperament, hit DEPLOY, and watch. Win gold to unlock perks, classes, and upgrades.</p>
-        </div>
         <div class="topbar-meta">
           <label class="player-name-field">
             <span>Gladiator</span>
             <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" />
           </label>
-          <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
           <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
         </div>
       </header>

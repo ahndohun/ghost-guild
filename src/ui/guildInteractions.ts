@@ -2,7 +2,6 @@ import { heroClassIds, perkCosts, perkDefinitions, temperamentIds } from "../sim
 import type { PerkId, PerkTier } from "../sim";
 import { requiredButton, requiredInput } from "./dom";
 import { perkSlots } from "./guildView";
-import type { GuildViewControls } from "./guildView";
 import { classUnlockCosts, nextUpgradeCost, permStatUpgrades } from "./meta";
 import { normalizePlayerNameInput } from "./save";
 import type { GuildSave } from "./save";
@@ -16,7 +15,9 @@ type GuildInteractionContext = {
   renderGuild(): void;
 };
 
-export function wireGuildInteractions(context: GuildInteractionContext): GuildViewControls {
+export function wireGuildInteractions(context: GuildInteractionContext): {
+  readonly autorunButton: HTMLButtonElement;
+} {
   const autorunButton = requiredButton(context.documentRef, "toggle-autorun");
   const playerNameInput = requiredInput(context.documentRef, "player-name");
 

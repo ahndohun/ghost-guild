@@ -11,6 +11,7 @@ import { leaderboardFromResult, submitArenaResult } from "./arenaResults";
 import { requiredButton, requiredCanvas, requiredElement } from "./dom";
 import { wireGuildInteractions } from "./guildInteractions";
 import { renderGuildView } from "./guildView";
+import { createLobbyStage } from "./lobbyStage";
 import { screenMarkup } from "./markup";
 import { currentLoadout } from "./meta";
 import { renderLeaderboard, renderRanking, updateMirror } from "./runHud";
@@ -80,19 +81,23 @@ function createScreenController(
   const resultsScreen = requiredElement(documentRef, "screen-results");
   const screenElements = { guild: guildScreen, run: runScreen, results: resultsScreen };
   const gameState = requiredElement(documentRef, "game-state");
+  const lobbyStage = createLobbyStage(documentRef, windowRef);
 
   const deploySoloButton = requiredButton(documentRef, "deploy-solo");
   const deployArenaButton = requiredButton(documentRef, "deploy-arena");
   const backButton = requiredButton(documentRef, "back-to-guild");
-  const guildControls = wireGuildInteractions({
-    documentRef,
-    windowRef,
-    getSave: () => save,
-    setSave: (nextSave) => {
-      save = nextSave;
-    },
-    renderGuild: () => renderGuild(),
-  });
+  const guildControls = {
+    ...wireGuildInteractions({
+      documentRef,
+      windowRef,
+      getSave: () => save,
+      setSave: (nextSave) => {
+        save = nextSave;
+      },
+      renderGuild: () => renderGuild(),
+    }),
+    lobbyStage,
+  };
 
   deploySoloButton.addEventListener("click", () => deploySolo());
   deployArenaButton.addEventListener("click", () => {
@@ -101,12 +106,13 @@ function createScreenController(
   backButton.addEventListener("click", () => {
     clearAutorun(windowRef, autorunTimer);
     autorunTimer = undefined;
-    renderGuild();
     setVisibleScreen(screenElements, "guild");
+    renderGuild();
   });
 
   function renderGuild(): void {
     renderGuildView(documentRef, save, guildControls);
+    lobbyStage.start();
   }
 
   function deploySolo(): void {
@@ -142,6 +148,7 @@ function createScreenController(
       lastMirrorTime: 0,
     };
 
+    lobbyStage.stop();
     matchSound.startMatch(input.match.state);
     setVisibleScreen(screenElements, "run");
     requiredElement(documentRef, "arena-offline-badge").classList.toggle("hidden", !input.arenaOffline);
@@ -239,6 +246,7 @@ function createScreenController(
     renderBestSurvivalLine(documentRef, best, primary.survived);
     renderRanking(documentRef, result, primary.heroId);
     renderLeaderboard(documentRef, mode === "arena" ? leaderboardFromResult(result) : []);
+    lobbyStage.stop();
     setVisibleScreen(screenElements, "results");
     session = undefined;
 
