@@ -1,5 +1,7 @@
-import { classDefinitions, heroClassIds, perkDefinitions } from "../sim";
+import { classDefinitions, heroClassIds, perkDefinitions, weaponDefinitions } from "../sim";
 import type { HeroClassId, PerkChoice, PerkTier } from "../sim";
+import { classPortraitPath, skillIconPath } from "./art";
+import { perkArtMetadata } from "./perkArt";
 
 export const recommendedClassIds: readonly HeroClassId[] = ["fighter", "knight", "mage"];
 
@@ -92,6 +94,22 @@ export function screenMarkup(): string {
               </div>
               <section class="panel overview-summary" data-testid="guild-overview-summary">
                 <h2>Overview</h2>
+                <div class="overview-identity">
+                  <img
+                    id="overview-class-portrait"
+                    class="overview-class-portrait"
+                    data-testid="overview-class-portrait"
+                    src="${classPortraitPath("knight")}"
+                    alt="Knight portrait"
+                    width="64"
+                    height="64"
+                    decoding="async"
+                  />
+                  <div>
+                    <span>Current Class</span>
+                    <strong id="overview-class-name">Knight</strong>
+                  </div>
+                </div>
                 <dl class="overview-grid">
                   <div class="overview-cell"><dt>Equipped</dt><dd id="overview-equipped">—</dd></div>
                   <div class="overview-cell"><dt>Recommended</dt><dd id="overview-recommendation">—</dd></div>
@@ -256,9 +274,14 @@ export function screenMarkup(): string {
 function itemSlotMarkup(slot: "relicWeapon" | "armor" | "trinket", label: string): string {
   return `
     <button type="button" class="item-slot" id="item-slot-${slot}" data-testid="item-slot-${slot}" data-item-slot="${slot}">
-      <span>${label}</span>
-      <strong>Empty</strong>
-      <small>Click an equipped item to unequip.</small>
+      <span class="item-slot-label">${label}</span>
+      <div class="item-card-body">
+        <img class="item-icon hidden" alt="" width="32" height="32" decoding="async" />
+        <div class="item-copy">
+          <strong>Empty</strong>
+          <small>Click an equipped item to unequip.</small>
+        </div>
+      </div>
     </button>
   `;
 }
@@ -267,9 +290,13 @@ function perkSlotMarkup(tier: PerkTier, choice: PerkChoice): string {
   const fallback = perkDefinitions.knight.find((perk) => perk.tier === tier && perk.choice === choice);
   const name = fallback === undefined ? "Locked" : fallback.name;
   const effect = fallback === undefined ? "Choose the previous tier first." : fallback.effect;
+  const art = fallback === undefined ? undefined : perkArtMetadata("knight", fallback);
   return `
-    <button type="button" class="perk-card" data-testid="perk-t${tier}-${choice}" aria-pressed="false">
+    <button type="button" class="perk-card" data-testid="perk-t${tier}-${choice}" aria-pressed="false" data-perk-tier="${tier}" data-perk-choice="${choice}"${art === undefined ? "" : ` data-perk-family="${art.family}" data-perk-frame="${art.frameToken}" style="--perk-accent: ${art.classColor}"`}>
       <span class="perk-tier">T${tier}${choice.toUpperCase()}</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t${tier}-${choice}-icon" class="perk-icon" src="${art?.iconPath ?? ""}" alt="" width="32" height="32" decoding="async" />
+      </span>
       <strong id="perk-t${tier}-${choice}-name">${name}</strong>
       <small id="perk-t${tier}-${choice}-effect">${effect}</small>
       <em id="perk-t${tier}-${choice}-cost">0g</em>
@@ -279,11 +306,16 @@ function perkSlotMarkup(tier: PerkTier, choice: PerkChoice): string {
 
 function classMarkup(classId: HeroClassId): string {
   const definition = classDefinitions[classId];
+  const startingWeapons = definition.startingWeapons ?? [definition.startingWeapon];
+  const startingWeaponLabel = startingWeapons.map((weaponId) => weaponDefinitions[weaponId].name).join(" + ");
   return `
     <button type="button" class="class-card" data-testid="class-${classId}">
-      <span class="class-glyph">${definition.glyph}</span>
+      <img class="class-portrait" src="${classPortraitPath(classId)}" alt="" width="64" height="64" decoding="async" />
       <strong>${definition.name}</strong>
-      <small>${definition.startingWeapon}</small>
+      <span class="class-skill">
+        <img class="class-skill-icon" src="${skillIconPath(definition.startingWeapon)}" alt="" width="32" height="32" decoding="async" />
+        <small>${startingWeaponLabel}</small>
+      </span>
       <span class="class-strength">${definition.strength}</span>
       <span class="class-weakness">${definition.weakness}</span>
       <small id="class-${classId}-status" class="class-status">Ready</small>

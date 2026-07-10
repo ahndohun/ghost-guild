@@ -1,8 +1,18 @@
 import { describe, expect, it } from "vitest";
 import manifestText from "../public/assets/art-manifest.json?raw";
+import { itemDefinitions } from "../src/sim/items";
+import {
+  classPortraitPaths,
+  itemArtKey,
+  itemIllustrationPath,
+  itemIllustrationPaths,
+  skillIconPaths,
+} from "../src/ui/art";
+import { perkIconPaths } from "../src/ui/perkArt";
 
 type ManifestEntry = {
   readonly id: string;
+  readonly path: string;
 };
 
 type ActorEntry = ManifestEntry & {
@@ -58,6 +68,26 @@ const classActors = [
   "monk",
 ] as const;
 const enemyActors = ["slime", "bat", "brute"] as const;
+const skillIds = [
+  "swordSweep",
+  "fireBolt",
+  "holyBolt",
+  "throwingAxe",
+  "frostNova",
+  "garlicAura",
+  "holySmash",
+  "lifeDrain",
+  "shadowDaggers",
+  "earthShatter",
+  "magicArrow",
+  "whirlwindAxe",
+  "shieldBash",
+  "radiantBurst",
+  "meteor",
+  "chainLightning",
+  "poisonFlask",
+  "crossbowBolt",
+] as const;
 
 describe("production art manifest", () => {
   it("locks the project style, chroma key, and production inventory", () => {
@@ -68,6 +98,7 @@ describe("production art manifest", () => {
       classPortraits: 11,
       skillIcons: 18,
       itemIllustrations: 38,
+      perkIconFamilies: 6,
       actorSets: 14,
     });
   });
@@ -102,13 +133,41 @@ describe("production art manifest", () => {
   });
 
   it("starts future production families empty and explains every retired asset", () => {
-    expect(manifest.classPortraits).toEqual({});
-    expect(manifest.skillIcons).toEqual({});
-    expect(manifest.itemIllustrations).toEqual({});
-    expect(manifest.perkIcons).toEqual({});
+    expect(Object.keys(manifest.classPortraits).sort()).toEqual([...classActors].sort());
+    expect(Object.keys(manifest.skillIcons).sort()).toEqual([...skillIds].sort());
+    expect(Object.keys(manifest.itemIllustrations)).toHaveLength(38);
+    expect(Object.keys(manifest.perkIcons).sort()).toEqual([
+      "attack",
+      "behavior",
+      "defense",
+      "economy",
+      "movement",
+      "signature",
+    ]);
     expect(manifest.environment.tiles).toEqual({});
     expect(manifest.results).toEqual({});
     expect(manifest.retired).toHaveLength(15);
+  });
+
+  it("maps all 74 item definitions onto exactly 38 illustration keys", () => {
+    const keys = itemDefinitions.map((item) => itemArtKey(item.id));
+    const paths = itemDefinitions.map((item) => itemIllustrationPath(item.id));
+
+    expect(itemDefinitions).toHaveLength(74);
+    expect(keys.every((key) => key !== undefined)).toBe(true);
+    expect(paths.every((assetPath) => assetPath !== undefined)).toBe(true);
+    expect(new Set(keys).size).toBe(38);
+    expect(new Set(paths).size).toBe(38);
+  });
+
+  it("matches every live presentation path to its exact manifest key", () => {
+    const pathsFor = (entries: Readonly<Record<string, ManifestEntry>>) =>
+      Object.fromEntries(Object.entries(entries).map(([key, entry]) => [key, `/${entry.path}`]));
+
+    expect(classPortraitPaths).toEqual(pathsFor(manifest.classPortraits));
+    expect(skillIconPaths).toEqual(pathsFor(manifest.skillIcons));
+    expect(itemIllustrationPaths).toEqual(pathsFor(manifest.itemIllustrations));
+    expect(perkIconPaths).toEqual(pathsFor(manifest.perkIcons));
   });
 
   it("keeps manifest ids globally unique", () => {

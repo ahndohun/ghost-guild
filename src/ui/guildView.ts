@@ -1,11 +1,14 @@
-import { heroClassIds, perkCosts, perkDefinitions, temperamentForClass } from "../sim";
+import { classDefinitions, heroClassIds, perkCosts, perkDefinitions, temperamentForClass } from "../sim";
 import { getItemDefinition, itemSlots, rarityColor } from "../sim/items";
+import type { PerkDefinition } from "../sim/perks";
 import type { HeroClassId, ItemId, ItemSlot, PerkChoice, PerkId, PerkTier } from "../sim";
 import { requiredButton, requiredElement, requiredInput } from "./dom";
+import { classPortraitPath, itemIllustrationPath } from "./art";
 import { formatEquippedSummary, recommendNextAction } from "./guildOverview";
 import { formatItemCard, slotLabel } from "./inventory";
 import type { LobbyStageController } from "./lobbyStage";
 import { formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
+import { perkArtMetadata } from "./perkArt";
 import type { GuildSave } from "./save";
 
 export type PerkSlot = {
@@ -82,6 +85,15 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
  * nameplate / top strip; this fills the two remaining fields.
  */
 function renderGuildOverview(documentRef: Document, save: GuildSave): void {
+  const portrait = documentRef.getElementById("overview-class-portrait");
+  if (portrait instanceof HTMLImageElement) {
+    portrait.src = classPortraitPath(save.classId);
+    portrait.alt = `${className(save.classId)} portrait`;
+  }
+  const classNameElement = documentRef.getElementById("overview-class-name");
+  if (classNameElement !== null) {
+    classNameElement.textContent = className(save.classId);
+  }
   const equipped = documentRef.getElementById("overview-equipped");
   if (equipped !== null) {
     equipped.textContent = formatEquippedSummary(save);
@@ -90,6 +102,10 @@ function renderGuildOverview(documentRef: Document, save: GuildSave): void {
   if (recommendation !== null) {
     recommendation.textContent = recommendNextAction(save);
   }
+}
+
+function className(classId: HeroClassId): string {
+  return classDefinitions[classId].name;
 }
 
 function renderGuildBestSurvival(documentRef: Document, bestSurvivalSeconds: number | undefined): void {
@@ -101,7 +117,7 @@ function renderGuildBestSurvival(documentRef: Document, bestSurvivalSeconds: num
 
 function renderPerks(documentRef: Document, save: GuildSave): void {
   const selectedPerks = save.perksByClass[save.classId] ?? [];
-  const defs = perkDefinitions as Partial<Record<HeroClassId, readonly (typeof perkDefinitions)[HeroClassId][number][]>>;
+  const defs: Partial<Record<HeroClassId, readonly PerkDefinition[]>> = perkDefinitions;
 
   for (const slot of perkSlots) {
     const button = documentRef.querySelector(`[data-testid="perk-t${slot.tier}-${slot.choice}"]`);
@@ -126,6 +142,16 @@ function renderPerks(documentRef: Document, save: GuildSave): void {
     const nameEl = documentRef.getElementById(`perk-t${slot.tier}-${slot.choice}-name`);
     const effectEl = documentRef.getElementById(`perk-t${slot.tier}-${slot.choice}-effect`);
     const costEl = documentRef.getElementById(`perk-t${slot.tier}-${slot.choice}-cost`);
+    const iconEl = documentRef.getElementById(`perk-t${slot.tier}-${slot.choice}-icon`);
+    const art = perkArtMetadata(save.classId, perk);
+    if (iconEl instanceof HTMLImageElement) {
+      iconEl.src = art.iconPath;
+    }
+    button.dataset.perkFamily = art.family;
+    button.dataset.perkFrame = art.frameToken;
+    button.dataset.perkTier = String(art.tier);
+    button.dataset.perkChoice = art.choice;
+    button.style.setProperty("--perk-accent", art.classColor);
     if (nameEl !== null) {
       nameEl.textContent = perk.name;
     }
@@ -185,7 +211,8 @@ function renderEquippedSlot(documentRef: Document, slot: ItemSlot, itemId: ItemI
   const card = formatItemCard(itemId);
   const strong = button.querySelector("strong");
   const small = button.querySelector("small");
-  const label = button.querySelector("span");
+  const label = button.querySelector(".item-slot-label");
+  const image = button.querySelector("img.item-icon");
   if (label !== null) {
     label.textContent = slotLabel(slot);
   }
@@ -196,6 +223,15 @@ function renderEquippedSlot(documentRef: Document, slot: ItemSlot, itemId: ItemI
   if (small !== null) {
     small.textContent = itemId === null ? "Empty — click a stash item to equip." : card.detail;
   }
+  if (image instanceof HTMLImageElement) {
+    const assetPath = itemId === null ? undefined : itemIllustrationPath(itemId);
+    image.classList.toggle("hidden", assetPath === undefined);
+    if (assetPath === undefined) {
+      image.removeAttribute("src");
+    } else {
+      image.src = assetPath;
+    }
+  }
   button.disabled = itemId === null;
   button.classList.toggle("empty", itemId === null);
   button.setAttribute("data-item-id", itemId ?? "");
@@ -203,10 +239,12 @@ function renderEquippedSlot(documentRef: Document, slot: ItemSlot, itemId: ItemI
   if (itemId !== null) {
     const item = getItemDefinition(itemId);
     if (item !== undefined) {
-      button.style.borderColor = rarityColor(item.rarity);
+      button.dataset.rarity = item.rarity;
+      button.style.setProperty("--rarity-color", rarityColor(item.rarity));
     }
   } else {
-    button.style.borderColor = "";
+    delete button.dataset.rarity;
+    button.style.removeProperty("--rarity-color");
   }
 }
 
@@ -223,8 +261,30 @@ function createStashButton(documentRef: Document, itemId: ItemId, index: number)
     button.textContent = itemId;
     return button;
   }
-  button.style.color = rarityColor(item.rarity);
-  button.innerHTML = `<strong>${item.name}</strong><small>${item.rarity} · ${item.slot}</small>`;
+  button.dataset.rarity = item.rarity;
+  button.style.setProperty("--rarity-color", rarityColor(item.rarity));
+  const assetPath = itemIllustrationPath(itemId);
+  if (assetPath !== undefined) {
+    const image = documentRef.createElement("img");
+    image.className = "item-icon";
+    image.src = assetPath;
+    image.alt = "";
+    image.width = 32;
+    image.height = 32;
+    image.decoding = "async";
+    button.append(image);
+  }
+  const copy = documentRef.createElement("span");
+  copy.className = "item-copy";
+  const name = documentRef.createElement("strong");
+  name.textContent = item.name;
+  const meta = documentRef.createElement("small");
+  meta.textContent = `${item.rarity} · ${item.slot}`;
+  const effect = documentRef.createElement("small");
+  effect.className = "item-effect";
+  effect.textContent = item.description;
+  copy.append(name, meta, effect);
+  button.append(copy);
   button.title = item.description;
   return button;
 }
@@ -232,8 +292,8 @@ function createStashButton(documentRef: Document, itemId: ItemId, index: number)
 function perkForSlot(
   classId: HeroClassId,
   slot: PerkSlot,
-  defs: Partial<Record<HeroClassId, readonly { id: PerkId; tier: PerkTier; choice: PerkChoice; name: string; effect: string }[]>>,
-): { id: PerkId; tier: PerkTier; choice: PerkChoice; name: string; effect: string } | undefined {
+  defs: Partial<Record<HeroClassId, readonly PerkDefinition[]>>,
+): PerkDefinition | undefined {
   return defs[classId]?.find((perk) => perk.tier === slot.tier && perk.choice === slot.choice);
 }
 

@@ -21,6 +21,7 @@
     "classPortraits": 11,
     "skillIcons": 18,
     "itemIllustrations": 38,
+    "perkIconFamilies": 6,
     "actorSets": 14
   },
   "directionOrder": [
@@ -284,10 +285,261 @@
       "runtimeToken": "assets/sprites/brute"
     }
   },
-  "classPortraits": {},
-  "skillIcons": {},
-  "itemIllustrations": {},
-  "perkIcons": {},
+  "classPortraits": {
+    "fighter": {
+      "id": "portrait.fighter",
+      "path": "assets/art/portraits/fighter.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/fighter.png"
+    },
+    "knight": {
+      "id": "portrait.knight",
+      "path": "assets/art/portraits/knight.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/knight.png"
+    },
+    "berserker": {
+      "id": "portrait.berserker",
+      "path": "assets/art/portraits/berserker.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/berserker.png"
+    },
+    "dwarf": {
+      "id": "portrait.dwarf",
+      "path": "assets/art/portraits/dwarf.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/dwarf.png"
+    },
+    "paladin": {
+      "id": "portrait.paladin",
+      "path": "assets/art/portraits/paladin.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/paladin.png"
+    },
+    "mage": {
+      "id": "portrait.mage",
+      "path": "assets/art/portraits/mage.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/mage.png"
+    },
+    "priest": {
+      "id": "portrait.priest",
+      "path": "assets/art/portraits/priest.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/priest.png"
+    },
+    "warlock": {
+      "id": "portrait.warlock",
+      "path": "assets/art/portraits/warlock.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/warlock.png"
+    },
+    "elf": {
+      "id": "portrait.elf",
+      "path": "assets/art/portraits/elf.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/elf.png"
+    },
+    "thief": {
+      "id": "portrait.thief",
+      "path": "assets/art/portraits/thief.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/thief.png"
+    },
+    "monk": {
+      "id": "portrait.monk",
+      "path": "assets/art/portraits/monk.png",
+      "dimensions": { "width": 64, "height": 64 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/portraits/monk.png"
+    }
+  },
+  "skillIcons": {
+    "swordSweep": {
+      "id": "skill.sword-sweep",
+      "path": "assets/art/icons/skills/sword-sweep.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/sword-sweep.png"
+    },
+    "fireBolt": {
+      "id": "skill.fire-bolt",
+      "path": "assets/art/icons/skills/fire-bolt.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/fire-bolt.png"
+    },
+    "holyBolt": {
+      "id": "skill.holy-bolt",
+      "path": "assets/art/icons/skills/holy-bolt.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/holy-bolt.png"
+    },
+    "throwingAxe": {
+      "id": "skill.throwing-axe",
+      "path": "assets/art/icons/skills/throwing-axe.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/throwing-axe.png"
+    },
+    "frostNova": {
+      "id": "skill.frost-nova",
+      "path": "assets/art/icons/skills/frost-nova.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/frost-nova.png"
+    },
+    "garlicAura": {
+      "id": "skill.garlic-aura",
+      "path": "assets/art/icons/skills/garlic-aura.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/garlic-aura.png"
+    },
+    "holySmash": {
+      "id": "skill.holy-smash",
+      "path": "assets/art/icons/skills/holy-smash.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/holy-smash.png"
+    },
+    "lifeDrain": {
+      "id": "skill.life-drain",
+      "path": "assets/art/icons/skills/life-drain.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/life-drain.png"
+    },
+    "shadowDaggers": {
+      "id": "skill.shadow-daggers",
+      "path": "assets/art/icons/skills/shadow-daggers.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/shadow-daggers.png"
+    },
+    "earthShatter": {
+      "id": "skill.earth-shatter",
+      "path": "assets/art/icons/skills/earth-shatter.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/earth-shatter.png"
+    },
+    "magicArrow": {
+      "id": "skill.magic-arrow",
+      "path": "assets/art/icons/skills/magic-arrow.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/magic-arrow.png"
+    },
+    "whirlwindAxe": {
+      "id": "skill.whirlwind-axe",
+      "path": "assets/art/icons/skills/whirlwind-axe.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/whirlwind-axe.png"
+    },
+    "shieldBash": {
+      "id": "skill.shield-bash",
+      "path": "assets/art/icons/skills/shield-bash.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/shield-bash.png"
+    },
+    "radiantBurst": {
+      "id": "skill.radiant-burst",
+      "path": "assets/art/icons/skills/radiant-burst.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/radiant-burst.png"
+    },
+    "meteor": {
+      "id": "skill.meteor",
+      "path": "assets/art/icons/skills/meteor.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/meteor.png"
+    },
+    "chainLightning": {
+      "id": "skill.chain-lightning",
+      "path": "assets/art/icons/skills/chain-lightning.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/chain-lightning.png"
+    },
+    "poisonFlask": {
+      "id": "skill.poison-flask",
+      "path": "assets/art/icons/skills/poison-flask.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/poison-flask.png"
+    },
+    "crossbowBolt": {
+      "id": "skill.crossbow-bolt",
+      "path": "assets/art/icons/skills/crossbow-bolt.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "consumers": ["src/ui/art.ts"],
+      "runtimeToken": "/assets/art/icons/skills/crossbow-bolt.png"
+    }
+  },
+  "itemIllustrations": {
+    "ironBlade": { "id": "item.iron-blade", "path": "assets/art/icons/items/iron-blade.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/iron-blade.png" },
+    "oakStaff": { "id": "item.oak-staff", "path": "assets/art/icons/items/oak-staff.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/oak-staff.png" },
+    "holyScepter": { "id": "item.holy-scepter", "path": "assets/art/icons/items/holy-scepter.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/holy-scepter.png" },
+    "throwingKnives": { "id": "item.throwing-knives", "path": "assets/art/icons/items/throwing-knives.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/throwing-knives.png" },
+    "brassKnuckles": { "id": "item.brass-knuckles", "path": "assets/art/icons/items/brass-knuckles.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/brass-knuckles.png" },
+    "huntingBow": { "id": "item.hunting-bow", "path": "assets/art/icons/items/hunting-bow.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/hunting-bow.png" },
+    "leatherVest": { "id": "item.leather-vest", "path": "assets/art/icons/items/leather-vest.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/leather-vest.png" },
+    "chainMail": { "id": "item.chain-mail", "path": "assets/art/icons/items/chain-mail.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/chain-mail.png" },
+    "mageRobe": { "id": "item.mage-robe", "path": "assets/art/icons/items/mage-robe.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/mage-robe.png" },
+    "pilgrimCloak": { "id": "item.pilgrim-cloak", "path": "assets/art/icons/items/pilgrim-cloak.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/pilgrim-cloak.png" },
+    "ironGreaves": { "id": "item.iron-greaves", "path": "assets/art/icons/items/iron-greaves.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/iron-greaves.png" },
+    "scaleHauberk": { "id": "item.scale-hauberk", "path": "assets/art/icons/items/scale-hauberk.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/scale-hauberk.png" },
+    "luckyCoin": { "id": "item.lucky-coin", "path": "assets/art/icons/items/lucky-coin.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/lucky-coin.png" },
+    "magnetCharm": { "id": "item.magnet-charm", "path": "assets/art/icons/items/magnet-charm.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/magnet-charm.png" },
+    "goldPurse": { "id": "item.gold-purse", "path": "assets/art/icons/items/gold-purse.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/gold-purse.png" },
+    "bloodstone": { "id": "item.bloodstone", "path": "assets/art/icons/items/bloodstone.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/bloodstone.png" },
+    "focusBead": { "id": "item.focus-bead", "path": "assets/art/icons/items/focus-bead.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/focus-bead.png" },
+    "vitalityBand": { "id": "item.vitality-band", "path": "assets/art/icons/items/vitality-band.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/vitality-band.png" },
+    "unique_reliableSteel": { "id": "item.reliable-steel", "path": "assets/art/icons/items/reliable-steel.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/reliable-steel.png" },
+    "unique_aegisOfTheLine": { "id": "item.aegis-of-the-line", "path": "assets/art/icons/items/aegis-of-the-line.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/aegis-of-the-line.png" },
+    "unique_bloodhowlAxe": { "id": "item.bloodhowl-axe", "path": "assets/art/icons/items/bloodhowl-axe.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/bloodhowl-axe.png" },
+    "unique_stoneheartPlate": { "id": "item.stoneheart-plate", "path": "assets/art/icons/items/stoneheart-plate.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/stoneheart-plate.png" },
+    "unique_oathbindReliquary": { "id": "item.oathbind-reliquary", "path": "assets/art/icons/items/oathbind-reliquary.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/oathbind-reliquary.png" },
+    "unique_archonOrb": { "id": "item.archon-orb", "path": "assets/art/icons/items/archon-orb.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/archon-orb.png" },
+    "unique_sanctumChalice": { "id": "item.sanctum-chalice", "path": "assets/art/icons/items/sanctum-chalice.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/sanctum-chalice.png" },
+    "unique_soulleechRing": { "id": "item.soulleech-ring", "path": "assets/art/icons/items/soulleech-ring.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/soulleech-ring.png" },
+    "unique_twinstarBrooch": { "id": "item.twinstar-brooch", "path": "assets/art/icons/items/twinstar-brooch.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/twinstar-brooch.png" },
+    "unique_midasFang": { "id": "item.midas-fang", "path": "assets/art/icons/items/midas-fang.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/midas-fang.png" },
+    "unique_perfectFistWrap": { "id": "item.perfect-fist-wrap", "path": "assets/art/icons/items/perfect-fist-wrap.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/perfect-fist-wrap.png" },
+    "set_veteranBlade": { "id": "item.veteran-blade", "path": "assets/art/icons/items/veteran-blade.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/veteran-blade.png" },
+    "set_veteranPlate": { "id": "item.veteran-plate", "path": "assets/art/icons/items/veteran-plate.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/veteran-plate.png" },
+    "set_veteranSeal": { "id": "item.veteran-seal", "path": "assets/art/icons/items/veteran-seal.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/veteran-seal.png" },
+    "set_sandwalkerCloak": { "id": "item.sandwalker-cloak", "path": "assets/art/icons/items/sandwalker-cloak.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/sandwalker-cloak.png" },
+    "set_sandwalkerGreaves": { "id": "item.sandwalker-greaves", "path": "assets/art/icons/items/sandwalker-greaves.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/sandwalker-greaves.png" },
+    "set_sandwalkerCharm": { "id": "item.sandwalker-charm", "path": "assets/art/icons/items/sandwalker-charm.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/sandwalker-charm.png" },
+    "set_gildedKnife": { "id": "item.gilded-knife", "path": "assets/art/icons/items/gilded-knife.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/gilded-knife.png" },
+    "set_gildedVest": { "id": "item.gilded-vest", "path": "assets/art/icons/items/gilded-vest.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/gilded-vest.png" },
+    "set_gildedCoin": { "id": "item.gilded-coin", "path": "assets/art/icons/items/gilded-coin.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/art.ts"], "runtimeToken": "/assets/art/icons/items/gilded-coin.png" }
+  },
+  "perkIcons": {
+    "attack": { "id": "perk.attack", "path": "assets/art/icons/perks/attack.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/perkArt.ts"], "runtimeToken": "/assets/art/icons/perks/attack.png" },
+    "defense": { "id": "perk.defense", "path": "assets/art/icons/perks/defense.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/perkArt.ts"], "runtimeToken": "/assets/art/icons/perks/defense.png" },
+    "movement": { "id": "perk.movement", "path": "assets/art/icons/perks/movement.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/perkArt.ts"], "runtimeToken": "/assets/art/icons/perks/movement.png" },
+    "economy": { "id": "perk.economy", "path": "assets/art/icons/perks/economy.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/perkArt.ts"], "runtimeToken": "/assets/art/icons/perks/economy.png" },
+    "behavior": { "id": "perk.behavior", "path": "assets/art/icons/perks/behavior.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/perkArt.ts"], "runtimeToken": "/assets/art/icons/perks/behavior.png" },
+    "signature": { "id": "perk.signature", "path": "assets/art/icons/perks/signature.png", "dimensions": { "width": 32, "height": 32 }, "consumers": ["src/ui/perkArt.ts"], "runtimeToken": "/assets/art/icons/perks/signature.png" }
+  },
   "environment": {
     "tiles": {},
     "props": {

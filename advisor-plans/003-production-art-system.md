@@ -224,9 +224,9 @@ Expected: all commands exit 0.
 
 ## Done criteria
 
-- [ ] Eleven class portraits exist and render.
-- [ ] Eighteen skill icons exist and render.
-- [ ] Thirty-eight item illustration keys cover all 74 definitions.
+- [x] Eleven class portraits exist and render.
+- [x] Eighteen skill icons exist and render.
+- [x] Thirty-eight item illustration keys cover all 74 definitions.
 - [ ] Eleven classes and three enemies have five animation states in eight directions.
 - [ ] Battle ground, wall, crowd, and gate use assets in normal operation.
 - [ ] Every visible item drop has item or family-specific art.

@@ -22,6 +22,20 @@ test.describe("Guild first-session coaching", () => {
     for (let index = 0; index < (await allClassCards.count()); index += 1) {
       await expect(allClassCards.nth(index)).toBeEnabled();
     }
+    const portraits = allClassCards.locator("img.class-portrait");
+    await expect(portraits).toHaveCount(11);
+    expect(
+      await portraits.evaluateAll((images) => images.every((image) => {
+        return image instanceof HTMLImageElement && image.complete && image.naturalWidth === 64;
+      })),
+    ).toBe(true);
+    const startingSkills = allClassCards.locator("img.class-skill-icon");
+    await expect(startingSkills).toHaveCount(11);
+    expect(
+      await startingSkills.evaluateAll((images) => images.every((image) => {
+        return image instanceof HTMLImageElement && image.complete && image.naturalWidth === 32;
+      })),
+    ).toBe(true);
     await expect(page.getByTestId("class-berserker")).toBeVisible();
   });
 

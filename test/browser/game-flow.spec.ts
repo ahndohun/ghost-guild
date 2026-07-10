@@ -48,10 +48,24 @@ test.describe("Ghost Guild core flow", () => {
     await expect(mageCard).toHaveClass(/\bselected\b/);
     await expect(knightCard).not.toHaveClass(/\bselected\b/);
 
+    await page.getByTestId("guild-tab-overview").click();
+    await expect(page.getByTestId("overview-class-portrait")).toHaveAttribute(
+      "src",
+      "/assets/art/portraits/mage.png",
+    );
+
     await page.getByTestId("guild-tab-training").click();
     // The specialization tree re-renders per class (Knight "Bulwark" vs Mage
     // "Edge Study" on tier 1a) — this is the Guild's class identity signal.
     await expect(firstPerkCard).not.toHaveText(perkTextBeforeSelect);
+    const perkIcons = page.locator(".perk-card img.perk-icon");
+    await expect(perkIcons).toHaveCount(10);
+    expect(
+      await perkIcons.evaluateAll((images) => images.every((image) => {
+        return image instanceof HTMLImageElement && image.complete && image.naturalWidth === 32;
+      })),
+    ).toBe(true);
+    await expect(firstPerkCard).toHaveAttribute("data-perk-family", /^(attack|defense|movement|economy|behavior|signature)$/);
   });
 
   test("Guild sections expose one active pane and support pointer and keyboard navigation", async ({ page }) => {
@@ -80,6 +94,58 @@ test.describe("Ghost Guild core flow", () => {
     const primaryActions = page.locator(".guild-actions button.primary");
     await expect(primaryActions).toHaveCount(1);
     await expect(primaryActions).toHaveAttribute("data-testid", "deploy-solo");
+  });
+
+  test("Gear shows item-specific art and effects before equip", async ({ page }) => {
+    await page.goto("/?seed=7&fast=1");
+    await page.evaluate(() => {
+      const key = "ghost-guild-save-v1";
+      const raw = localStorage.getItem(key);
+      if (raw === null) {
+        throw new Error("Expected initialized Guild save");
+      }
+      const save = JSON.parse(raw) as {
+        equippedItems: { relicWeapon: string | null; armor: string | null; trinket: string | null };
+        stash: string[];
+      };
+      save.equippedItems.armor = "unique_aegisOfTheLine";
+      save.stash = [
+        "ironBlade_common",
+        "ironBlade_magic",
+        "ironBlade_rare",
+        "unique_reliableSteel",
+        "set_veteranBlade",
+      ];
+      localStorage.setItem(key, JSON.stringify(save));
+    });
+    await page.reload();
+    await page.getByTestId("guild-tab-gear").click();
+
+    const equippedIcon = page.getByTestId("item-slot-armor").locator("img.item-icon");
+    await expect(equippedIcon).toHaveAttribute("src", "/assets/art/icons/items/aegis-of-the-line.png");
+    await expect(equippedIcon).toBeVisible();
+    await expect(page.getByTestId("item-slot-armor")).toHaveAttribute("data-rarity", "unique");
+
+    const stashCards = page.locator("#stash-list .stash-item");
+    await expect(stashCards).toHaveCount(5);
+    const stashIcons = stashCards.locator("img.item-icon");
+    await expect(stashIcons).toHaveCount(5);
+    expect(
+      await stashIcons.evaluateAll((images) => images.every((image) => {
+        return image instanceof HTMLImageElement && image.complete && image.naturalWidth === 32;
+      })),
+    ).toBe(true);
+    expect(await stashCards.evaluateAll((cards) => cards.map((card) => card.getAttribute("data-rarity")))).toEqual([
+      "common",
+      "magic",
+      "rare",
+      "unique",
+      "set",
+    ]);
+    await expect(page.getByTestId("stash-item-0")).toContainText("ATK +4%.");
+
+    const emptyCopy = page.getByTestId("item-slot-relicWeapon").locator(".item-copy");
+    expect(await emptyCopy.evaluate((element) => element.getBoundingClientRect().width)).toBeGreaterThan(120);
   });
 
   test("DEPLOY SOLO reaches Results; BACK TO GUILD returns to the Guild", async ({ page }) => {
