@@ -21,11 +21,14 @@ import { applyBestSurvival, formatBestSurvivalLine, loadSave } from "./save";
 import { settleHeroLoot } from "../sim/loot";
 import {
   clearAutorun,
+  guildSectionOrder,
   parseSeed,
   persist,
+  setActiveGuildSection,
   setVisibleScreen,
   shouldSkipTitle,
 } from "./screenUtils";
+import type { GuildSection, GuildSectionPanes, GuildSectionTabs } from "./screenUtils";
 
 type RunMode = "solo" | "arena";
 
@@ -107,6 +110,21 @@ function createScreenController(
   const gameState = requiredElement(documentRef, "game-state");
   const lobbyStage = createLobbyStage(documentRef, windowRef);
 
+  const guildSectionTabs = {} as GuildSectionTabs;
+  const guildSectionPanes = {} as GuildSectionPanes;
+  for (const section of guildSectionOrder) {
+    guildSectionTabs[section] = requiredButton(documentRef, `guild-tab-${section}`);
+    guildSectionPanes[section] = requiredElement(documentRef, `guild-section-${section}`);
+  }
+  function activateGuildSection(section: GuildSection): void {
+    setActiveGuildSection(guildSectionPanes, guildSectionTabs, section);
+  }
+  for (const section of guildSectionOrder) {
+    guildSectionTabs[section].addEventListener("click", () => {
+      activateGuildSection(section);
+    });
+  }
+
   const startGameButton = requiredButton(documentRef, "start-game");
   const deploySoloButton = requiredButton(documentRef, "deploy-solo");
   const deployArenaButton = requiredButton(documentRef, "deploy-arena");
@@ -136,6 +154,7 @@ function createScreenController(
     autorunTimer = undefined;
     audio.setBgmTrack("guild");
     setVisibleScreen(screenElements, "guild");
+    activateGuildSection("overview");
     renderGuild();
   });
 
@@ -146,6 +165,7 @@ function createScreenController(
 
   function enterGuild(): void {
     setVisibleScreen(screenElements, "guild");
+    activateGuildSection("overview");
     renderGuild();
   }
 

@@ -51,22 +51,6 @@ export function screenMarkup(): string {
     </section>
     <section id="screen-guild" class="screen guild-screen hidden">
       <div class="guild-scroll">
-        <div class="lobby-stage" aria-label="Gladiator lobby">
-          <div class="lobby-stage-frame">
-            <canvas id="lobby-canvas" width="960" height="280" aria-label="Lobby stage"></canvas>
-            <div class="lobby-title-overlay">
-              <p class="eyebrow">BARRACKS</p>
-              <h1>Ghost Colosseum</h1>
-              <p class="tagline">Coach your gladiator. The crowd remembers.</p>
-              <p class="onboarding-line">Your gladiator fights on its own - pick a class, unlock its specialization tree, hit DEPLOY, and watch. Win gold for perks and permanent upgrades.</p>
-            </div>
-          </div>
-          <div class="lobby-nameplate" aria-live="polite">
-            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Guardian</p>
-            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Holds ground; low-HP flee only below 25%.</p>
-            <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
-          </div>
-        </div>
         <header class="topbar">
           <div class="topbar-meta">
             <label class="player-name-field">
@@ -76,13 +60,49 @@ export function screenMarkup(): string {
             <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
           </div>
         </header>
-        <main class="guild-layout">
+        <nav class="guild-tabs" aria-label="Guild sections">
+          <button type="button" class="guild-tab" data-testid="guild-tab-overview" data-guild-tab="overview" aria-pressed="true">Overview</button>
+          <button type="button" class="guild-tab" data-testid="guild-tab-class" data-guild-tab="class" aria-pressed="false">Class</button>
+          <button type="button" class="guild-tab" data-testid="guild-tab-training" data-guild-tab="training" aria-pressed="false">Training</button>
+          <button type="button" class="guild-tab" data-testid="guild-tab-gear" data-guild-tab="gear" aria-pressed="false">Gear</button>
+        </nav>
+
+        <div id="guild-section-overview" class="guild-section">
+          <div class="lobby-stage" aria-label="Gladiator lobby">
+            <div class="lobby-stage-frame">
+              <canvas id="lobby-canvas" width="960" height="280" aria-label="Lobby stage"></canvas>
+              <div class="lobby-title-overlay">
+                <p class="eyebrow">BARRACKS</p>
+                <h1>Ghost Colosseum</h1>
+                <p class="tagline">Coach your gladiator. The crowd remembers.</p>
+                <p class="onboarding-line">Your gladiator fights on its own - pick a class, unlock its specialization tree, hit DEPLOY, and watch. Win gold for perks and permanent upgrades.</p>
+              </div>
+            </div>
+            <div class="lobby-nameplate" aria-live="polite">
+              <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Guardian</p>
+              <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Holds ground; low-HP flee only below 25%.</p>
+              <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
+            </div>
+          </div>
+          <section class="panel overview-summary" data-testid="guild-overview-summary">
+            <h2>Overview</h2>
+            <dl class="overview-grid">
+              <div class="overview-cell"><dt>Equipped</dt><dd id="overview-equipped">—</dd></div>
+              <div class="overview-cell"><dt>Recommended</dt><dd id="overview-recommendation">—</dd></div>
+            </dl>
+          </section>
+        </div>
+
+        <div id="guild-section-class" class="guild-section hidden">
           <section class="panel">
             <h2>Class</h2>
             <div class="class-grid">
               ${heroClassIds.map(classMarkup).join("")}
             </div>
           </section>
+        </div>
+
+        <div id="guild-section-training" class="guild-section hidden">
           <section class="panel">
             <h2>Guild Upgrades</h2>
             <div class="upgrade-grid">
@@ -108,6 +128,9 @@ export function screenMarkup(): string {
               ${perkSlotMarkup(5, "b")}
             </div>
           </section>
+        </div>
+
+        <div id="guild-section-gear" class="guild-section hidden">
           <section class="panel inventory-panel" data-testid="inventory-panel">
             <h2>Guild Inventory</h2>
             <div class="item-slots" aria-label="Equipped items">
@@ -115,9 +138,13 @@ export function screenMarkup(): string {
               ${itemSlotMarkup("armor", "Armor")}
               ${itemSlotMarkup("trinket", "Trinket")}
             </div>
+            <div class="item-compare-panel" data-testid="item-compare-panel" aria-live="polite">
+              <p class="item-compare-placeholder">Select a stash item to compare.</p>
+            </div>
             <div id="stash-list" class="stash-list" data-testid="stash-list" aria-live="polite"></div>
           </section>
-        </main>
+        </div>
+
         <footer class="actions">
           <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
           <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>

@@ -12,6 +12,28 @@ export type VisibleScreen = "title" | "guild" | "run" | "results";
 
 const screenOrder: readonly VisibleScreen[] = ["title", "guild", "run", "results"];
 
+/** Guild subsections (Plan 002): a fixed shell with one bounded pane visible at a time. */
+export type GuildSection = "overview" | "class" | "training" | "gear";
+
+export const guildSectionOrder: readonly GuildSection[] = ["overview", "class", "training", "gear"];
+
+export type GuildSectionPanes = Record<GuildSection, HTMLElement>;
+export type GuildSectionTabs = Record<GuildSection, HTMLButtonElement>;
+
+/** Toggles pane visibility + tab aria-pressed/selected state; does not re-render content. */
+export function setActiveGuildSection(
+  panes: GuildSectionPanes,
+  tabs: GuildSectionTabs,
+  active: GuildSection,
+): void {
+  for (const name of guildSectionOrder) {
+    const isActive = name === active;
+    panes[name].classList.toggle("hidden", !isActive);
+    tabs[name].classList.toggle("selected", isActive);
+    tabs[name].setAttribute("aria-pressed", isActive ? "true" : "false");
+  }
+}
+
 /** Auto-skip title when any of seed/fast/autoplay is present (key presence, any value). */
 export function shouldSkipTitle(params: URLSearchParams): boolean {
   return params.has("seed") || params.has("fast") || params.has("autoplay");

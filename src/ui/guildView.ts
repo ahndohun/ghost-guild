@@ -2,6 +2,7 @@ import { heroClassIds, perkCosts, perkDefinitions, temperamentForClass } from ".
 import { getItemDefinition, itemSlots, rarityColor } from "../sim/items";
 import type { HeroClassId, ItemId, ItemSlot, PerkChoice, PerkId, PerkTier } from "../sim";
 import { requiredButton, requiredElement, requiredInput } from "./dom";
+import { formatEquippedSummary, recommendNextAction } from "./guildOverview";
 import { formatItemCard, slotLabel } from "./inventory";
 import type { LobbyStageController } from "./lobbyStage";
 import { formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
@@ -38,6 +39,7 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
   controls.autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
   renderPerks(documentRef, save);
   renderInventory(documentRef, save);
+  renderGuildOverview(documentRef, save);
 
   controls.lobbyStage.setAppearance({
     playerName: save.playerName,
@@ -67,6 +69,22 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
     if (status !== null) {
       status.textContent = selected ? "Selected" : "Ready";
     }
+  }
+}
+
+/**
+ * Overview tab (Plan 002 Step 1): read-only projections only, no controls.
+ * Current class + behavior + recent record are already covered by the lobby
+ * nameplate / top strip; this fills the two remaining fields.
+ */
+function renderGuildOverview(documentRef: Document, save: GuildSave): void {
+  const equipped = documentRef.getElementById("overview-equipped");
+  if (equipped !== null) {
+    equipped.textContent = formatEquippedSummary(save);
+  }
+  const recommendation = documentRef.getElementById("overview-recommendation");
+  if (recommendation !== null) {
+    recommendation.textContent = recommendNextAction(save);
   }
 }
 
