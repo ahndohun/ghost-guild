@@ -1,7 +1,11 @@
 import { HERO_RADIUS, TICKS_PER_SECOND, WORLD_HEIGHT, WORLD_WIDTH } from "./constants";
+import { rollItemDrop } from "./items";
+import { heroDropLuck } from "./loot";
 import { clamp, distanceSquared, normalize } from "./math";
 import { hasPerk } from "./perks";
-import type { DropState, EnemyState, HeroState, MatchState } from "./types";
+import { collectPerkEffects } from "./perks";
+import { collectEquippedEffects } from "./itemEffects";
+import type { DropState, EnemyState, HeroState, ItemId, MatchState, PerkEffect, PerkId } from "./types";
 import type { Rng } from "./rng";
 
 export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: () => number): void {
@@ -17,9 +21,12 @@ export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: (
     if (killer !== undefined) {
       killer.kills += 1;
       healKiller(killer, state.tick);
+      applyKillTriggers(killer, enemy.kind === "eliteBrute");
       if (
         enemy.kind === "eliteBrute" &&
-        (hasPerk(killer.perks, "knightSlaughterer") || hasPerk(killer.perks, "monkSlaughterer"))
+        (hasPerk(killer.perks, "knightSlaughterer") ||
+          hasPerk(killer.perks, "berserkerSlaughterer") ||
+          hasPerk(killer.perks, "monkSlaughterer"))
       ) {
         resetWeaponCooldowns(killer);
       }
@@ -29,13 +36,15 @@ export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: (
     state.drops.push(createDrop("xp", enemy.x, enemy.y, xpValue, nextDropId()));
     if (enemy.kind === "eliteBrute") {
       state.drops.push(createDrop("gold", enemy.x + 10, enemy.y, 10, nextDropId()));
-      if (killer !== undefined && hasPerk(killer.perks, "gamblerTributeCart")) {
+      if (killer !== undefined && hasTributeCart(killer.perks)) {
         state.drops.push(createDrop("gold", enemy.x + 18, enemy.y, 10, nextDropId()));
       }
       state.screenShakeTicks = 8;
     } else if (rng.chance(0.3)) {
       state.drops.push(createDrop("gold", enemy.x + 6, enemy.y, 1, nextDropId()));
     }
+
+    maybeDropItem(state, enemy, killer, rng, nextDropId);
   }
 
   state.enemies = remaining;
@@ -63,6 +72,41 @@ export function tickEnemies(state: MatchState): void {
 
 export function livingHeroes(state: MatchState): number {
   return state.heroes.filter((hero) => hero.alive).length;
+}
+
+/**
+ * Seeded item drop: chance scales by enemy kind + killer luck; coords clamped to reachable arena.
+ */
+function maybeDropItem(
+  state: MatchState,
+  enemy: EnemyState,
+  killer: HeroState | undefined,
+  rng: Rng,
+  nextDropId: () => number,
+): void {
+  const baseChance =
+    enemy.kind === "eliteBrute" ? 0.35 : enemy.kind === "brute" ? 0.1 : 0.035;
+  const luck = killer === undefined ? 0 : heroDropLuck(killer);
+  const chance = Math.min(0.8, baseChance + luck * 0.012);
+  if (!rng.chance(chance)) {
+    return;
+  }
+
+  const itemId = rollItemDrop(rng, luck, killer?.classId);
+  const offsetX = enemy.kind === "eliteBrute" ? -8 : 4;
+  const offsetY = enemy.kind === "eliteBrute" ? 6 : -4;
+  state.drops.push(createItemDrop(enemy.x + offsetX, enemy.y + offsetY, itemId, nextDropId()));
+}
+
+function createItemDrop(x: number, y: number, itemId: ItemId, id: number): DropState {
+  return {
+    id,
+    kind: "item",
+    x: clamp(x, HERO_RADIUS, WORLD_WIDTH - HERO_RADIUS),
+    y: clamp(y, HERO_RADIUS, WORLD_HEIGHT - HERO_RADIUS),
+    value: 0,
+    itemId,
+  };
 }
 
 function tickEnemyTimers(enemy: EnemyState): void {
@@ -121,7 +165,7 @@ function applyTouchDamage(enemy: EnemyState, hero: HeroState, tick: number): voi
   }
 }
 
-function createDrop(kind: DropState["kind"], x: number, y: number, value: number, id: number): DropState {
+function createDrop(kind: Exclude<DropState["kind"], "item">, x: number, y: number, value: number, id: number): DropState {
   return {
     id,
     kind,
@@ -132,10 +176,11 @@ function createDrop(kind: DropState["kind"], x: number, y: number, value: number
 }
 
 function healKiller(hero: HeroState, tick: number): void {
-  if (hero.temperament !== "berserker") {
+  if (hero.classId !== "berserker" && hero.classId !== "monk") {
     return;
   }
-  const fatigued = tick >= 90 * TICKS_PER_SECOND;
+  const bloodhowl = hero.equippedItems.relicWeapon === "unique_bloodhowlAxe";
+  const fatigued = !bloodhowl && tick >= 90 * TICKS_PER_SECOND;
   const permanentRanks = Math.min(
     15,
     hero.permStats.atk + hero.permStats.hp + hero.permStats.spd + hero.permStats.luck + hero.permStats.lvl,
@@ -162,5 +207,43 @@ function contactDamage(amount: number, hero: HeroState): number {
   const bulwark = hasPerk(hero.perks, "knightBulwark") ? 0.875 : 1;
   const lastLine = hasPerk(hero.perks, "priestLastLine") && hero.hp / hero.maxHp < 0.5 ? 0.7 : 1;
   const monkDiscipline = hero.classId === "monk" ? 0.8 : 1;
-  return amount * bulwark * lastLine * monkDiscipline;
+  const knightGuard = hero.classId === "knight" ? 0.85 : 1;
+  return amount * bulwark * lastLine * monkDiscipline * knightGuard;
+}
+
+function applyKillTriggers(hero: HeroState, elite: boolean): void {
+  const effects = [
+    ...collectPerkEffects(hero.perks),
+    ...collectEquippedEffects(hero.equippedItems, hero.classId),
+  ];
+  for (const effect of effects) {
+    if (effect.kind !== "trigger" || (effect.when !== "onKill" && !(elite && effect.when === "onEliteKill"))) {
+      continue;
+    }
+    applyKillEffect(hero, effect.effect);
+  }
+}
+
+function applyKillEffect(hero: HeroState, effect: PerkEffect): void {
+  if (effect.kind === "statMod") {
+    if (effect.stat === "hp") {
+      const heal = (effect.flat ?? 0) + hero.maxHp * (effect.pct ?? 0);
+      hero.hp = Math.min(hero.maxHp, hero.hp + Math.max(0, heal));
+    } else if (effect.stat === "gold") {
+      hero.gold += Math.max(0, effect.flat ?? 0);
+    }
+    return;
+  }
+  if (effect.kind === "weaponMod" && effect.cdPct !== undefined) {
+    for (const weapon of hero.weapons) {
+      if (effect.weapon === "all" || effect.weapon === weapon.id) {
+        weapon.cooldownTicks = Math.max(0, Math.round(weapon.cooldownTicks * (1 + effect.cdPct)));
+      }
+    }
+  }
+}
+
+/** Legacy gambler + roster-v3 thief tribute nodes (id may not be registered yet). */
+function hasTributeCart(perks: readonly PerkId[]): boolean {
+  return perks.some((perkId) => perkId.endsWith("TributeCart"));
 }

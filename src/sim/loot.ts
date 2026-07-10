@@ -1,7 +1,13 @@
 import { distanceSquared } from "./math";
+import { effectiveLuckRanks } from "./itemEffects";
+import { settleRunLoot } from "./items";
 import { goldMultiplier, magnetRadius } from "./stats";
-import type { DropState, HeroState, MatchState } from "./types";
+import type { DropState, HeroState, ItemId, MatchState } from "./types";
 
+/**
+ * Magnet auto-loot for xp, gold, and item drops.
+ * Item pickups append to hero.lootedItems (settled into stash after the run).
+ */
 export function collectDrops(state: MatchState): void {
   const remaining: DropState[] = [];
 
@@ -14,12 +20,29 @@ export function collectDrops(state: MatchState): void {
 
     if (drop.kind === "xp") {
       hero.xp += drop.value;
-    } else {
+    } else if (drop.kind === "gold") {
       hero.gold += drop.value * goldMultiplier(hero);
+    } else if (drop.kind === "item") {
+      if (drop.itemId !== undefined) {
+        hero.lootedItems.push(drop.itemId);
+      }
     }
   }
 
   state.drops = remaining;
+}
+
+/**
+ * End-of-run settlement helper (pure): survival upgrades rarity ladders for that run's drops.
+ * Call from results UI / save merge with heroResult.items + survived flag.
+ */
+export function settleHeroLoot(lootedItems: readonly ItemId[], survived: boolean): ItemId[] {
+  return settleRunLoot(lootedItems, survived);
+}
+
+/** Effective luck ranks for drop tables (perm + equipped item mods). */
+export function heroDropLuck(hero: HeroState): number {
+  return effectiveLuckRanks(hero.permStats.luck, hero.equippedItems, hero.classId);
 }
 
 function findCollector(drop: DropState, heroes: readonly HeroState[]): HeroState | undefined {

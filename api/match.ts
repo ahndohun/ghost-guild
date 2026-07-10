@@ -29,16 +29,29 @@ type VercelResponse = {
   json: (body: unknown) => void;
 };
 
-type HeroClass = "knight" | "mage" | "priest" | "monk" | "gambler";
-type Temperament = "berserker" | "hoarder" | "duelist" | "survivor" | "vanguard";
+type Temperament =
+  | "berserker"
+  | "hoarder"
+  | "duelist"
+  | "survivor"
+  | "vanguard"
+  | "guardian"
+  | "aggressiveCaster";
 
 type Loadout = {
   name: string;
   class: string;
   traits: { bravery: number; greed: number; focus: number };
   temperament?: string;
-  perks?: { tier1: string | null; tier2: string | null; tier3: string | null };
+  perks?: {
+    tier1: string | null;
+    tier2: string | null;
+    tier3: string | null;
+    tier4?: string | null;
+    tier5?: string | null;
+  };
   permStats: { atk: number; hp: number; spd: number; luck: number; lvl: number };
+  equippedItems?: { relicWeapon: string | null; armor: string | null; trinket: string | null };
 };
 
 const TEMPERAMENT_PRESETS: Record<Temperament, { bravery: number; greed: number; focus: number }> = {
@@ -47,18 +60,31 @@ const TEMPERAMENT_PRESETS: Record<Temperament, { bravery: number; greed: number;
   duelist: { bravery: 60, greed: 25, focus: 95 },
   survivor: { bravery: 20, greed: 40, focus: 60 },
   vanguard: { bravery: 60, greed: 40, focus: 60 },
+  guardian: { bravery: 45, greed: 25, focus: 70 },
+  aggressiveCaster: { bravery: 85, greed: 15, focus: 75 },
 };
 
 function temperamentForClass(classId: string): Temperament | undefined {
   switch (classId) {
-    case "knight":
+    case "fighter":
       return "vanguard";
+    case "knight":
+      return "guardian";
+    case "berserker":
+    case "dwarf":
+    case "monk":
+      return "berserker";
+    case "paladin":
+      return "guardian";
     case "mage":
       return "duelist";
     case "priest":
       return "survivor";
-    case "monk":
-      return "berserker";
+    case "warlock":
+      return "aggressiveCaster";
+    case "elf":
+      return "duelist";
+    case "thief":
     case "gambler":
       return "hoarder";
     default:
@@ -85,9 +111,14 @@ function isLoadout(value: unknown): value is Loadout {
   if (obj.perks !== undefined) {
     if (typeof obj.perks !== "object" || obj.perks === null || Array.isArray(obj.perks)) return false;
     const perks = obj.perks as Record<string, unknown>;
-    for (const key of ["tier1", "tier2", "tier3"] as const) {
+    for (const key of ["tier1", "tier2", "tier3", "tier4", "tier5"] as const) {
       const choice = perks[key];
       if (choice !== undefined && choice !== null && typeof choice !== "string") return false;
+    }
+  }
+  if (obj.equippedItems !== undefined) {
+    if (typeof obj.equippedItems !== "object" || obj.equippedItems === null || Array.isArray(obj.equippedItems)) {
+      return false;
     }
   }
 
@@ -99,7 +130,8 @@ function isLoadout(value: unknown): value is Loadout {
  * Preserves stored perks shape; client maps a/b onto the class specialization tree.
  */
 function canonicalizeGhost(loadout: Loadout): Loadout {
-  const derived = temperamentForClass(loadout.class);
+  const canonicalClass = loadout.class === "gambler" ? "thief" : loadout.class;
+  const derived = temperamentForClass(canonicalClass);
   if (derived === undefined) {
     // Unknown class string — pass through stored temperament if any.
     return {
@@ -109,16 +141,18 @@ function canonicalizeGhost(loadout: Loadout): Loadout {
       ...(loadout.temperament !== undefined ? { temperament: loadout.temperament } : {}),
       ...(loadout.perks !== undefined ? { perks: loadout.perks } : {}),
       permStats: loadout.permStats,
+      equippedItems: loadout.equippedItems ?? { relicWeapon: null, armor: null, trinket: null },
     };
   }
 
   return {
     name: loadout.name,
-    class: loadout.class,
+    class: canonicalClass,
     traits: { ...TEMPERAMENT_PRESETS[derived] },
     temperament: derived,
     ...(loadout.perks !== undefined ? { perks: loadout.perks } : {}),
     permStats: loadout.permStats,
+    equippedItems: loadout.equippedItems ?? { relicWeapon: null, armor: null, trinket: null },
   };
 }
 
@@ -174,6 +208,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       ...(c.temperament !== undefined ? { temperament: c.temperament } : {}),
       ...(c.perks !== undefined ? { perks: c.perks } : {}),
       permStats: c.permStats,
+      equippedItems: c.equippedItems ?? { relicWeapon: null, armor: null, trinket: null },
     }));
 
     res.status(200).json({ seed, opponents });

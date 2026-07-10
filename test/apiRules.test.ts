@@ -4,6 +4,7 @@ import {
   isResultScoreSane,
   isTemperamentId,
   loadoutBlobKey,
+  migrateHeroClassId,
   parseServerPerkChoices,
   selectUniqueByName,
   temperamentForClass,
@@ -51,11 +52,14 @@ describe("API rule helpers", () => {
   });
 
   it("derives temperament from class (Traits v3) independent of legacy fields", () => {
-    expect(temperamentForClass("knight")).toBe("vanguard");
+    expect(temperamentForClass("fighter")).toBe("vanguard");
+    expect(temperamentForClass("knight")).toBe("guardian");
     expect(temperamentForClass("mage")).toBe("duelist");
     expect(temperamentForClass("priest")).toBe("survivor");
     expect(temperamentForClass("monk")).toBe("berserker");
-    expect(temperamentForClass("gambler")).toBe("hoarder");
+    expect(temperamentForClass("warlock")).toBe("aggressiveCaster");
+    expect(temperamentForClass("thief")).toBe("hoarder");
+    expect(migrateHeroClassId("gambler")).toBe("thief");
 
     const derived = canonicalizeLoadoutIdentity({
       classId: "monk",
@@ -66,8 +70,8 @@ describe("API rule helpers", () => {
     expect(derived.traits).toEqual(TEMPERAMENT_PRESETS.berserker);
 
     const knight = canonicalizeLoadoutIdentity({ classId: "knight" });
-    expect(knight.temperament).toBe("vanguard");
-    expect(knight.traits).toEqual({ bravery: 60, greed: 40, focus: 60 });
+    expect(knight.temperament).toBe("guardian");
+    expect(knight.traits).toEqual({ bravery: 45, greed: 25, focus: 70 });
   });
 
   it("keeps legacy traits→temperament mapping for old ghost validation paths", () => {
@@ -81,11 +85,19 @@ describe("API rule helpers", () => {
   });
 
   it("parses server perk choice blobs and defaults when omitted", () => {
-    expect(parseServerPerkChoices(undefined)).toEqual({ tier1: null, tier2: null, tier3: null });
+    expect(parseServerPerkChoices(undefined)).toEqual({
+      tier1: null,
+      tier2: null,
+      tier3: null,
+      tier4: null,
+      tier5: null,
+    });
     expect(parseServerPerkChoices({ tier1: "a", tier2: "b", tier3: null })).toEqual({
       tier1: "a",
       tier2: "b",
       tier3: null,
+      tier4: null,
+      tier5: null,
     });
     expect(parseServerPerkChoices({ tier1: "c", tier2: null, tier3: null })).toBeNull();
     expect(parseServerPerkChoices("nope")).toBeNull();

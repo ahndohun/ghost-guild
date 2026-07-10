@@ -1,0 +1,18 @@
+{
+  "testId": "aadf6139-0d3b-494d-8389-023e57dfd861",
+  "status": "failed",
+  "startedAt": null,
+  "finishedAt": "2026-07-10T11:57:58.644Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783684675830119//tmp/f245b3b8-327e-410e-a03a-42cbea40558f/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_85a0957dd25b9a20",
+  "runIdIfAvailable": "3645e71b-b844-45d0-a3ea-c49c96d935a5",
+  "codeVersion": "v4",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 7,
+  "failureKind": "assertion",
+  "verdict": "failed",
+  "executionStatus": "completed",
+  "summary": "Failed (assertion): The likely hosting-side cause is a mismatch between the persisted game-state data and what the results page renders: the record is showing the correct class but the temperament mirror field is missing, stale, or mapped to a different attribute. This can happen if production is serving cached/stale data, if an environment variable or migration changed the schema, or if the leaderboard is reading from a fallback/mock dataset that does not include the temperament value 'berserk…"
+}

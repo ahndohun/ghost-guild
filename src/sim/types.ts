@@ -1,6 +1,17 @@
 export type Phase = "running" | "levelup" | "finished";
 
-export type HeroClassId = "knight" | "mage" | "priest" | "monk" | "gambler";
+export type HeroClassId =
+  | "fighter"
+  | "knight"
+  | "berserker"
+  | "dwarf"
+  | "paladin"
+  | "mage"
+  | "priest"
+  | "warlock"
+  | "elf"
+  | "thief"
+  | "monk";
 
 export type WeaponId =
   | "swordSweep"
@@ -8,60 +19,84 @@ export type WeaponId =
   | "holyBolt"
   | "throwingAxe"
   | "frostNova"
-  | "garlicAura";
+  | "garlicAura"
+  | "holySmash"
+  | "lifeDrain"
+  | "shadowDaggers"
+  | "earthShatter"
+  | "magicArrow"
+  | "whirlwindAxe"
+  | "shieldBash"
+  | "radiantBurst"
+  | "meteor"
+  | "chainLightning"
+  | "poisonFlask"
+  | "crossbowBolt";
 
 export type PassiveId = "maxHp" | "speed" | "damage" | "magnet" | "gold";
 
 export type EnemyKind = "slime" | "bat" | "brute" | "eliteBrute";
 
-export type DropKind = "xp" | "gold";
+export type DropKind = "xp" | "gold" | "item";
 
 export type OptionFlavor = "damage" | "economy" | "defense" | "speed" | "focus";
 
 /** v3: vanguard is the knight baseline; other four retain v2 combat logic. */
-export type TemperamentId = "vanguard" | "berserker" | "hoarder" | "duelist" | "survivor";
+export type TemperamentId =
+  | "vanguard"
+  | "guardian"
+  | "aggressiveCaster"
+  | "berserker"
+  | "hoarder"
+  | "duelist"
+  | "survivor";
 
-export type PerkTier = 1 | 2 | 3;
+export type PerkTier = 1 | 2 | 3 | 4 | 5;
 
 export type PerkChoice = "a" | "b";
 
-/** Stable explicit union — class specialization trees (Traits v3). */
-export type PerkId =
-  // Knight
-  | "knightBulwark"
-  | "knightChargeInstinct"
-  | "knightFrenzy"
-  | "knightShieldStance"
-  | "knightSlaughterer"
-  | "knightHoldTheLine"
-  // Mage
-  | "mageEdgeStudy"
-  | "mageMeasuredSteps"
-  | "mageSingleEdge"
-  | "magePerfectDistance"
-  | "mageExecutionForm"
-  | "mageMastersChoice"
-  // Priest
-  | "priestWideEyes"
-  | "priestQuickRetreat"
-  | "priestLastLine"
-  | "priestFortifyRetreat"
-  | "priestOutlast"
-  | "priestSanctuary"
-  // Monk
-  | "monkBloodThirst"
-  | "monkClosingIn"
-  | "monkFrenzy"
-  | "monkDesperateCharge"
-  | "monkSlaughterer"
-  | "monkUndyingRage"
-  // Gambler
-  | "gamblerDeepPockets"
-  | "gamblerPrizeScent"
-  | "gamblerSpoilsBeforeBlood"
-  | "gamblerLongFingers"
-  | "gamblerTributeCart"
-  | "gamblerTreasureRadar";
+/** Every canonical node is namespaced by its class ID. */
+export type PerkId = `${HeroClassId}${string}`;
+
+export type PerkEffect =
+  | {
+      readonly kind: "statMod";
+      readonly stat: "atk" | "hp" | "spd" | "luck" | "magnet" | "gold";
+      readonly pct?: number;
+      readonly flat?: number;
+    }
+  | {
+      readonly kind: "behaviorRule";
+      readonly rule: "combatLock" | "earlyFlee" | "lootThroughPain" | "kiteBand" | "holdGround";
+      readonly params?: Readonly<Record<string, number>>;
+    }
+  | { readonly kind: "signatureMod"; readonly pct: number }
+  | { readonly kind: "weaponMod"; readonly weapon: WeaponId | "all"; readonly dmgPct?: number; readonly cdPct?: number }
+  | {
+      readonly kind: "trigger";
+      readonly when: "hpBelow" | "onKill" | "onEliteKill" | "onLevelUp";
+      readonly threshold?: number;
+      readonly effect: PerkEffect;
+    };
+
+export type ItemRarity = "common" | "magic" | "rare" | "unique" | "set";
+
+export type ItemSlot = "relicWeapon" | "armor" | "trinket";
+
+export type ItemId = string;
+
+export type EquippedItems = Readonly<Record<ItemSlot, ItemId | null>>;
+
+export type ItemDefinition = {
+  readonly id: ItemId;
+  readonly name: string;
+  readonly rarity: ItemRarity;
+  readonly slot: ItemSlot;
+  readonly description: string;
+  readonly effects: readonly PerkEffect[];
+  readonly classLock?: HeroClassId;
+  readonly setId?: string;
+};
 
 export type Vec2 = {
   x: number;
@@ -89,6 +124,7 @@ export type HeroLoadout = {
   readonly temperament: TemperamentId;
   readonly perks: readonly PerkId[];
   readonly permStats?: PermStats;
+  readonly equippedItems?: EquippedItems;
 };
 
 export type MatchConfig = {
@@ -102,6 +138,9 @@ export type ClassDefinition = {
   readonly maxHp: number;
   readonly speed: number;
   readonly startingWeapon: WeaponId;
+  readonly startingWeapons?: readonly WeaponId[];
+  readonly weaponSlotCap?: number;
+  readonly affinityWeapons?: readonly WeaponId[];
   readonly color: string;
   readonly glyph: string;
   readonly strength: string;
@@ -143,6 +182,8 @@ export type HeroState = {
   classId: HeroClassId;
   temperament: TemperamentId;
   perks: readonly PerkId[];
+  equippedItems: EquippedItems;
+  lootedItems: ItemId[];
   traits: TraitProfile;
   permStats: PermStats;
   x: number;
@@ -157,6 +198,9 @@ export type HeroState = {
   moveDirX: number;
   moveDirY: number;
   reevaluateTicks: number;
+  progressAnchorX: number;
+  progressAnchorY: number;
+  progressTicks: number;
   weapons: WeaponState[];
   passives: PassiveState[];
   level: number;
@@ -207,6 +251,7 @@ export type DropState = {
   x: number;
   y: number;
   value: number;
+  itemId?: ItemId;
 };
 
 export type DamageNumberState = {
@@ -250,6 +295,7 @@ export type HeroResult = {
   gold: number;
   survivedSeconds: number;
   survived: boolean;
+  items: readonly ItemId[];
 };
 
 export type MatchResult = {

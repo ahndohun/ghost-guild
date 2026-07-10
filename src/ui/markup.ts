@@ -1,4 +1,4 @@
-import { classDefinitions, perkDefinitions } from "../sim";
+import { classDefinitions, heroClassIds, perkDefinitions } from "../sim";
 import type { HeroClassId, PerkChoice, PerkTier } from "../sim";
 
 export function screenMarkup(): string {
@@ -62,8 +62,8 @@ export function screenMarkup(): string {
             </div>
           </div>
           <div class="lobby-nameplate" aria-live="polite">
-            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Vanguard</p>
-            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">None — balanced situation judgment.</p>
+            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Guardian</p>
+            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Holds ground; low-HP flee only below 25%.</p>
             <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
           </div>
         </div>
@@ -80,11 +80,7 @@ export function screenMarkup(): string {
           <section class="panel">
             <h2>Class</h2>
             <div class="class-grid">
-              ${classMarkup("knight")}
-              ${classMarkup("mage")}
-              ${classMarkup("priest")}
-              ${classMarkup("monk")}
-              ${classMarkup("gambler")}
+              ${heroClassIds.map(classMarkup).join("")}
             </div>
           </section>
           <section class="panel">
@@ -106,7 +102,20 @@ export function screenMarkup(): string {
               ${perkSlotMarkup(2, "b")}
               ${perkSlotMarkup(3, "a")}
               ${perkSlotMarkup(3, "b")}
+              ${perkSlotMarkup(4, "a")}
+              ${perkSlotMarkup(4, "b")}
+              ${perkSlotMarkup(5, "a")}
+              ${perkSlotMarkup(5, "b")}
             </div>
+          </section>
+          <section class="panel inventory-panel" data-testid="inventory-panel">
+            <h2>Guild Inventory</h2>
+            <div class="item-slots" aria-label="Equipped items">
+              ${itemSlotMarkup("relicWeapon", "Relic Weapon")}
+              ${itemSlotMarkup("armor", "Armor")}
+              ${itemSlotMarkup("trinket", "Trinket")}
+            </div>
+            <div id="stash-list" class="stash-list" data-testid="stash-list" aria-live="polite"></div>
           </section>
         </main>
         <footer class="actions">
@@ -172,6 +181,16 @@ export function screenMarkup(): string {
         </div>
       </div>
     </section>
+  `;
+}
+
+function itemSlotMarkup(slot: "relicWeapon" | "armor" | "trinket", label: string): string {
+  return `
+    <button type="button" class="item-slot" id="item-slot-${slot}" data-testid="item-slot-${slot}" data-item-slot="${slot}">
+      <span>${label}</span>
+      <strong>Empty</strong>
+      <small>Click an equipped item to unequip.</small>
+    </button>
   `;
 }
 

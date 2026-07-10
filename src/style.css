@@ -877,6 +877,59 @@ h2,
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.inventory-panel {
+  grid-column: 1 / -1;
+}
+
+.item-slots,
+.stash-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stash-list {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  margin-top: 10px;
+}
+
+.item-slot,
+.stash-item {
+  display: grid;
+  min-height: 88px;
+  align-content: start;
+  gap: 6px;
+  padding: 8px;
+  text-align: left;
+}
+
+.item-slot span,
+.stash-item span {
+  color: var(--ink-dim);
+  font-size: 7px;
+}
+
+.item-slot strong,
+.stash-item strong {
+  color: var(--gold-soft);
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+.item-slot small,
+.stash-item small,
+.stash-empty {
+  color: var(--ink-dim);
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.stash-empty {
+  grid-column: 1 / -1;
+  padding: 12px;
+  text-align: center;
+}
+
 .class-card,
 .perk-card {
   display: grid;
@@ -1425,6 +1478,7 @@ canvas {
   .guild-layout,
   .perk-grid,
   .class-grid,
+  .item-slots,
   .result-grid {
     grid-template-columns: 1fr;
   }

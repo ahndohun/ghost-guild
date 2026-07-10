@@ -2,17 +2,17 @@
   "testId": "180cc8bd-8885-49c9-b06c-aeb2ef98945b",
   "status": "blocked",
   "startedAt": null,
-  "finishedAt": "2026-07-10T09:54:19.169Z",
-  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783677258929948//tmp/f535e4c0-2e1e-44ab-80ed-747826a30ff4/result.webm",
+  "finishedAt": "2026-07-10T12:12:06.544Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783685526230906//tmp/279719c8-d275-4e08-b946-fb295d48cd9f/result.webm",
   "failureAnalysisUrl": null,
-  "snapshotId": "snap_f36f15dfc9d62f79",
-  "runIdIfAvailable": "179f8024-2eea-4968-a77d-1aa6684e8bbe",
+  "snapshotId": "snap_e1e16d6bca8a07a6",
+  "runIdIfAvailable": "4c70983f-7d7a-497d-b8a2-5a90606a347a",
   "codeVersion": "v1",
   "targetUrl": "https://ghost-guild.vercel.app",
   "targetUrlSource": "run",
-  "failedStepIndex": 5,
+  "failedStepIndex": 24,
   "failureKind": null,
   "verdict": "blocked",
   "executionStatus": "completed",
-  "summary": "Blocked before a verdict could be produced: The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Test completed — PASS.\n\nSteps and observations (all from …"
+  "summary": "Blocked before a verdict could be produced: The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Clicked button \"DEPLOY ARENA\""
 }

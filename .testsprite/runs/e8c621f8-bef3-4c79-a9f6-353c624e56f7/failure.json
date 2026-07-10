@@ -1,0 +1,5 @@
+{
+  "rootCauseHypothesis": "TargetClosedError: BrowserContext.new_page: Target page, context or browser has been closed",
+  "recommendedFixTarget": null,
+  "evidence": []
+}

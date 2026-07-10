@@ -18,9 +18,27 @@ export type SaneResultScore = {
   readonly timeMs: number;
 };
 
-export type HeroClassId = "knight" | "mage" | "priest" | "monk" | "gambler";
+export type HeroClassId =
+  | "fighter"
+  | "knight"
+  | "berserker"
+  | "dwarf"
+  | "paladin"
+  | "mage"
+  | "priest"
+  | "warlock"
+  | "elf"
+  | "thief"
+  | "monk";
 
-export type TemperamentId = "berserker" | "hoarder" | "duelist" | "survivor" | "vanguard";
+export type TemperamentId =
+  | "berserker"
+  | "hoarder"
+  | "duelist"
+  | "survivor"
+  | "vanguard"
+  | "guardian"
+  | "aggressiveCaster";
 
 export type Traits = {
   readonly bravery: number;
@@ -32,20 +50,38 @@ export type ServerPerkChoices = {
   readonly tier1: "a" | "b" | null;
   readonly tier2: "a" | "b" | null;
   readonly tier3: "a" | "b" | null;
+  readonly tier4: "a" | "b" | null;
+  readonly tier5: "a" | "b" | null;
+};
+
+export type ServerEquippedItems = {
+  readonly relicWeapon: string | null;
+  readonly armor: string | null;
+  readonly trinket: string | null;
 };
 
 /** Traits v3 — class implies temperament (mirrors sim.temperamentForClass). */
 export function temperamentForClass(classId: HeroClassId): TemperamentId {
   switch (classId) {
-    case "knight":
+    case "fighter":
       return "vanguard";
+    case "knight":
+      return "guardian";
+    case "berserker":
+    case "dwarf":
+    case "monk":
+      return "berserker";
+    case "paladin":
+      return "guardian";
     case "mage":
       return "duelist";
     case "priest":
       return "survivor";
-    case "monk":
-      return "berserker";
-    case "gambler":
+    case "warlock":
+      return "aggressiveCaster";
+    case "elf":
+      return "duelist";
+    case "thief":
       return "hoarder";
     default:
       return "vanguard";
@@ -58,6 +94,8 @@ export const TEMPERAMENT_PRESETS: Record<TemperamentId, Traits> = {
   duelist: { bravery: 60, greed: 25, focus: 95 },
   survivor: { bravery: 20, greed: 40, focus: 60 },
   vanguard: { bravery: 60, greed: 40, focus: 60 },
+  guardian: { bravery: 45, greed: 25, focus: 70 },
+  aggressiveCaster: { bravery: 85, greed: 15, focus: 75 },
 };
 
 /** Map legacy traits sliders to the closest pre-v3 temperament. */
@@ -89,13 +127,29 @@ export function canonicalizeLoadoutIdentity(input: {
 }
 
 export function isHeroClassId(value: unknown): value is HeroClassId {
-  return (
-    value === "knight" ||
-    value === "mage" ||
-    value === "priest" ||
-    value === "monk" ||
-    value === "gambler"
-  );
+  return heroClassIds.includes(value as HeroClassId);
+}
+
+export const heroClassIds: readonly HeroClassId[] = [
+  "fighter",
+  "knight",
+  "berserker",
+  "dwarf",
+  "paladin",
+  "mage",
+  "priest",
+  "warlock",
+  "elf",
+  "thief",
+  "monk",
+];
+
+/** Stored v2 ghosts and saves used gambler for the greed class. */
+export function migrateHeroClassId(value: unknown): HeroClassId | undefined {
+  if (value === "gambler") {
+    return "thief";
+  }
+  return isHeroClassId(value) ? value : undefined;
 }
 
 export function isTemperamentId(value: unknown): value is TemperamentId {
@@ -104,7 +158,9 @@ export function isTemperamentId(value: unknown): value is TemperamentId {
     value === "hoarder" ||
     value === "duelist" ||
     value === "survivor" ||
-    value === "vanguard"
+    value === "vanguard" ||
+    value === "guardian" ||
+    value === "aggressiveCaster"
   );
 }
 
@@ -114,16 +170,33 @@ export function isPerkChoice(value: unknown): value is "a" | "b" | null {
 
 export function parseServerPerkChoices(value: unknown): ServerPerkChoices | null {
   if (value === undefined) {
-    return { tier1: null, tier2: null, tier3: null };
+    return { tier1: null, tier2: null, tier3: null, tier4: null, tier5: null };
   }
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     return null;
   }
   const record = value as Record<string, unknown>;
-  if (!isPerkChoice(record.tier1) || !isPerkChoice(record.tier2) || !isPerkChoice(record.tier3)) {
+  const tier1 = record.tier1 ?? null;
+  const tier2 = record.tier2 ?? null;
+  const tier3 = record.tier3 ?? null;
+  const tier4 = record.tier4 ?? null;
+  const tier5 = record.tier5 ?? null;
+  if (
+    !isPerkChoice(tier1) ||
+    !isPerkChoice(tier2) ||
+    !isPerkChoice(tier3) ||
+    !isPerkChoice(tier4) ||
+    !isPerkChoice(tier5)
+  ) {
     return null;
   }
-  return { tier1: record.tier1, tier2: record.tier2, tier3: record.tier3 };
+  return {
+    tier1,
+    tier2,
+    tier3,
+    tier4,
+    tier5,
+  };
 }
 
 export function loadoutBlobKey(name: string): string {

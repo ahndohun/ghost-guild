@@ -1,0 +1,5 @@
+{
+  "rootCauseHypothesis": "TEST BLOCKED\n\nThe test could not be completed — the game-state mirror element required for verification was not present on the results page after the solo run.\n\nObservations:\n- The page shows the match results and world leaderboard (the Sand Settles results screen is visible).\n- No game-state mirror element was found on the visible results page, and repeated attempts to read it produced no DOM changes.\n- A single actionable button labeled 'BACK TO GUILD' is present (no mirror or data attributes visible to verify class/temperament).",
+  "recommendedFixTarget": null,
+  "evidence": []
+}

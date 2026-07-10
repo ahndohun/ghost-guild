@@ -40,97 +40,29 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Navigate to https://ghost-guild.vercel.app/?seed=42&fast=1
+        # -> Open the Ghost Colosseum page with seed=42 and fast mode (navigate to the URL with ?seed=42&fast=1).
         await page.goto("https://ghost-guild.vercel.app/?seed=42&fast=1")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
         
-        # -> Click the 'DEPLOY SOLO' button.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button to run a solo deployment and open the results screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Verify the results screen shows the header 'RESULTS' and that the score contains a number, then click the 'BACK TO GUILD' button.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
         # -> Click the 'DEPLOY SOLO' button
         # DEPLOY SOLO button
         elem = page.get_by_test_id('deploy-solo')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button on the guild screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button to open the results screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button after verifying the RESULTS header and numeric score are visible.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button on the guild screen to open the RESULTS screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen (after verifying the RESULTS header and numeric score are visible).
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button to open the RESULTS screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Verify the 'RESULTS' header and score are visible, then click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button to open the RESULTS screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # -> Click the 'BACK TO GUILD' button
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
-        current_url = await page.evaluate("() => window.location.href")
-        # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
-        assert current_url, 'Page should have loaded with a URL'
+        
+        # --> The element #screen-guild is visible
+        await page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[1]").nth(0).scroll_into_view_if_needed()
+        # Assert: The guild screen is visible (the DEPLOY SOLO button is shown).
+        await expect(page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[1]").nth(0)).to_be_visible(timeout=15000), "The guild screen is visible (the DEPLOY SOLO button is shown)."
         current_url = await page.evaluate("() => window.location.href")
         # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
         assert current_url, 'Page should have loaded with a URL'

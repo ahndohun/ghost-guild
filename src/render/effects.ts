@@ -369,8 +369,8 @@ function updateTemperamentFx(fx: TemperamentFxState, state: MatchState): void {
       }
     }
 
-    // Berserker hard rule: ignore loot while enemies near — bang on near-miss loot
-    if (hero.temperament === "berserker") {
+    // Berserker / aggressiveCaster hard rule: ignore loot while enemies near — bang on near-miss loot
+    if (hero.temperament === "berserker" || hero.temperament === "aggressiveCaster") {
       const previousUntil = fx.ignoreLootBangUntil.get(hero.id) ?? 0;
       if (
         hasEnemyWithin(hero, state.enemies, 200)

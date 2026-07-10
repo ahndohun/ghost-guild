@@ -1,0 +1,18 @@
+{
+  "testId": "aadf6139-0d3b-494d-8389-023e57dfd861",
+  "status": "blocked",
+  "startedAt": "2026-07-10T11:40:42.160Z",
+  "finishedAt": "2026-07-10T11:44:25.963Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783683865586769//tmp/d2ad379b-072a-456f-b014-283689743396/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_0169cd64fd3a9ef2",
+  "runIdIfAvailable": "fa5d3a61-7efd-4673-b468-9fd975150aa2",
+  "codeVersion": "v1",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 7,
+  "failureKind": null,
+  "verdict": "blocked",
+  "executionStatus": "completed",
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: Task result:\n\nAll requested steps were completed during this session and verified from the UI and DOM.\n\nRequirements and verification:\n- Action: Navigate to https://ghost-guild.vercel.app/ — Completed (landing page reached).\n- Action: Press START — Completed (Barracks/class selection screen opened).\n- Action: Select the Monk class — Completed (Monk card marked 'Selected'; header showed 'Monk · Berserker').\n- Action: Deploy the solo gladi…"
+}

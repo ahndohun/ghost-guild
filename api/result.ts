@@ -29,12 +29,44 @@ type VercelResponse = {
   json: (body: unknown) => void;
 };
 
-const CLASSES = new Set(["knight", "mage", "priest", "monk", "gambler"]);
-const TEMPERAMENTS = ["berserker", "hoarder", "duelist", "survivor", "vanguard"] as const;
+const CLASSES = new Set([
+  "fighter",
+  "knight",
+  "berserker",
+  "dwarf",
+  "paladin",
+  "mage",
+  "priest",
+  "warlock",
+  "elf",
+  "thief",
+  "monk",
+  "gambler",
+]);
+const TEMPERAMENTS = [
+  "berserker",
+  "hoarder",
+  "duelist",
+  "survivor",
+  "vanguard",
+  "guardian",
+  "aggressiveCaster",
+] as const;
 const MAX_BODY_BYTES = 2048;
 
 type Temperament = (typeof TEMPERAMENTS)[number];
-type HeroClass = "knight" | "mage" | "priest" | "monk" | "gambler";
+type HeroClass =
+  | "fighter"
+  | "knight"
+  | "berserker"
+  | "dwarf"
+  | "paladin"
+  | "mage"
+  | "priest"
+  | "warlock"
+  | "elf"
+  | "thief"
+  | "monk";
 
 function bodyByteLength(req: VercelRequest): number {
   const header = req.headers["content-length"];
@@ -89,7 +121,7 @@ function parseResult(body: unknown):
 
   return {
     name,
-    class: heroClass as HeroClass,
+    class: heroClass === "gambler" ? "thief" : heroClass as HeroClass,
     score: scoreFields.score,
     kills: scoreFields.kills,
     survived: body.survived,

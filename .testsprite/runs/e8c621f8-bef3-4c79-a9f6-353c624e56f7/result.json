@@ -1,0 +1,18 @@
+{
+  "testId": "aadf6139-0d3b-494d-8389-023e57dfd861",
+  "status": "failed",
+  "startedAt": "2026-07-10T11:51:36.303210+00:00",
+  "finishedAt": "2026-07-10T11:51:39.606Z",
+  "videoUrl": null,
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_e5cd11b3c50e89d9",
+  "runIdIfAvailable": "e8c621f8-bef3-4c79-a9f6-353c624e56f7",
+  "codeVersion": "v3",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 1,
+  "failureKind": "unknown",
+  "verdict": "failed",
+  "executionStatus": "completed",
+  "summary": "Failed: TargetClosedError: BrowserContext.new_page: Target page, context or browser has been closed"
+}

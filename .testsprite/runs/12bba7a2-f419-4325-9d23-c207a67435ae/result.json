@@ -1,0 +1,18 @@
+{
+  "testId": "aadf6139-0d3b-494d-8389-023e57dfd861",
+  "status": "blocked",
+  "startedAt": "2026-07-10T11:46:10.001Z",
+  "finishedAt": "2026-07-10T11:50:07.825Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783684207498606//tmp/e61ae5a3-8c0a-45db-8bd6-da0bd7cf82cc/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_8ca558f6b059ee0f",
+  "runIdIfAvailable": "12bba7a2-f419-4325-9d23-c207a67435ae",
+  "codeVersion": "v2",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 5,
+  "failureKind": null,
+  "verdict": "blocked",
+  "executionStatus": "completed",
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED\n\nThe test could not be completed — the game-state mirror element required for verification was not present on the results page after the solo run.\n\nObservations:\n- The page shows the match results and world leaderboard (the Sand Settles results screen is visible).\n- No game-state mirror element was found on the visible results page, and repeated attempts to read it produced no DOM changes.\n- A single actionable button labeled 'BACK TO GUI…"
+}

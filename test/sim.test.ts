@@ -10,12 +10,12 @@ import {
 import { HERO_RADIUS, LEVEL_UP_PAUSE_TICKS, WORLD_HEIGHT, WORLD_WIDTH } from "../src/sim/constants";
 import type { EnemyState, HeroClassId, HeroLoadout, HeroResult, MatchConfig, MatchResult, PerkId } from "../src/sim";
 
-const vanguardKnight: MatchConfig = {
+const guardianKnight: MatchConfig = {
   seed: 42,
   heroes: [
     {
       classId: "knight",
-      temperament: "vanguard",
+      temperament: "guardian",
       perks: [],
     },
   ],
@@ -48,7 +48,7 @@ const arenaMatch: MatchConfig = {
     {
       name: "Gladiator-1234",
       classId: "knight",
-      temperament: "vanguard",
+      temperament: "guardian",
       perks: ["knightChargeInstinct"],
       permStats: { atk: 1, hp: 1, spd: 1, luck: 1, lvl: 1 },
     },
@@ -60,10 +60,10 @@ const arenaMatch: MatchConfig = {
       permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     },
     {
-      name: "Vex the Hoarder",
-      classId: "gambler",
+      name: "Vex the Shadow",
+      classId: "thief",
       temperament: "hoarder",
-      perks: ["gamblerDeepPockets", "gamblerSpoilsBeforeBlood", "gamblerTributeCart"],
+      perks: ["thiefDeepPockets", "thiefSpoilsBeforeBlood", "thiefTributeCart"],
       permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     },
     {
@@ -78,8 +78,8 @@ const arenaMatch: MatchConfig = {
 
 describe("Ghost Guild deterministic simulation", () => {
   it("returns an identical MatchResult hash when the same seed runs twice", () => {
-    const first = JSON.stringify(simulateMatch(vanguardKnight));
-    const second = JSON.stringify(simulateMatch(vanguardKnight));
+    const first = JSON.stringify(simulateMatch(guardianKnight));
+    const second = JSON.stringify(simulateMatch(guardianKnight));
 
     expect(second).toBe(first);
   });
@@ -130,7 +130,7 @@ describe("Ghost Guild deterministic simulation", () => {
   });
 
   it("enters a JRPG level-up dialog pause during normal-speed stepping", () => {
-    const match = createMatch(vanguardKnight);
+    const match = createMatch(guardianKnight);
     let guard = 2000;
     while (match.state.phase !== "levelup" && guard > 0) {
       match.step();
@@ -157,15 +157,15 @@ describe("Ghost Guild deterministic simulation", () => {
     expect(elapsedMs).toBeLessThan(2000);
   });
 
-  it("keeps a nearby berserker monk from detouring to a gem before a hoarder gambler does", () => {
-    // Traits v3: berserker is monk identity, hoarder is gambler — not free temperament picks.
+  it("keeps a nearby berserker monk from detouring to a gem before a hoarder thief does", () => {
+    // Roster v3: berserker is monk identity, hoarder is thief — not free temperament picks.
     const berserkerXp = collectedGemCount({
       classId: "monk",
       temperament: "berserker",
       perks: [],
     });
     const hoarderXp = collectedGemCount({
-      classId: "gambler",
+      classId: "thief",
       temperament: "hoarder",
       perks: [],
     });
@@ -213,20 +213,19 @@ describe("Ghost Guild deterministic simulation", () => {
     30_000,
   );
 
-  it("matches the seed 42 vanguard Knight golden score", () => {
-    const result = simulateMatch(vanguardKnight);
+  it("matches the seed 42 guardian Knight golden score", () => {
+    const result = simulateMatch(guardianKnight);
     const hero = primaryHero(result);
 
-    // Traits v3 intentional change: default knight identity is vanguard (b60/g40/f60), not berserker.
-    // Golden recalibrated after knight temperament shift (berserker→vanguard).
+    // Roster v3 intentional change: Knight is a 140 HP guardian with contact mitigation and 18-skill rolls.
     expect({
       score: hero.score,
       kills: hero.kills,
       level: hero.level,
     }).toEqual({
-      score: GOLDEN_VANGUARD_KNIGHT.score,
-      kills: GOLDEN_VANGUARD_KNIGHT.kills,
-      level: GOLDEN_VANGUARD_KNIGHT.level,
+      score: GOLDEN_GUARDIAN_KNIGHT.score,
+      kills: GOLDEN_GUARDIAN_KNIGHT.kills,
+      level: GOLDEN_GUARDIAN_KNIGHT.level,
     });
   });
 
@@ -273,12 +272,12 @@ describe("Ghost Guild deterministic simulation", () => {
     expect(hero?.weapons[0]?.level).toBeGreaterThanOrEqual(1);
   });
 
-  it("returns an identical MatchResult hash for gambler on the same seed", () => {
+  it("returns an identical MatchResult hash for thief on the same seed", () => {
     const config: MatchConfig = {
       seed: 4242,
       heroes: [
         {
-          classId: "gambler",
+          classId: "thief",
           temperament: "hoarder",
           perks: [],
         },
@@ -292,11 +291,13 @@ describe("Ghost Guild deterministic simulation", () => {
 
 describe("Traits v3 class identity and specialization trees", () => {
   it("maps each class to its built-in temperament only", () => {
-    expect(temperamentForClass("knight")).toBe("vanguard");
+    expect(temperamentForClass("fighter")).toBe("vanguard");
+    expect(temperamentForClass("knight")).toBe("guardian");
     expect(temperamentForClass("mage")).toBe("duelist");
     expect(temperamentForClass("priest")).toBe("survivor");
     expect(temperamentForClass("monk")).toBe("berserker");
-    expect(temperamentForClass("gambler")).toBe("hoarder");
+    expect(temperamentForClass("warlock")).toBe("aggressiveCaster");
+    expect(temperamentForClass("thief")).toBe("hoarder");
   });
 
   it("overrides stale loadout temperament from class at createMatch", () => {
@@ -323,19 +324,19 @@ describe("Traits v3 class identity and specialization trees", () => {
     });
 
     expect(match.state.heroes.map((hero) => ({ classId: hero.classId, temperament: hero.temperament }))).toEqual([
-      { classId: "knight", temperament: "vanguard" },
+      { classId: "knight", temperament: "guardian" },
       { classId: "mage", temperament: "duelist" },
       { classId: "monk", temperament: "berserker" },
     ]);
-    expect(match.state.heroes[0]?.traits).toEqual({ bravery: 60, greed: 40, focus: 60 });
+    expect(match.state.heroes[0]?.traits).toEqual({ bravery: 45, greed: 25, focus: 70 });
   });
 
-  it("keys perk trees by class with six nodes and ≥1 behavior node per tier", () => {
+  it("keys perk trees by class with ten nodes and ≥1 behavior node per tier", () => {
     for (const classId of heroClassIds) {
       const tree = perkDefinitions[classId];
-      expect(tree, classId).toHaveLength(6);
+      expect(tree, classId).toHaveLength(10);
 
-      for (const tier of [1, 2, 3] as const) {
+      for (const tier of [1, 2, 3, 4, 5] as const) {
         const tierNodes = tree.filter((perk) => perk.tier === tier);
         expect(tierNodes, `${classId} T${tier}`).toHaveLength(2);
         expect(
@@ -364,10 +365,10 @@ describe("Traits v3 class identity and specialization trees", () => {
     expect(
       sanitizePerks("priest", ["priestWideEyes", "priestFortifyRetreat", "priestSanctuary", "monkBloodThirst"]),
     ).toEqual(["priestWideEyes", "priestFortifyRetreat", "priestSanctuary"]);
-    expect(sanitizePerks("gambler", [])).toEqual([]);
+    expect(sanitizePerks("thief", [])).toEqual([]);
   });
 
-  it("keeps class-derived identity deterministic across seeds for all five classes", () => {
+  it("keeps class-derived identity deterministic across seeds for all 11 classes", () => {
     for (const classId of heroClassIds) {
       const config: MatchConfig = {
         seed: 5555,
@@ -385,15 +386,14 @@ describe("Traits v3 class identity and specialization trees", () => {
   it(
     "keeps behavior-specialized heroes from stalling for 3s outside combat",
     () => {
-      const behaviorBuilds: Record<HeroClassId, readonly PerkId[]> = {
-        knight: ["knightChargeInstinct", "knightShieldStance", "knightHoldTheLine"],
-        mage: ["mageMeasuredSteps", "magePerfectDistance", "mageMastersChoice"],
-        priest: ["priestWideEyes", "priestFortifyRetreat", "priestSanctuary"],
-        monk: ["monkClosingIn", "monkDesperateCharge", "monkUndyingRage"],
-        gambler: ["gamblerPrizeScent", "gamblerSpoilsBeforeBlood", "gamblerTreasureRadar"],
-      };
-
       for (const classId of heroClassIds) {
+        const behaviorBuild = ([1, 2, 3, 4, 5] as const).map((tier) => {
+          const node = perkDefinitions[classId].find((perk) => perk.tier === tier && perk.changesBehavior);
+          if (node === undefined) {
+            throw new Error(`Missing behavior node for ${classId} T${tier}`);
+          }
+          return node.id;
+        });
         for (const seed of [71, 191]) {
           const match = createMatch({
             seed,
@@ -401,7 +401,7 @@ describe("Traits v3 class identity and specialization trees", () => {
               {
                 classId,
                 temperament: "vanguard",
-                perks: behaviorBuilds[classId],
+                perks: behaviorBuild,
                 permStats: { atk: 5, hp: 5, spd: 5, luck: 2, lvl: 1 },
               },
             ],
@@ -459,11 +459,11 @@ describe("Traits v3 class identity and specialization trees", () => {
   );
 });
 
-/** Traits v3: knight is vanguard; wall hysteresis also prevents non-combat boundary stalls. */
-const GOLDEN_VANGUARD_KNIGHT = {
-  score: 777,
-  kills: 52,
-  level: 5,
+/** Roster v3: Knight is guardian; golden intentionally changed with class stats, skills, and item RNG. */
+const GOLDEN_GUARDIAN_KNIGHT = {
+  score: 2181,
+  kills: 164,
+  level: 9,
 };
 
 function collectedGemCount(loadout: HeroLoadout): number {

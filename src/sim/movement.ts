@@ -7,7 +7,8 @@ import {
 } from "./constants";
 import { clamp, distanceSquared, dot, normalize } from "./math";
 import { speedMultiplier } from "./stats";
-import { hasPerk } from "./perks";
+import { hasBehaviorRule, hasPerk } from "./perks";
+import { listBehaviorRules } from "./itemEffects";
 import type { DropState, EnemyState, HeroState, Vec2 } from "./types";
 import { weaponDefinitions } from "./data";
 
@@ -29,7 +30,17 @@ export function tickHeroMovement(hero: HeroState, enemies: readonly EnemyState[]
     return;
   }
 
-  if (hero.reevaluateTicks <= 0) {
+  updateProgressGuard(hero, enemies);
+
+  if (hero.progressTicks >= 75) {
+    const escape = normalize(WORLD_WIDTH / 2 - hero.x, WORLD_HEIGHT / 2 - hero.y);
+    hero.moveDirX = escape.x;
+    hero.moveDirY = escape.y;
+    hero.reevaluateTicks = 15;
+    hero.progressAnchorX = hero.x;
+    hero.progressAnchorY = hero.y;
+    hero.progressTicks = 0;
+  } else if (hero.reevaluateTicks <= 0) {
     const direction = chooseDirection({ hero, enemies, drops });
     hero.moveDirX = direction.x;
     hero.moveDirY = direction.y;
@@ -42,6 +53,24 @@ export function tickHeroMovement(hero: HeroState, enemies: readonly EnemyState[]
   hero.vy = hero.moveDirY * speed;
   hero.x = clamp(hero.x + hero.vx * DT_SECONDS, HERO_RADIUS, WORLD_WIDTH - HERO_RADIUS);
   hero.y = clamp(hero.y + hero.vy * DT_SECONDS, HERO_RADIUS, WORLD_HEIGHT - HERO_RADIUS);
+}
+
+function updateProgressGuard(hero: HeroState, enemies: readonly EnemyState[]): void {
+  if (hasEnemyWithin(hero, enemies, 140)) {
+    hero.progressAnchorX = hero.x;
+    hero.progressAnchorY = hero.y;
+    hero.progressTicks = 0;
+    return;
+  }
+  const dx = hero.x - hero.progressAnchorX;
+  const dy = hero.y - hero.progressAnchorY;
+  if (dx * dx + dy * dy > 20 * 20) {
+    hero.progressAnchorX = hero.x;
+    hero.progressAnchorY = hero.y;
+    hero.progressTicks = 0;
+    return;
+  }
+  hero.progressTicks += 1;
 }
 
 function chooseDirection(context: MovementContext): Vec2 {
@@ -93,17 +122,20 @@ function scoreDirection(context: MovementContext, direction: Vec2): number {
   score += duelistRangeScore(hero, enemies, direction);
 
   const loot = nearestDrop(hero, drops);
-  const ignoreLootNearEnemy =
-    (hero.temperament === "berserker" || hasPerk(hero.perks, "knightChargeInstinct")) &&
-    hasEnemyWithin(hero, enemies, 200);
-  const ignoreLootLowHp =
-    hasPerk(hero.perks, "priestFortifyRetreat") && hero.hp / hero.maxHp < 0.5;
-  const ignoreLootSanctuary =
-    hasPerk(hero.perks, "priestSanctuary") && hasEnemyWithin(hero, enemies, 160);
-  if (loot !== undefined && !ignoreLootNearEnemy && !ignoreLootLowHp && !ignoreLootSanctuary) {
+  const combatLock =
+    hero.temperament === "berserker" ||
+    hero.temperament === "aggressiveCaster" ||
+    hasBehaviorRule(hero.perks, "combatLock") ||
+    hasItemBehaviorRule(hero, "combatLock") ||
+    hasPerk(hero.perks, "knightChargeInstinct");
+  const ignoreLootNearEnemy = combatLock && hasEnemyWithin(hero, enemies, 200);
+  if (loot !== undefined && !ignoreLootNearEnemy) {
     const lowHpLootBonus =
-      hero.temperament === "hoarder" && hero.hp / hero.maxHp < 0.35
-        ? hasPerk(hero.perks, "gamblerSpoilsBeforeBlood")
+      (hero.temperament === "hoarder" ||
+        hasBehaviorRule(hero.perks, "lootThroughPain") ||
+        hasItemBehaviorRule(hero, "lootThroughPain")) &&
+      hero.hp / hero.maxHp < 0.35
+        ? hasPerk(hero.perks, "thiefSpoilsBeforeBlood")
           ? 65
           : 35
         : 0;
@@ -116,17 +148,50 @@ function scoreDirection(context: MovementContext, direction: Vec2): number {
   const wallVector = wallRepulsion(hero);
   score += dot(direction, wallVector) * 80;
 
-  const fleeThreshold =
-    hero.temperament === "survivor" || hasPerk(hero.perks, "knightShieldStance") ? 0.5 : 0.35;
+  const fleeThreshold = fleeHpThreshold(hero);
   const suppressFlee =
-    hero.temperament === "berserker" || hasPerk(hero.perks, "knightHoldTheLine");
-  const hoarderLootDetour = hero.temperament === "hoarder" && loot !== undefined;
+    hero.temperament === "berserker" ||
+    hero.temperament === "aggressiveCaster" ||
+    hasPerk(hero.perks, "knightHoldTheLine") ||
+    ((hasBehaviorRule(hero.perks, "holdGround") || hasItemBehaviorRule(hero, "holdGround")) &&
+      hero.hp / hero.maxHp >= 0.25);
+  const hoarderLootDetour =
+    (hero.temperament === "hoarder" ||
+      hasBehaviorRule(hero.perks, "lootThroughPain") ||
+      hasItemBehaviorRule(hero, "lootThroughPain")) &&
+    loot !== undefined;
   if (!suppressFlee && !hoarderLootDetour && hero.hp / hero.maxHp < fleeThreshold) {
     const fleeVector = enemyCentroidFlee(hero, enemies);
-    score += dot(direction, fleeVector) * (100 - hero.traits.bravery) * 2;
+    const fleeWeight =
+      hero.temperament === "guardian" ||
+      hasBehaviorRule(hero.perks, "holdGround") ||
+      hasItemBehaviorRule(hero, "holdGround")
+        ? 1.1
+        : 2;
+    score += dot(direction, fleeVector) * (100 - hero.traits.bravery) * fleeWeight;
   }
 
   return score;
+}
+
+/** survivor early / guardian late / default mid — perk earlyFlee forces 50%. */
+function fleeHpThreshold(hero: HeroState): number {
+  if (
+    hero.temperament === "survivor" ||
+    hasPerk(hero.perks, "knightShieldStance") ||
+    hasBehaviorRule(hero.perks, "earlyFlee") ||
+    hasItemBehaviorRule(hero, "earlyFlee")
+  ) {
+    return 0.5;
+  }
+  if (
+    hero.temperament === "guardian" ||
+    hasBehaviorRule(hero.perks, "holdGround") ||
+    hasItemBehaviorRule(hero, "holdGround")
+  ) {
+    return 0.25;
+  }
+  return 0.35;
 }
 
 function survivorDangerMultiplier(hero: HeroState): number {
@@ -137,14 +202,8 @@ function survivorDangerMultiplier(hero: HeroState): number {
 }
 
 function enemyApproachMultiplier(hero: HeroState): number {
-  let multiplier = 1;
-  if (hasPerk(hero.perks, "monkClosingIn")) {
-    multiplier *= 1.4;
-  }
-  if (hasPerk(hero.perks, "monkDesperateCharge") && hero.hp / hero.maxHp < 0.35) {
-    multiplier *= 2;
-  }
-  return multiplier;
+  void hero;
+  return 1;
 }
 
 function nearestDrop(
@@ -152,13 +211,7 @@ function nearestDrop(
   drops: readonly DropState[],
 ): { direction: Vec2; distance: number; scanRadius: number } | undefined {
   let bestDrop: DropState | undefined;
-  let scanRadius = 200;
-  if (hasPerk(hero.perks, "gamblerPrizeScent")) {
-    scanRadius = 280;
-  }
-  if (hasPerk(hero.perks, "gamblerTreasureRadar")) {
-    scanRadius = Math.max(scanRadius, 320);
-  }
+  const scanRadius = 200;
   let bestDistanceSquared = scanRadius * scanRadius;
 
   for (const drop of drops) {
@@ -187,7 +240,12 @@ function hasEnemyWithin(hero: HeroState, enemies: readonly EnemyState[], radius:
 }
 
 function duelistRangeScore(hero: HeroState, enemies: readonly EnemyState[], direction: Vec2): number {
-  if (hero.temperament !== "duelist" || enemies.length === 0) {
+  const kite =
+    hero.temperament === "duelist" ||
+    hasBehaviorRule(hero.perks, "kiteBand") ||
+    hasItemBehaviorRule(hero, "kiteBand") ||
+    hero.temperament === "aggressiveCaster";
+  if (!kite || enemies.length === 0) {
     return 0;
   }
 
@@ -197,7 +255,7 @@ function duelistRangeScore(hero: HeroState, enemies: readonly EnemyState[], dire
   }
 
   const longestRange = longestWeaponRange(hero);
-  const minRange = longestRange * (hasPerk(hero.perks, "magePerfectDistance") ? 0.9 : 0.8);
+  const minRange = longestRange * 0.8;
   const maxRange = longestRange;
   const toEnemy = { x: target.x - hero.x, y: target.y - hero.y };
   const distance = Math.sqrt(toEnemy.x * toEnemy.x + toEnemy.y * toEnemy.y);
@@ -205,18 +263,25 @@ function duelistRangeScore(hero: HeroState, enemies: readonly EnemyState[], dire
     return 0;
   }
 
+  // aggressiveCaster kites lightly (half weight) — still combat-forward.
+  const temperScale = hero.temperament === "aggressiveCaster" ? 0.55 : 1;
   const towardEnemy = { x: toEnemy.x / distance, y: toEnemy.y / distance };
   if (distance < minRange) {
     const awayEnemy = { x: -towardEnemy.x, y: -towardEnemy.y };
-    const weight = hasPerk(hero.perks, "mageMeasuredSteps") ? 150 : 115;
-    return dot(direction, awayEnemy) * weight * (1 - distance / minRange);
+    return dot(direction, awayEnemy) * 115 * temperScale * (1 - distance / minRange);
   }
   if (distance > maxRange && distance < maxRange + 180) {
-    const weight = hasPerk(hero.perks, "mageMeasuredSteps") ? 115 : 90;
-    return dot(direction, towardEnemy) * weight * (1 - (distance - maxRange) / 180);
+    return dot(direction, towardEnemy) * 90 * temperScale * (1 - (distance - maxRange) / 180);
   }
 
-  return (1 - Math.abs(dot(direction, towardEnemy))) * 12;
+  return (1 - Math.abs(dot(direction, towardEnemy))) * 12 * temperScale;
+}
+
+function hasItemBehaviorRule(
+  hero: HeroState,
+  rule: "combatLock" | "earlyFlee" | "lootThroughPain" | "kiteBand" | "holdGround",
+): boolean {
+  return listBehaviorRules(hero.equippedItems, hero.classId).some((effect) => effect.rule === rule);
 }
 
 function nearestEnemy(hero: HeroState, enemies: readonly EnemyState[]): EnemyState | undefined {

@@ -1,11 +1,17 @@
 /** PixelLab 8-direction character sprites with graceful fallback when not ready. */
 
 export type CharacterSpriteId =
+  | "fighter"
   | "knight"
+  | "berserker"
+  | "dwarf"
+  | "paladin"
   | "mage"
   | "priest"
+  | "warlock"
+  | "elf"
+  | "thief"
   | "monk"
-  | "gambler"
   | "slime"
   | "bat"
   | "brute";
@@ -40,22 +46,34 @@ type Direction = (typeof DIRECTIONS)[number];
 
 /** Content height used for scale: most characters ~32px, brute ~40px. */
 const CONTENT_PX: Record<string, number> = {
+  fighter: 32,
   knight: 32,
+  berserker: 32,
+  dwarf: 32,
+  paladin: 32,
   mage: 32,
   priest: 32,
+  warlock: 32,
+  elf: 32,
+  thief: 32,
   monk: 32,
-  gambler: 32,
   slime: 32,
   bat: 32,
   brute: 40,
 };
 
 export const CHARACTER_SPRITES: Record<string, SpriteMeta> = {
+  fighter: { dir: "assets/sprites/fighter", canvas: 64 },
   knight: { dir: "assets/sprites/knight", canvas: 64 },
+  berserker: { dir: "assets/sprites/berserker", canvas: 64 },
+  dwarf: { dir: "assets/sprites/dwarf", canvas: 64 },
+  paladin: { dir: "assets/sprites/paladin", canvas: 64 },
   mage: { dir: "assets/sprites/mage", canvas: 64 },
   priest: { dir: "assets/sprites/priest", canvas: 64 },
+  warlock: { dir: "assets/sprites/warlock", canvas: 64 },
+  elf: { dir: "assets/sprites/elf", canvas: 64 },
+  thief: { dir: "assets/sprites/thief", canvas: 64 },
   monk: { dir: "assets/sprites/monk", canvas: 60 },
-  gambler: { dir: "assets/sprites/gambler", canvas: 64 },
   slime: { dir: "assets/sprites/slime", canvas: 64 },
   bat: { dir: "assets/sprites/bat", canvas: 64 },
   brute: { dir: "assets/sprites/brute", canvas: 80 },

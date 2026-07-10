@@ -2,6 +2,7 @@ import { HERO_RADIUS, LEVEL_UP_PAUSE_TICKS, MAX_TICKS, TICKS_PER_SECOND, WORLD_H
 import { classDefinitions, passiveIds } from "./data";
 import { livingHeroes, removeDefeatedEnemies, tickEnemies } from "./enemies";
 import { collectDrops } from "./loot";
+import { equippedStatMods, sanitizeEquippedItems } from "./itemEffects";
 import { clamp } from "./math";
 import { tickHeroMovement } from "./movement";
 import { tickProjectiles } from "./projectiles";
@@ -22,6 +23,7 @@ import type {
   MatchState,
   PassiveState,
   PermStats,
+  EquippedItems,
   WeaponState,
 } from "./types";
 
@@ -38,6 +40,7 @@ const heroSpawnOffsets = [
 ];
 
 const defaultPermStats: PermStats = { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 };
+const emptyEquippedItems: EquippedItems = { relicWeapon: null, armor: null, trinket: null };
 
 export function createMatch(config: MatchConfig): MatchController {
   const loadouts = normalizeLoadouts(config.heroes);
@@ -89,6 +92,7 @@ export function createMatch(config: MatchConfig): MatchController {
 
       const weaponRuntime = {
         state,
+        rng,
         nextProjectileId: () => nextProjectileIdValue++,
         nextDamageNumberId: () => nextDamageNumberIdValue++,
       };
@@ -139,16 +143,19 @@ function normalizeLoadouts(loadouts: readonly HeroLoadout[]): readonly HeroLoado
 function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
   const definition = classDefinitions[loadout.classId];
   const permStats = normalizePermStats(loadout.permStats);
+  const equippedItems = sanitizeEquippedItems(loadout.equippedItems ?? emptyEquippedItems, loadout.classId);
+  const itemStats = equippedStatMods(equippedItems, loadout.classId);
   // Traits v3: class derives temperament; ignore any stale loadout.temperament.
   const temperament = temperamentForClass(loadout.classId);
   const perks = sanitizePerks(loadout.classId, loadout.perks);
   const offset = heroSpawnOffsets[index] ?? heroSpawnOffsets[0];
-  const weapon: WeaponState = {
-    id: definition.startingWeapon,
+  const startingWeapons = definition.startingWeapons ?? [definition.startingWeapon];
+  const weapons: WeaponState[] = startingWeapons.map((weaponId) => ({
+    id: weaponId,
     level: 1,
     cooldownTicks: 0,
     healCooldownTicks: 0,
-  };
+  }));
   const passives: PassiveState[] = passiveIds.map((id) => ({ id, level: 0 }));
   const hero: HeroState = {
     id: index + 1,
@@ -156,21 +163,26 @@ function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
     classId: loadout.classId,
     temperament,
     perks,
+    equippedItems,
+    lootedItems: [],
     permStats,
     traits: clampTraits(traitsForTemperament(temperament)),
     x: WORLD_WIDTH / 2 + offset.x,
     y: WORLD_HEIGHT / 2 + offset.y,
     vx: 0,
     vy: 0,
-    radius: HERO_RADIUS,
-    hp: definition.maxHp * (1 + permStats.hp * 0.10),
-    maxHp: definition.maxHp * (1 + permStats.hp * 0.10),
-    baseMaxHp: definition.maxHp * (1 + permStats.hp * 0.10),
-    baseSpeed: definition.speed * (1 + permStats.spd * 0.05),
+    radius: loadout.classId === "dwarf" ? HERO_RADIUS * 0.75 : HERO_RADIUS,
+    hp: definition.maxHp * (1 + permStats.hp * 0.10 + itemStats.hpPct) + itemStats.hpFlat,
+    maxHp: definition.maxHp * (1 + permStats.hp * 0.10 + itemStats.hpPct) + itemStats.hpFlat,
+    baseMaxHp: definition.maxHp * (1 + permStats.hp * 0.10 + itemStats.hpPct) + itemStats.hpFlat,
+    baseSpeed: definition.speed * (1 + permStats.spd * 0.05 + itemStats.spdPct) + itemStats.spdFlat,
     moveDirX: 1,
     moveDirY: 0,
     reevaluateTicks: 0,
-    weapons: [weapon],
+    progressAnchorX: WORLD_WIDTH / 2 + offset.x,
+    progressAnchorY: WORLD_HEIGHT / 2 + offset.y,
+    progressTicks: 0,
+    weapons,
     passives,
     level: 1 + permStats.lvl,
     xp: 0,
@@ -181,7 +193,8 @@ function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
     deathTick: undefined,
     hitFlashTicks: 0,
     touchRecoveryTicks: 0,
-    undyingRageAvailable: hasPerk(perks, "monkUndyingRage"),
+    undyingRageAvailable:
+      hasPerk(perks, "berserkerUndyingRage") || hasPerk(perks, "monkUndyingRage"),
   };
   recomputeMaxHp(hero);
   for (let i = 0; i < permStats.lvl; i += 1) {

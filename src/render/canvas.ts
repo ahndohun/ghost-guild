@@ -29,11 +29,17 @@ const palette = {
 
 /** Class accent colors for HP bars, nameplates, and combat chrome. */
 const classColors: Record<HeroClassId, string> = {
+  fighter: "#d7b36a",
   knight: "#d9a441",
+  berserker: "#d45a43",
+  dwarf: "#b9824f",
+  paladin: "#f0d476",
   mage: "#7aa5ff",
   priest: "#9fe3b0",
+  warlock: "#a36ad6",
+  elf: "#6fd4a5",
+  thief: "#d5b34f",
   monk: "#c98a4b",
-  gambler: "#9b6dd6",
 };
 
 // Temperament aura palette (existing sprite colors; alpha kept 0.15–0.35)
@@ -42,6 +48,9 @@ const aura = {
   hoarder: { r: 232, g: 195, b: 74 },
   duelist: { r: 122, g: 165, b: 255 },
   survivor: { r: 127, g: 192, b: 107 },
+  vanguard: { r: 217, g: 164, b: 65 },
+  guardian: { r: 112, g: 148, b: 190 },
+  aggressiveCaster: { r: 156, g: 78, b: 196 },
 };
 
 type EnemyKind = EnemyState["kind"];
@@ -60,11 +69,17 @@ type EnemyDrawInput = {
 };
 
 const heroSprites: Record<HeroClassId, SpriteId> = {
+  fighter: "heroKnight",
   knight: "heroKnight",
+  berserker: "heroMonk",
+  dwarf: "heroKnight",
+  paladin: "heroPriest",
   mage: "heroMage",
   priest: "heroPriest",
+  warlock: "heroMage",
+  elf: "heroKnight",
+  thief: "heroGambler",
   monk: "heroMonk",
-  gambler: "heroGambler",
 };
 
 const enemySprites: Record<EnemyKind, SpriteId> = {
@@ -281,6 +296,15 @@ function drawTemperamentAura(
   state: MatchState,
 ): void {
   switch (hero.temperament) {
+    case "vanguard":
+      drawVanguardAura(context, hero, state.tick);
+      return;
+    case "guardian":
+      drawGuardianAura(context, hero, state.tick);
+      return;
+    case "aggressiveCaster":
+      drawAggressiveCasterAura(context, hero, state.tick);
+      return;
     case "berserker":
       drawBerserkerAura(context, hero, state.tick);
       return;
@@ -304,6 +328,10 @@ function drawTemperamentHardRules(
   state: MatchState,
 ): void {
   switch (hero.temperament) {
+    case "vanguard":
+    case "guardian":
+    case "aggressiveCaster":
+      return;
     case "berserker":
       drawBerserkerIgnoreLootBang(context, hero, fx, state.tick);
       return;
@@ -322,6 +350,36 @@ function drawTemperamentHardRules(
       }
       return;
   }
+}
+
+function drawVanguardAura(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  drawPresetRing(context, hero, tick, aura.vanguard, 0.18, 2);
+}
+
+function drawGuardianAura(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  drawPresetRing(context, hero, tick, aura.guardian, 0.22, 4);
+}
+
+function drawAggressiveCasterAura(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {
+  drawPresetRing(context, hero, tick, aura.aggressiveCaster, 0.24, 7);
+}
+
+function drawPresetRing(
+  context: CanvasRenderingContext2D,
+  hero: HeroState,
+  tick: number,
+  color: { readonly r: number; readonly g: number; readonly b: number },
+  alpha: number,
+  pulseTicks: number,
+): void {
+  const pulse = 1 + Math.sin((tick + hero.id * pulseTicks) * 0.12) * 2;
+  context.save();
+  context.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+  context.lineWidth = 2;
+  context.beginPath();
+  context.ellipse(hero.x, hero.y + hero.radius * 0.45, hero.radius + 5 + pulse, 5 + pulse * 0.25, 0, 0, Math.PI * 2);
+  context.stroke();
+  context.restore();
 }
 
 function drawBerserkerAura(context: CanvasRenderingContext2D, hero: HeroState, tick: number): void {

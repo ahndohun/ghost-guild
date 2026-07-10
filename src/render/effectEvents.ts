@@ -1,5 +1,5 @@
 import type { DamageNumberState, EnemyState, HeroState, MatchState, WeaponId } from "../sim/types";
-import type { HitReaction, Position, RenderEffects, WeaponBurst } from "./effectTypes";
+import type { BurstWeaponId, HitReaction, Position, RenderEffects, WeaponBurst } from "./effectTypes";
 
 export function addImpactSparks(effects: RenderEffects, enemy: EnemyState, tick: number): void {
   const count = 3 + ((enemy.id + tick) % 3);
@@ -68,8 +68,20 @@ export function weaponCooldownKey(heroId: number, weaponId: WeaponId): string {
   return `${heroId}:${weaponId}`;
 }
 
+const burstWeaponIds: readonly BurstWeaponId[] = [
+  "swordSweep",
+  "frostNova",
+  "garlicAura",
+  "holySmash",
+  "earthShatter",
+  "whirlwindAxe",
+  "shieldBash",
+  "radiantBurst",
+  "meteor",
+];
+
 export function isBurstWeapon(weaponId: WeaponId): weaponId is WeaponBurst["weaponId"] {
-  return weaponId === "swordSweep" || weaponId === "frostNova";
+  return (burstWeaponIds as readonly string[]).includes(weaponId);
 }
 
 function nearestHero(enemy: EnemyState, heroes: readonly HeroState[]): HeroState | undefined {

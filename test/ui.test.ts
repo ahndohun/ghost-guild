@@ -14,6 +14,32 @@ import { screenMarkup } from "../src/ui/markup";
 import { updateMirror } from "../src/ui/runHud";
 
 const saveKey = "ghost-guild-save-v1";
+const emptyPerksByClass: GuildSave["perksByClass"] = {
+  fighter: [],
+  knight: [],
+  berserker: [],
+  dwarf: [],
+  paladin: [],
+  mage: [],
+  priest: [],
+  warlock: [],
+  elf: [],
+  thief: [],
+  monk: [],
+};
+const allClassesUnlocked: GuildSave["unlockedClasses"] = {
+  fighter: true,
+  knight: true,
+  berserker: true,
+  dwarf: true,
+  paladin: true,
+  mage: true,
+  priest: true,
+  warlock: true,
+  elf: true,
+  thief: true,
+  monk: true,
+};
 
 class MemoryStorage implements Storage {
   private readonly values = new Map<string, string>();
@@ -61,20 +87,8 @@ describe("Ghost Guild UI data boundaries", () => {
     const stored = storage.getItem(saveKey);
 
     expect(save.permStats).toEqual({ atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 });
-    expect(save.unlockedClasses).toEqual({
-      knight: true,
-      mage: true,
-      priest: true,
-      monk: true,
-      gambler: true,
-    });
-    expect(save.perksByClass).toEqual({
-      knight: [],
-      mage: [],
-      priest: [],
-      monk: [],
-      gambler: [],
-    });
+    expect(save.unlockedClasses).toEqual(allClassesUnlocked);
+    expect(save.perksByClass).toEqual(emptyPerksByClass);
     expect(save).not.toHaveProperty("temperament");
     expect(save).not.toHaveProperty("perksByTemperament");
     expect(save.playerName).toMatch(/^Gladiator-[0-9]{4}$/);
@@ -108,12 +122,11 @@ describe("Ghost Guild UI data boundaries", () => {
     );
 
     const save = loadSave(storage);
-    // Monk T2 and Priest T2 are unmappable; each also invalidates its mapped T3.
-    // Gambler T3 has no corresponding v3 node. Refund = (400+900) + 900 + (400+900).
-    expect(save.gold).toBe(100 + 3_500);
+    // Roster v3 costs: Monk and Priest lose T2/T3; Thief loses unknown T3.
+    expect(save.gold).toBe(100 + 2_500);
     expect(save.perksByClass.knight).toEqual([]);
     expect(save.perksByClass.monk).toEqual(["monkBloodThirst"]);
-    expect(save.perksByClass.gambler).toEqual(["gamblerDeepPockets", "gamblerSpoilsBeforeBlood"]);
+    expect(save.perksByClass.thief).toEqual(["thiefDeepPockets", "thiefSpoilsBeforeBlood"]);
     expect(save.perksByClass.mage).toEqual(["mageEdgeStudy", "mageSingleEdge", "mageExecutionForm"]);
     expect(save.perksByClass.priest).toEqual(["priestWideEyes"]);
     const stored = storage.getItem(saveKey) ?? "";
@@ -147,11 +160,31 @@ describe("Ghost Guild UI data boundaries", () => {
     const save = loadSave(storage);
     expect(save.perksByClass.mage).toEqual(["mageEdgeStudy"]);
     expect(save.perksByClass.monk).toEqual(["monkBloodThirst", "monkFrenzy"]);
-    expect(save.perksByClass.gambler).toEqual(["gamblerDeepPockets"]);
+    expect(save.perksByClass.thief).toEqual(["thiefDeepPockets"]);
     expect(save.perksByClass.knight).toEqual([]);
     expect(save.perksByClass.priest).toEqual([]);
     // All mapped → no refund
     expect(save.gold).toBe(50);
+  });
+
+  it("migrates a canonical gambler save to thief and refunds invalidated perk tiers", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(saveKey, JSON.stringify({
+      gold: 100,
+      classId: "gambler",
+      perksByClass: {
+        gambler: ["gamblerDeepPockets", "unknownGamble", "gamblerTributeCart"],
+      },
+      autorun: false,
+      nextSeed: 8,
+      playerName: "Old Dice",
+      permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+    }));
+
+    const save = loadSave(storage);
+    expect(save.classId).toBe("thief");
+    expect(save.perksByClass.thief).toEqual(["thiefDeepPockets"]);
+    expect(save.gold).toBe(100 + 350 + 600);
   });
 
   it("retains perksByClass when already canonical and ignores legacy temperament field", () => {
@@ -181,24 +214,26 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(save.classId).toBe("monk");
     expect(save.gold).toBe(200);
     expect(save.perksByClass.monk).toEqual(["monkBloodThirst"]);
-    expect(save.perksByClass.gambler).toEqual(["gamblerDeepPockets", "gamblerSpoilsBeforeBlood"]);
+    expect(save.perksByClass.thief).toEqual(["thiefDeepPockets", "thiefSpoilsBeforeBlood"]);
     expect(currentLoadout(save)).toEqual({
       name: "Canon Monk",
       classId: "monk",
       temperament: "berserker",
       perks: ["monkBloodThirst"],
       permStats: { atk: 1, hp: 0, spd: 0, luck: 0, lvl: 0 },
+      equippedItems: { relicWeapon: null, armor: null, trinket: null },
     });
   });
 
   it("currentLoadout auto-fills temperament via temperamentForClass and selected class perks", () => {
-    const save = testSave({ classId: "monk", perksByClass: {
-      knight: ["knightBulwark"],
-      mage: [],
-      priest: [],
-      monk: ["monkBloodThirst", "monkFrenzy"],
-      gambler: [],
-    }});
+    const save = testSave({
+      classId: "monk",
+      perksByClass: {
+        ...emptyPerksByClass,
+        knight: ["knightBulwark"],
+        monk: ["monkBloodThirst", "monkFrenzy"],
+      },
+    });
     expect(temperamentForClass("monk")).toBe("berserker");
     expect(currentLoadout(save).temperament).toBe("berserker");
     expect(currentLoadout(save).perks).toEqual(["monkBloodThirst", "monkFrenzy"]);
@@ -209,7 +244,7 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(mage.perksByClass.monk).toEqual(["monkBloodThirst", "monkFrenzy"]);
 
     const knight = testSave({ classId: "knight" });
-    expect(currentLoadout(knight).temperament).toBe("vanguard");
+    expect(currentLoadout(knight).temperament).toBe("guardian");
     expect(currentLoadout(knight).perks).toEqual([]);
   });
 
@@ -268,21 +303,9 @@ describe("Ghost Guild UI data boundaries", () => {
     const stored = JSON.parse(storage.getItem(saveKey) ?? "{}") as GuildSave;
 
     expect(save.classId).toBe("mage");
-    expect(save.unlockedClasses).toEqual({
-      knight: true,
-      mage: true,
-      priest: true,
-      monk: true,
-      gambler: true,
-    });
+    expect(save.unlockedClasses).toEqual(allClassesUnlocked);
     expect(stored.classId).toBe("mage");
-    expect(stored.unlockedClasses).toEqual({
-      knight: true,
-      mage: true,
-      priest: true,
-      monk: true,
-      gambler: true,
-    });
+    expect(stored.unlockedClasses).toEqual(allClassesUnlocked);
   });
 
   it("treats non-numeric bestSurvivalSeconds as undefined (tolerant parse)", () => {
@@ -344,14 +367,18 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(markup).not.toContain("temperament-grid");
 
     // Perk testids retained
-    for (const tier of [1, 2, 3]) {
+    for (const tier of [1, 2, 3, 4, 5]) {
       for (const choice of ["a", "b"]) {
         expect(markup).toContain(`data-testid="perk-t${tier}-${choice}"`);
       }
     }
 
-    // Nameplate shows class-derived identity (default knight / vanguard)
-    expect(markup).toContain("Knight · Vanguard");
+    expect(markup).toContain("Knight · Guardian");
+    expect(markup).toContain("data-testid=\"inventory-panel\"");
+    expect(markup).toContain("data-testid=\"item-slot-relicWeapon\"");
+    expect(markup).toContain("data-testid=\"item-slot-armor\"");
+    expect(markup).toContain("data-testid=\"item-slot-trinket\"");
+    expect(markup).toContain("data-testid=\"stash-list\"");
     expect(markup).toContain("data-class");
     expect(markup).toContain("data-temperament");
   });
@@ -408,20 +435,20 @@ describe("Ghost Guild UI data boundaries", () => {
       expect(plan.heroes.map((hero) => hero.name)).toEqual([
         "Gladiator-0001",
         "Grimm the Reckless",
-        "Vex the Hoarder",
+        "Vex the Shadow",
         "Sister Calm",
       ]);
-      // knight→vanguard, knight→vanguard, gambler→hoarder, priest→survivor
+      // player knight→guardian; bundled berserker/thief/priest preserve class identity.
       expect(plan.heroes.map((hero) => hero.temperament)).toEqual([
-        "vanguard",
-        "vanguard",
+        "guardian",
+        "berserker",
         "hoarder",
         "survivor",
       ]);
       expect(plan.heroes.map((hero) => hero.classId)).toEqual([
         "knight",
-        "knight",
-        "gambler",
+        "berserker",
+        "thief",
         "priest",
       ]);
     } finally {
@@ -439,6 +466,7 @@ describe("Ghost Guild UI data boundaries", () => {
     });
     expect(fromHero.temperament).toBe("berserker");
     expect(fromHero.class).toBe("monk");
+    expect(fromHero.equippedItems).toEqual({ relicWeapon: null, armor: null, trinket: null });
 
     const body = toLoadoutRequestBody(fromHero) as {
       class: string;
@@ -462,10 +490,19 @@ describe("Ghost Guild UI data boundaries", () => {
           perks: { tier1: "a", tier2: null, tier3: null },
           permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
         },
+        {
+          name: "Old Gambler",
+          class: "gambler",
+          traits: { bravery: 35, greed: 95, focus: 45 },
+          perks: { tier1: null, tier2: null, tier3: null },
+          permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        },
       ],
     });
     expect(parsed?.opponents[0]?.temperament).toBe("duelist");
     expect(toHeroLoadout(parsed!.opponents[0]!).temperament).toBe("duelist");
+    expect(parsed?.opponents[1]?.class).toBe("thief");
+    expect(parsed?.opponents[1]?.equippedItems).toEqual({ relicWeapon: null, armor: null, trinket: null });
   });
 });
 
@@ -473,12 +510,14 @@ function testSave(partial: Partial<GuildSave> = {}): GuildSave {
   return {
     gold: 0,
     classId: "knight",
-    perksByClass: { knight: [], mage: [], priest: [], monk: [], gambler: [] },
+    perksByClass: emptyPerksByClass,
     autorun: false,
     nextSeed: 1,
     playerName: "Gladiator-0001",
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
-    unlockedClasses: { knight: true, mage: true, priest: true, monk: true, gambler: true },
+    unlockedClasses: allClassesUnlocked,
+    equippedItems: { relicWeapon: null, armor: null, trinket: null },
+    stash: [],
     ...partial,
   };
 }

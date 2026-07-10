@@ -13,10 +13,12 @@ import { requiredButton, requiredCanvas, requiredElement } from "./dom";
 import { wireGuildInteractions } from "./guildInteractions";
 import { renderGuildView } from "./guildView";
 import { createLobbyStage } from "./lobbyStage";
+import { addLootToStash, inventoryFromSave } from "./inventory";
 import { screenMarkup } from "./markup";
 import { currentLoadout } from "./meta";
 import { renderLeaderboard, renderRanking, updateMirror } from "./runHud";
 import { applyBestSurvival, formatBestSurvivalLine, loadSave } from "./save";
+import { settleHeroLoot } from "../sim/loot";
 import {
   clearAutorun,
   parseSeed,
@@ -271,10 +273,16 @@ function createScreenController(
 
     audio.setBgmTrack("guild");
     const best = applyBestSurvival(save.bestSurvivalSeconds, primary.survivedSeconds);
+    const inventory = addLootToStash(
+      inventoryFromSave(save),
+      settleHeroLoot(primary.items, primary.survived),
+    );
     save = {
       ...save,
       gold: save.gold + primary.gold,
       bestSurvivalSeconds: best.bestSurvivalSeconds,
+      equippedItems: inventory.equippedItems,
+      stash: inventory.stash,
     };
     persist(windowRef, save);
     requiredElement(documentRef, "result-score").textContent = String(primary.score);

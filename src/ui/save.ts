@@ -1,13 +1,28 @@
 import {
-  heroClassIds,
   isPerkId,
   perkCosts,
   perkDefinitions,
   sanitizePerks,
 } from "../sim";
-import type { HeroClassId, PerkId, PerkTier, PermStats } from "../sim";
+import { emptyEquippedItems, isItemId, normalizeEquippedItems, normalizeStash } from "../sim/items";
+import type { EquippedItems, HeroClassId, ItemId, PerkId, PerkTier, PermStats } from "../sim";
 
 const saveKey = "ghost-guild-save-v1";
+
+/** Full 11-class roster (Track A may lag data.ts heroClassIds). */
+export const saveHeroClassIds: readonly HeroClassId[] = [
+  "fighter",
+  "knight",
+  "berserker",
+  "dwarf",
+  "paladin",
+  "mage",
+  "priest",
+  "warlock",
+  "elf",
+  "thief",
+  "monk",
+];
 
 type LegacyPerkMigration = {
   readonly classId: HeroClassId;
@@ -18,15 +33,22 @@ type LegacyPerkMigration = {
  * Preserve v2 investments only when the node still has the same tier and
  * recognizable effect in the class that now owns that temperament. Nodes
  * whose effect or tier changed are intentionally refunded instead.
+ * Gambler → thief (roster v3 greed identity).
  */
 const legacyPerkMigrations: Readonly<Record<string, LegacyPerkMigration>> = {
   berserkerBloodThirst: { classId: "monk", perkId: "monkBloodThirst" },
   berserkerFrenzy: { classId: "monk", perkId: "monkFrenzy" },
   berserkerSlaughterer: { classId: "monk", perkId: "monkSlaughterer" },
   berserkerUndyingRage: { classId: "monk", perkId: "monkUndyingRage" },
-  hoarderDeepPockets: { classId: "gambler", perkId: "gamblerDeepPockets" },
-  hoarderSpoilsBeforeBlood: { classId: "gambler", perkId: "gamblerSpoilsBeforeBlood" },
-  hoarderTributeCart: { classId: "gambler", perkId: "gamblerTributeCart" },
+  hoarderDeepPockets: { classId: "thief", perkId: "thiefDeepPockets" },
+  hoarderSpoilsBeforeBlood: { classId: "thief", perkId: "thiefSpoilsBeforeBlood" },
+  hoarderTributeCart: { classId: "thief", perkId: "thiefTributeCart" },
+  gamblerDeepPockets: { classId: "thief", perkId: "thiefDeepPockets" },
+  gamblerSpoilsBeforeBlood: { classId: "thief", perkId: "thiefSpoilsBeforeBlood" },
+  gamblerTributeCart: { classId: "thief", perkId: "thiefTributeCart" },
+  gamblerPrizeScent: { classId: "thief", perkId: "thiefPrizeScent" },
+  gamblerLongFingers: { classId: "thief", perkId: "thiefLongFingers" },
+  gamblerTreasureRadar: { classId: "thief", perkId: "thiefTreasureRadar" },
   duelistEdgeStudy: { classId: "mage", perkId: "mageEdgeStudy" },
   duelistMeasuredSteps: { classId: "mage", perkId: "mageMeasuredSteps" },
   duelistSingleEdge: { classId: "mage", perkId: "mageSingleEdge" },
@@ -51,6 +73,10 @@ export type GuildSave = {
   unlockedClasses: Record<HeroClassId, boolean>;
   /** Personal best run survival in whole seconds. Absent on legacy saves. */
   bestSurvivalSeconds?: number;
+  /** Three equip slots — absent on legacy saves → empty. */
+  equippedItems: EquippedItems;
+  /** Unequipped owned items — absent on legacy saves → []. */
+  stash: readonly ItemId[];
 };
 
 /** Pure: keeps previous best unless survivedSeconds is strictly greater (or first record). */
@@ -90,6 +116,8 @@ export function defaultSave(): GuildSave {
     playerName: randomGladiatorName(),
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     unlockedClasses: allClassesUnlocked(),
+    equippedItems: emptyEquippedItems,
+    stash: [],
   };
 }
 
@@ -120,7 +148,7 @@ export function loadSave(storage: Storage): GuildSave {
   }
 }
 
-/** Canonical v3 persist: perksByClass only — no temperament / perksByTemperament. */
+/** Canonical v3 persist: perksByClass + inventory; no temperament / perksByTemperament. */
 export function storeSave(storage: Storage, save: GuildSave): void {
   const canonical: GuildSave = {
     gold: save.gold,
@@ -131,10 +159,26 @@ export function storeSave(storage: Storage, save: GuildSave): void {
     playerName: save.playerName,
     permStats: save.permStats,
     unlockedClasses: allClassesUnlocked(),
+    equippedItems: normalizeEquippedItems(save.equippedItems),
+    stash: normalizeStash(save.stash),
     ...(save.soundMuted === true ? { soundMuted: true } : {}),
     ...(save.bestSurvivalSeconds === undefined ? {} : { bestSurvivalSeconds: save.bestSurvivalSeconds }),
   };
   storage.setItem(saveKey, JSON.stringify(canonical));
+}
+
+/**
+ * Append settled run loot into stash (caller should run settleHeroLoot first when survived).
+ */
+export function mergeRunLootIntoSave(save: GuildSave, itemIds: readonly ItemId[]): GuildSave {
+  const valid = itemIds.filter(isItemId);
+  if (valid.length === 0) {
+    return save;
+  }
+  return {
+    ...save,
+    stash: [...save.stash, ...valid],
+  };
 }
 
 function parseSave(value: unknown): GuildSave {
@@ -153,6 +197,10 @@ function parseSave(value: unknown): GuildSave {
   const migrated = migratePerks(value, classId);
   const gold = parseNonNegativeNumber(value["gold"], fallback.gold) + migrated.refundGold;
 
+  // Inventory migration: missing equippedItems/stash → empty (old saves).
+  const equippedItems = normalizeEquippedItems(value["equippedItems"]);
+  const stash = normalizeStash(value["stash"]);
+
   return {
     gold,
     classId,
@@ -163,6 +211,8 @@ function parseSave(value: unknown): GuildSave {
     playerName: parsePlayerName(value["playerName"], fallback.playerName),
     permStats: parsePermStats(value["permStats"], fallback.permStats),
     unlockedClasses,
+    equippedItems,
+    stash,
     ...(bestSurvivalSeconds === undefined ? {} : { bestSurvivalSeconds }),
   };
 }
@@ -177,9 +227,35 @@ function migratePerks(
   _classId: HeroClassId,
 ): { perksByClass: Record<HeroClassId, readonly PerkId[]>; refundGold: number } {
   if (isRecord(value["perksByClass"])) {
+    const parsed = parsePerksByClass(value["perksByClass"]);
+    const legacyGambler = value["perksByClass"]["gambler"];
+    if (!Array.isArray(legacyGambler)) {
+      return { perksByClass: parsed, refundGold: 0 };
+    }
+
+    const mapped: PerkId[] = [...parsed.thief];
+    const legacyEntries: { readonly tier: PerkTier; readonly migration: LegacyPerkMigration | undefined }[] = [];
+    for (const [index, rawId] of legacyGambler.entries()) {
+      if (typeof rawId !== "string") {
+        continue;
+      }
+      const migration = legacyPerkMigrations[rawId];
+      const tier: PerkTier = index <= 0 ? 1 : index === 1 ? 2 : 3;
+      legacyEntries.push({ tier, migration });
+      if (migration?.classId === "thief") {
+        mapped.push(migration.perkId);
+      }
+    }
+    parsed.thief = safeSanitizePerks("thief", mapped);
+    const claimed = new Set(parsed.thief);
+    const refundGold = legacyEntries.reduce((sum, entry) => {
+      return entry.migration !== undefined && claimed.has(entry.migration.perkId)
+        ? sum
+        : sum + perkCosts[entry.tier];
+    }, 0);
     return {
-      perksByClass: parsePerksByClass(value["perksByClass"]),
-      refundGold: 0,
+      perksByClass: parsed,
+      refundGold,
     };
   }
 
@@ -210,13 +286,7 @@ function migratePerks(
   }
 
   const perksByClass = emptyPerksByClass();
-  const mappedByClass: Record<HeroClassId, PerkId[]> = {
-    knight: [],
-    mage: [],
-    priest: [],
-    monk: [],
-    gambler: [],
-  };
+  const mappedByClass = emptyMutablePerksByClass();
   for (const entry of legacyEntries) {
     if (entry.migration !== undefined) {
       mappedByClass[entry.migration.classId].push(entry.migration.perkId);
@@ -224,8 +294,8 @@ function migratePerks(
   }
 
   const claimed = new Set<PerkId>();
-  for (const heroClass of heroClassIds) {
-    const mapped = sanitizePerks(heroClass, mappedByClass[heroClass]);
+  for (const heroClass of saveHeroClassIds) {
+    const mapped = safeSanitizePerks(heroClass, mappedByClass[heroClass]);
     perksByClass[heroClass] = mapped;
     for (const perkId of mapped) {
       claimed.add(perkId);
@@ -237,27 +307,32 @@ function migratePerks(
     if (entry.migration !== undefined && claimed.has(entry.migration.perkId)) {
       continue;
     }
-    refundGold += perkCosts[entry.tier];
+    refundGold += perkCosts[entry.tier] ?? perkCosts[1];
   }
 
   return { perksByClass, refundGold };
 }
 
 function migrationForLegacyPerk(perkId: string): LegacyPerkMigration | undefined {
+  const legacy = legacyPerkMigrations[perkId];
+  if (legacy !== undefined) {
+    return legacy;
+  }
   if (isPerkId(perkId)) {
-    for (const classId of heroClassIds) {
-      if (perkDefinitions[classId].some((perk) => perk.id === perkId)) {
+    for (const classId of saveHeroClassIds) {
+      const defs = safePerkDefs(classId);
+      if (defs.some((perk) => perk.id === perkId)) {
         return { classId, perkId };
       }
     }
   }
-  return legacyPerkMigrations[perkId];
+  return undefined;
 }
 
 function tierForLegacyPerk(perkId: string, orderIndex: number): PerkTier {
   if (isPerkId(perkId)) {
-    for (const heroClass of heroClassIds) {
-      const definition = perkDefinitions[heroClass].find((perk) => perk.id === perkId);
+    for (const heroClass of saveHeroClassIds) {
+      const definition = safePerkDefs(heroClass).find((perk) => perk.id === perkId);
       if (definition !== undefined) {
         return definition.tier;
       }
@@ -281,19 +356,29 @@ function parseBestSurvivalSeconds(value: unknown): number | undefined {
 }
 
 function emptyPerksByClass(): Record<HeroClassId, readonly PerkId[]> {
-  return {
-    knight: [],
-    mage: [],
-    priest: [],
-    monk: [],
-    gambler: [],
-  };
+  const record = {} as Record<HeroClassId, readonly PerkId[]>;
+  for (const classId of saveHeroClassIds) {
+    record[classId] = [];
+  }
+  return record;
+}
+
+function emptyMutablePerksByClass(): Record<HeroClassId, PerkId[]> {
+  const record = {} as Record<HeroClassId, PerkId[]>;
+  for (const classId of saveHeroClassIds) {
+    record[classId] = [];
+  }
+  return record;
 }
 
 function parsePerksByClass(value: Record<string, unknown>): Record<HeroClassId, readonly PerkId[]> {
   const perksByClass = emptyPerksByClass();
-  for (const heroClass of heroClassIds) {
+  for (const heroClass of saveHeroClassIds) {
     perksByClass[heroClass] = parsePerks(heroClass, value[heroClass]);
+  }
+  // Accept legacy gambler bag → thief when present.
+  if (value["gambler"] !== undefined && (perksByClass.thief?.length ?? 0) === 0) {
+    perksByClass.thief = parsePerks("thief", value["gambler"]);
   }
   return perksByClass;
 }
@@ -302,8 +387,23 @@ function parsePerks(classId: HeroClassId, value: unknown): readonly PerkId[] {
   if (!Array.isArray(value)) {
     return [];
   }
+  return safeSanitizePerks(classId, value.filter(isPerkId));
+}
 
-  return sanitizePerks(classId, value.filter(isPerkId));
+function safeSanitizePerks(classId: HeroClassId, perks: readonly PerkId[]): readonly PerkId[] {
+  if (safePerkDefs(classId).length === 0) {
+    return [];
+  }
+  try {
+    return sanitizePerks(classId, perks);
+  } catch {
+    return [];
+  }
+}
+
+function safePerkDefs(classId: HeroClassId): readonly { id: PerkId; tier: PerkTier }[] {
+  const table = perkDefinitions as Partial<Record<HeroClassId, readonly { id: PerkId; tier: PerkTier }[]>>;
+  return table[classId] ?? [];
 }
 
 function parsePermStats(value: unknown, fallback: PermStats): PermStats {
@@ -322,17 +422,18 @@ function parsePermStats(value: unknown, fallback: PermStats): PermStats {
 
 /** Save-format field kept for compatibility; always all-true (unlock gating removed). */
 function allClassesUnlocked(): Record<HeroClassId, boolean> {
-  return {
-    knight: true,
-    mage: true,
-    priest: true,
-    monk: true,
-    gambler: true,
-  };
+  const record = {} as Record<HeroClassId, boolean>;
+  for (const classId of saveHeroClassIds) {
+    record[classId] = true;
+  }
+  return record;
 }
 
 function parseClassId(value: unknown, fallback: HeroClassId): HeroClassId {
-  for (const classId of heroClassIds) {
+  if (value === "gambler") {
+    return "thief";
+  }
+  for (const classId of saveHeroClassIds) {
     if (value === classId) {
       return classId;
     }

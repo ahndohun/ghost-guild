@@ -18,16 +18,63 @@ type VercelResponse = {
   json: (body: unknown) => void;
 };
 
-type HeroClass = "knight" | "mage" | "priest" | "monk" | "gambler";
-type Temperament = "berserker" | "hoarder" | "duelist" | "survivor" | "vanguard";
+type HeroClass =
+  | "fighter"
+  | "knight"
+  | "berserker"
+  | "dwarf"
+  | "paladin"
+  | "mage"
+  | "priest"
+  | "warlock"
+  | "elf"
+  | "thief"
+  | "monk";
+type LegacyHeroClass = HeroClass | "gambler";
+type Temperament =
+  | "berserker"
+  | "hoarder"
+  | "duelist"
+  | "survivor"
+  | "vanguard"
+  | "guardian"
+  | "aggressiveCaster";
 type PerkChoice = "a" | "b" | null;
-type Perks = { tier1: PerkChoice; tier2: PerkChoice; tier3: PerkChoice };
+type Perks = {
+  tier1: PerkChoice;
+  tier2: PerkChoice;
+  tier3: PerkChoice;
+  tier4: PerkChoice;
+  tier5: PerkChoice;
+};
 type Traits = { bravery: number; greed: number; focus: number };
+type EquippedItems = { relicWeapon: string | null; armor: string | null; trinket: string | null };
 
-const CLASSES = new Set<HeroClass>(["knight", "mage", "priest", "monk", "gambler"]);
-const TEMPERAMENTS = new Set<Temperament>(["berserker", "hoarder", "duelist", "survivor", "vanguard"]);
+const CLASSES = new Set<LegacyHeroClass>([
+  "fighter",
+  "knight",
+  "berserker",
+  "dwarf",
+  "paladin",
+  "mage",
+  "priest",
+  "warlock",
+  "elf",
+  "thief",
+  "monk",
+  "gambler",
+]);
+const TEMPERAMENTS = new Set<Temperament>([
+  "berserker",
+  "hoarder",
+  "duelist",
+  "survivor",
+  "vanguard",
+  "guardian",
+  "aggressiveCaster",
+]);
 const PERK_CHOICES = new Set(["a", "b"]);
-const MAX_BODY_BYTES = 3072;
+const MAX_BODY_BYTES = 8192;
 
 const TEMPERAMENT_PRESETS: Record<Temperament, Traits> = {
   berserker: { bravery: 90, greed: 20, focus: 50 },
@@ -35,19 +82,31 @@ const TEMPERAMENT_PRESETS: Record<Temperament, Traits> = {
   duelist: { bravery: 60, greed: 25, focus: 95 },
   survivor: { bravery: 20, greed: 40, focus: 60 },
   vanguard: { bravery: 60, greed: 40, focus: 60 },
+  guardian: { bravery: 45, greed: 25, focus: 70 },
+  aggressiveCaster: { bravery: 85, greed: 15, focus: 75 },
 };
 
 function temperamentForClass(classId: HeroClass): Temperament {
   switch (classId) {
-    case "knight":
+    case "fighter":
       return "vanguard";
+    case "knight":
+      return "guardian";
+    case "berserker":
+    case "dwarf":
+    case "monk":
+      return "berserker";
+    case "paladin":
+      return "guardian";
     case "mage":
       return "duelist";
     case "priest":
       return "survivor";
-    case "monk":
-      return "berserker";
-    case "gambler":
+    case "warlock":
+      return "aggressiveCaster";
+    case "elf":
+      return "duelist";
+    case "thief":
       return "hoarder";
   }
 }
@@ -89,10 +148,36 @@ function parseTraits(value: unknown): Traits | null {
 }
 
 function parsePerks(value: unknown): Perks | null {
+  if (value === undefined) return { tier1: null, tier2: null, tier3: null, tier4: null, tier5: null };
   if (!isRecord(value)) return null;
-  const { tier1, tier2, tier3 } = value;
-  if (!isPerkChoice(tier1) || !isPerkChoice(tier2) || !isPerkChoice(tier3)) return null;
-  return { tier1, tier2, tier3 };
+  const tier1 = value.tier1 ?? null;
+  const tier2 = value.tier2 ?? null;
+  const tier3 = value.tier3 ?? null;
+  const tier4 = value.tier4 ?? null;
+  const tier5 = value.tier5 ?? null;
+  if (
+    !isPerkChoice(tier1) ||
+    !isPerkChoice(tier2) ||
+    !isPerkChoice(tier3) ||
+    !isPerkChoice(tier4) ||
+    !isPerkChoice(tier5)
+  ) return null;
+  return { tier1, tier2, tier3, tier4, tier5 };
+}
+
+function parseEquippedItems(value: unknown): EquippedItems | null {
+  if (value === undefined) return { relicWeapon: null, armor: null, trinket: null };
+  if (!isRecord(value)) return null;
+  const relicWeapon = parseItemId(value.relicWeapon);
+  const armor = parseItemId(value.armor);
+  const trinket = parseItemId(value.trinket);
+  if (relicWeapon === undefined || armor === undefined || trinket === undefined) return null;
+  return { relicWeapon, armor, trinket };
+}
+
+function parseItemId(value: unknown): string | null | undefined {
+  if (value === null || value === undefined) return null;
+  return typeof value === "string" && value.length >= 1 && value.length <= 80 ? value : undefined;
 }
 
 /** Map legacy traits sliders to the closest temperament (bravery > greed > focus). */
@@ -115,6 +200,7 @@ function parseLoadout(body: unknown):
       temperament: Temperament;
       perks: Perks;
       permStats: { atk: number; hp: number; spd: number; luck: number; lvl: number };
+      equippedItems: EquippedItems;
     }
   | null {
   if (!isRecord(body)) return null;
@@ -123,8 +209,8 @@ function parseLoadout(body: unknown):
   if (typeof name !== "string" || name.length < 1 || name.length > 20) return null;
 
   const heroClass = body.class;
-  if (typeof heroClass !== "string" || !CLASSES.has(heroClass as HeroClass)) return null;
-  const classId = heroClass as HeroClass;
+  if (typeof heroClass !== "string" || !CLASSES.has(heroClass as LegacyHeroClass)) return null;
+  const classId: HeroClass = heroClass === "gambler" ? "thief" : heroClass as HeroClass;
 
   // Accept legacy temperament if present (do not 400 on old clients).
   if (body.temperament !== undefined) {
@@ -146,14 +232,8 @@ function parseLoadout(body: unknown):
   const traits = { ...TEMPERAMENT_PRESETS[temperament] };
 
   // perks: optional; default all null. Choices are class-tree relative (a/b).
-  let perks: Perks;
-  if (body.perks === undefined) {
-    perks = { tier1: null, tier2: null, tier3: null };
-  } else {
-    const parsed = parsePerks(body.perks);
-    if (!parsed) return null;
-    perks = parsed;
-  }
+  const perks = parsePerks(body.perks);
+  if (!perks) return null;
 
   if (!isRecord(body.permStats)) return null;
   const { atk, hp, spd, luck, lvl } = body.permStats;
@@ -167,6 +247,9 @@ function parseLoadout(body: unknown):
     return null;
   }
 
+  const equippedItems = parseEquippedItems(body.equippedItems);
+  if (!equippedItems) return null;
+
   return {
     name,
     class: classId,
@@ -174,6 +257,7 @@ function parseLoadout(body: unknown):
     temperament,
     perks,
     permStats: { atk, hp, spd, luck, lvl },
+    equippedItems,
   };
 }
 
@@ -185,7 +269,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     if (bodyByteLength(req) > MAX_BODY_BYTES) {
-      res.status(400).json({ error: "Body too large (max 3KB)" });
+      res.status(400).json({ error: "Body too large (max 8KB)" });
       return;
     }
 

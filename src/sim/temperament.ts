@@ -11,12 +11,19 @@ export type TemperamentDefinition = {
 
 export const temperamentIds: readonly TemperamentId[] = [
   "vanguard",
+  "guardian",
+  "aggressiveCaster",
   "berserker",
   "hoarder",
   "duelist",
   "survivor",
 ];
 
+/**
+ * Presets only — movement system reuses existing hard-rule axes.
+ * guardian = survivor-derived late flee / hold ground.
+ * aggressiveCaster = berserker-derived combat lock for casters.
+ */
 export const temperamentDefinitions: Record<TemperamentId, TemperamentDefinition> = {
   vanguard: {
     id: "vanguard",
@@ -25,6 +32,22 @@ export const temperamentDefinitions: Record<TemperamentId, TemperamentDefinition
     hardRule: "None — balanced situation judgment.",
     signature: "No signature extreme; steady baseline combat.",
     levelupPreference: "Balanced trait utility across options.",
+  },
+  guardian: {
+    id: "guardian",
+    name: "Guardian",
+    traits: { bravery: 45, greed: 25, focus: 70 },
+    hardRule: "Holds ground; low-HP flee only below 25% (late flee).",
+    signature: "Stands the line — does not panic-kite early.",
+    levelupPreference: "Defense and focus options preferred.",
+  },
+  aggressiveCaster: {
+    id: "aggressiveCaster",
+    name: "Aggressive Caster",
+    traits: { bravery: 85, greed: 15, focus: 75 },
+    hardRule: "Ignores loot when an enemy is within 200px; never flees at low HP.",
+    signature: "Casts under pressure — combat-locked like a berserker.",
+    levelupPreference: "Attack options only.",
   },
   berserker: {
     id: "berserker",
@@ -61,18 +84,26 @@ export const temperamentDefinitions: Record<TemperamentId, TemperamentDefinition
   },
 };
 
-/** Traits v3: class is identity — temperament is derived, never chosen. */
+/** Traits v3 / Roster v3: class is identity — temperament is derived, never chosen. */
 export function temperamentForClass(classId: HeroClassId): TemperamentId {
   switch (classId) {
-    case "knight":
+    case "fighter":
       return "vanguard";
+    case "knight":
+    case "paladin":
+      return "guardian";
+    case "berserker":
+    case "dwarf":
+    case "monk":
+      return "berserker";
     case "mage":
+    case "elf":
       return "duelist";
     case "priest":
       return "survivor";
-    case "monk":
-      return "berserker";
-    case "gambler":
+    case "warlock":
+      return "aggressiveCaster";
+    case "thief":
       return "hoarder";
     default: {
       const _exhaustive: never = classId;
@@ -82,6 +113,9 @@ export function temperamentForClass(classId: HeroClassId): TemperamentId {
 }
 
 export function mapTraitsToTemperament(traits: TraitProfile): TemperamentId {
+  if (traits.bravery >= 85 && traits.focus >= 70) {
+    return "aggressiveCaster";
+  }
   if (traits.bravery >= 75) {
     return "berserker";
   }
@@ -100,6 +134,14 @@ export function mapTraitsToTemperament(traits: TraitProfile): TemperamentId {
     traits.focus <= 65
   ) {
     return "vanguard";
+  }
+  if (
+    traits.bravery >= 40 &&
+    traits.bravery <= 50 &&
+    traits.greed <= 30 &&
+    traits.focus >= 65
+  ) {
+    return "guardian";
   }
   return "survivor";
 }

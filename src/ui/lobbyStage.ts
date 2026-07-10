@@ -68,11 +68,17 @@ type SceneMetrics = {
 
 /** Code-drawn fallback sprites when south art is missing. */
 const heroSpriteIds: Record<HeroClassId, SpriteId> = {
+  fighter: "heroKnight",
   knight: "heroKnight",
+  berserker: "heroMonk",
+  dwarf: "heroKnight",
+  paladin: "heroPriest",
   mage: "heroMage",
   priest: "heroPriest",
+  warlock: "heroMage",
+  elf: "heroKnight",
+  thief: "heroGambler",
   monk: "heroMonk",
-  gambler: "heroGambler",
 };
 
 /**

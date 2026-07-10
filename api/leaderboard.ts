@@ -55,7 +55,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
         const entry: ResultEntry = {
           name: data.name,
-          class: data.class,
+          class: data.class === "gambler" ? "thief" : data.class,
           score: data.score,
           survived: data.survived,
           ...(data.temperament !== undefined ? { temperament: data.temperament } : {}),

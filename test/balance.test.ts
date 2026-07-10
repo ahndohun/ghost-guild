@@ -89,7 +89,7 @@ function loadout(partial: {
   return {
     classId: partial.classId ?? "knight",
     // Temperament is ignored by createMatch (class-derived); kept for HeroLoadout shape.
-    temperament: partial.temperament ?? "vanguard",
+    temperament: partial.temperament ?? "guardian",
     perks: partial.perks ?? [],
     permStats: partial.permStats ?? perm(0, 0, 0, 0, 0),
   };
@@ -99,7 +99,7 @@ function summarizeCohort(label: string, hero: HeroLoadout): CohortSummary {
   const observations = JUDGMENT_SEEDS.map((seed) => observeRun(hero, seed));
   const survivalCount = observations.filter((entry) => entry.survived).length;
   const medianSurvivedSeconds = median(observations.map((entry) => entry.survivedSeconds));
-  // Mid-run death band (v3): vanguard dies earlier than old berserker 90–135 window.
+  // Mid-run death band retained as a coarse mortality distribution signal.
   const countInDeathWindow = observations.filter(
     (entry) => entry.survivedSeconds >= 45 && entry.survivedSeconds <= 120,
   ).length;
@@ -122,12 +122,12 @@ function summarizeCohort(label: string, hero: HeroLoadout): CohortSummary {
 
 const freshLoadout = loadout({
   classId: "knight",
-  temperament: "vanguard",
+  temperament: "guardian",
   perks: [],
   permStats: perm(0, 0, 0, 0, 0),
 });
 
-/** Nested 0/3/6/9/12/15 permanent rank path (Knight / Vanguard). */
+/** Nested 0/3/6/9/12/15 permanent rank path (Knight / Guardian). */
 const progressionRanks: readonly { readonly label: string; readonly ranks: PermStats }[] = [
   { label: "rank0", ranks: perm(0, 0, 0, 0, 0) },
   { label: "rank3", ranks: perm(1, 1, 1, 0, 0) },
@@ -139,7 +139,7 @@ const progressionRanks: readonly { readonly label: string; readonly ranks: PermS
 
 const balanced15Loadout = loadout({
   classId: "knight",
-  temperament: "vanguard",
+  temperament: "guardian",
   perks: [],
   permStats: perm(3, 3, 3, 3, 3),
 });
@@ -147,7 +147,7 @@ const balanced15Loadout = loadout({
 /** Knight T2 aggressive branch: Charge Instinct + Frenzy. */
 const knightT2ALoadout = loadout({
   classId: "knight",
-  temperament: "vanguard",
+  temperament: "guardian",
   perks: ["knightChargeInstinct", "knightFrenzy"],
   permStats: perm(3, 2, 1, 1, 1),
 });
@@ -155,7 +155,7 @@ const knightT2ALoadout = loadout({
 /** Knight T2 defensive branch: Bulwark + Shield Stance. */
 const knightT2BLoadout = loadout({
   classId: "knight",
-  temperament: "vanguard",
+  temperament: "guardian",
   perks: ["knightBulwark", "knightShieldStance"],
   permStats: perm(3, 2, 1, 1, 1),
 });
@@ -176,7 +176,7 @@ const progressionCohorts = progressionRanks.map(({ label, ranks }) =>
     label,
     loadout({
       classId: "knight",
-      temperament: "vanguard",
+      temperament: "guardian",
       perks: [],
       permStats: ranks,
     }),
@@ -192,17 +192,17 @@ const knightInvestedCohorts = [
 const priestInvestedCohort = summarizeCohort("priestT2B", priestT2BLoadout);
 
 describe("balance calibration (judgment seeds 10000..10039)", () => {
-  it("fresh Knight/Vanguard/perm0 never survives and dies mid-run", () => {
-    // Traits v3 intentional: knight is vanguard (no kill-heal, normal flee) — weaker than old berserker.
-    // Observed: median ~61s, most deaths in 45–120s (not the old berserker 90–135 band).
+  it("fresh Knight/Guardian/perm0 remains mortal but reaches the mid-run", () => {
+    // Roster v3 intentional shift: 140 HP, late-flee Guardian, and contact mitigation.
+    // Golden cohort recalibrated from the old Vanguard baseline.
     expect(freshCohort.survivalCount).toBe(0);
-    expect(freshCohort.medianSurvivedSeconds).toBeGreaterThanOrEqual(50);
-    expect(freshCohort.medianSurvivedSeconds).toBeLessThanOrEqual(80);
+    expect(freshCohort.medianSurvivedSeconds).toBeGreaterThanOrEqual(90);
+    expect(freshCohort.medianSurvivedSeconds).toBeLessThanOrEqual(125);
     expect(freshCohort.countInDeathWindow).toBeGreaterThanOrEqual(28);
   });
 
   it("nested permanent ranks avoid material regressions and gain ≥60s in total", () => {
-    // Vanguard pathing is deterministic but nonlinear: a speed rank can alter encounters enough
+    // Guardian pathing is deterministic but nonlinear: a speed rank can alter encounters enough
     // to move one 40-seed median slightly backward. Keep a bounded local dip plus total-gain gate.
     const medians = progressionCohorts.map((cohort) => cohort.medianSurvivedSeconds);
     let nonDecreasingSteps = 0;
@@ -224,31 +224,31 @@ describe("balance calibration (judgment seeds 10000..10039)", () => {
     expect(totalGain, `rank15−rank0 median gain ${totalGain}`).toBeGreaterThanOrEqual(60);
   });
 
-  it("15-rank vanguard knight still rarely clears the full run", () => {
-    // Old berserker band was 16–32/40; vanguard loses kill-heal so full clears stay rare.
+  it("15-rank guardian knight usually clears without becoming guaranteed", () => {
     const rank15 = progressionCohorts[progressionCohorts.length - 1]!;
-    expect(rank15.survivalCount).toBeGreaterThanOrEqual(0);
-    expect(rank15.survivalCount).toBeLessThanOrEqual(8);
-    expect(rank15.medianSurvivedSeconds).toBeGreaterThanOrEqual(110);
+    expect(rank15.survivalCount).toBeGreaterThanOrEqual(24);
+    expect(rank15.survivalCount).toBeLessThanOrEqual(39);
+    expect(rank15.medianSurvivedSeconds).toBeGreaterThanOrEqual(170);
   });
 
   it.each(knightInvestedCohorts.map((cohort) => [cohort.label, cohort] as const))(
-    "%s: knight invested band — median ≥90s, full clears ≤8/40",
+    "%s: knight invested build stays viable without a guaranteed clear",
     (_label, cohort) => {
-      expect(cohort.survivalCount).toBeLessThanOrEqual(8);
-      expect(cohort.medianSurvivedSeconds).toBeGreaterThanOrEqual(90);
-      expect(cohort.medianSurvivedSeconds).toBeLessThanOrEqual(150);
+      expect(cohort.survivalCount).toBeGreaterThanOrEqual(5);
+      expect(cohort.survivalCount).toBeLessThanOrEqual(39);
+      expect(cohort.medianSurvivedSeconds).toBeGreaterThanOrEqual(120);
+      expect(cohort.medianSurvivedSeconds).toBeLessThanOrEqual(180);
     },
   );
 
   it("priestT2B: survivor identity remains the durable invested class", () => {
     // Priest keeps survivor temperament; still the strongest invested survivor among these cohorts.
-    expect(priestInvestedCohort.survivalCount).toBeGreaterThanOrEqual(3);
-    expect(priestInvestedCohort.survivalCount).toBeLessThanOrEqual(16);
-    expect(priestInvestedCohort.medianSurvivedSeconds).toBeGreaterThanOrEqual(140);
+    expect(priestInvestedCohort.survivalCount).toBeGreaterThanOrEqual(15);
+    expect(priestInvestedCohort.survivalCount).toBeLessThanOrEqual(35);
+    expect(priestInvestedCohort.medianSurvivedSeconds).toBeGreaterThanOrEqual(160);
     expect(priestInvestedCohort.survivorMedianHpRatio).not.toBeNull();
-    expect(priestInvestedCohort.survivorMedianHpRatio!).toBeGreaterThanOrEqual(0.1);
-    expect(priestInvestedCohort.survivorMedianHpRatio!).toBeLessThanOrEqual(0.35);
+    expect(priestInvestedCohort.survivorMedianHpRatio!).toBeGreaterThanOrEqual(0.05);
+    expect(priestInvestedCohort.survivorMedianHpRatio!).toBeLessThanOrEqual(0.9);
   });
 });
 

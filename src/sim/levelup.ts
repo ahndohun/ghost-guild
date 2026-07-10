@@ -1,5 +1,5 @@
 import { LEVEL_UP_PAUSE_TICKS } from "./constants";
-import { dialogLines, passiveDefinitions, passiveIds, weaponDefinitions, weaponIds } from "./data";
+import { classDefinitions, dialogLines, passiveDefinitions, passiveIds, weaponDefinitions, weaponIds } from "./data";
 import { assertNever } from "./math";
 import type { Rng } from "./rng";
 import { passiveLevel, recomputeMaxHp } from "./stats";
@@ -25,6 +25,13 @@ type PassiveLevelOption = {
 };
 
 type LevelOption = WeaponLevelOption | PassiveLevelOption;
+
+/** Class-affinity weight multiplier for owned-fantasy weapons in the level-up pool. */
+const AFFINITY_WEIGHT = 1.75;
+
+export function affinityWeightForClass(classId: HeroState["classId"], weaponId: WeaponId): number {
+  return classDefinitions[classId].affinityWeapons?.includes(weaponId) === true ? AFFINITY_WEIGHT : 1;
+}
 
 export function xpNeededForLevel(level: number): number {
   return 5 + 3 * level;
@@ -73,9 +80,19 @@ function maxWeaponLevel(hero: HeroState): number {
   return hero.classId === "monk" ? 8 : 5;
 }
 
+function weaponSlotCap(hero: HeroState): number {
+  return classDefinitions[hero.classId].weaponSlotCap ?? 4;
+}
+
+function isAffinityWeapon(hero: HeroState, weaponId: WeaponId): boolean {
+  const affinity = classDefinitions[hero.classId].affinityWeapons;
+  return affinity !== undefined && affinity.includes(weaponId);
+}
+
 function buildOptions(hero: HeroState): readonly LevelOption[] {
   const options: LevelOption[] = [];
   const weaponCap = maxWeaponLevel(hero);
+  const slotCap = weaponSlotCap(hero);
 
   for (const weaponId of weaponIds) {
     const owned = hero.weapons.find((weapon) => weapon.id === weaponId);
@@ -89,7 +106,7 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
         flavor: definition.flavor,
         quality: 4 + owned.level,
       });
-    } else if (owned === undefined && hero.weapons.length < 4 && hero.classId !== "monk") {
+    } else if (owned === undefined && hero.weapons.length < slotCap && hero.classId !== "monk") {
       // Monk: never offer new weapons — owned upgrades + passives only (slots locked to 1).
       options.push({
         kind: "weapon",
@@ -122,7 +139,7 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
 
 function rollOptions(hero: HeroState, options: readonly LevelOption[], rng: Rng): readonly LevelOption[] {
   const luckBonus = optionLuckBonus(hero);
-  if (luckBonus <= 0) {
+  if (luckBonus <= 0 && !hasAnyAffinity(hero, options)) {
     return rollUniformOptions(options, rng);
   }
 
@@ -130,7 +147,7 @@ function rollOptions(hero: HeroState, options: readonly LevelOption[], rng: Rng)
   const picked: LevelOption[] = [];
 
   while (picked.length < 3 && remaining.length > 0) {
-    const index = pickWeightedIndex(remaining, rng, luckBonus);
+    const index = pickWeightedIndex(hero, remaining, rng, luckBonus);
     const removed = remaining.splice(index, 1);
     const option = removed[0];
     if (option !== undefined) {
@@ -141,10 +158,13 @@ function rollOptions(hero: HeroState, options: readonly LevelOption[], rng: Rng)
   return picked;
 }
 
-/** Luck weight bonus: each luck rank is +5%p; Gambler adds a flat +25%p. */
+function hasAnyAffinity(hero: HeroState, options: readonly LevelOption[]): boolean {
+  return options.some((option) => option.kind === "weapon" && isAffinityWeapon(hero, option.id));
+}
+
+/** Luck weight bonus: each luck rank is +5%p. */
 function optionLuckBonus(hero: HeroState): number {
-  const gamblerBonus = hero.classId === "gambler" ? 0.25 : 0;
-  return hero.permStats.luck * 0.05 + gamblerBonus;
+  return hero.permStats.luck * 0.05;
 }
 
 function rollUniformOptions(options: readonly LevelOption[], rng: Rng): readonly LevelOption[] {
@@ -163,10 +183,15 @@ function rollUniformOptions(options: readonly LevelOption[], rng: Rng): readonly
   return picked;
 }
 
-function pickWeightedIndex(options: readonly LevelOption[], rng: Rng, luckBonus: number): number {
+function pickWeightedIndex(
+  hero: HeroState,
+  options: readonly LevelOption[],
+  rng: Rng,
+  luckBonus: number,
+): number {
   let totalWeight = 0;
   for (const option of options) {
-    totalWeight += optionWeight(option, luckBonus);
+    totalWeight += optionWeight(hero, option, luckBonus);
   }
 
   let cursor = rng.next() * totalWeight;
@@ -175,7 +200,7 @@ function pickWeightedIndex(options: readonly LevelOption[], rng: Rng, luckBonus:
     if (option === undefined) {
       continue;
     }
-    cursor -= optionWeight(option, luckBonus);
+    cursor -= optionWeight(hero, option, luckBonus);
     if (cursor <= 0) {
       return index;
     }
@@ -184,19 +209,18 @@ function pickWeightedIndex(options: readonly LevelOption[], rng: Rng, luckBonus:
   return options.length - 1;
 }
 
-function optionWeight(option: LevelOption, luckBonus: number): number {
-  return 1 + option.quality * luckBonus;
+function optionWeight(hero: HeroState, option: LevelOption, luckBonus: number): number {
+  const base = 1 + option.quality * luckBonus;
+  if (option.kind === "weapon" && isAffinityWeapon(hero, option.id)) {
+    return base * affinityWeightForClass(hero.classId, option.id);
+  }
+  return base;
 }
 
 function chooseOption(hero: HeroState, options: readonly LevelOption[], rng: Rng): LevelOption | undefined {
+  void rng;
   if (options.length === 0) {
     return undefined;
-  }
-
-  // Gambler only: seeded uniform pick among the rolled options (temperament utility ignored).
-  // RNG is consumed only on this branch so other classes keep the same call order.
-  if (hero.classId === "gambler") {
-    return options[rng.int(options.length)];
   }
 
   let bestOption: LevelOption | undefined;
@@ -218,6 +242,13 @@ function filterOptionsForTemperament(hero: HeroState, options: readonly LevelOpt
     case "vanguard":
       // Balanced baseline: no hard filter — pure trait utility.
       return options;
+    case "guardian": {
+      const defenseFocus = options.filter(
+        (option) => option.flavor === "defense" || option.flavor === "focus",
+      );
+      return defenseFocus.length > 0 ? defenseFocus : options;
+    }
+    case "aggressiveCaster":
     case "berserker":
       return options.filter((option) => option.flavor === "damage");
     case "hoarder": {
@@ -244,9 +275,10 @@ function optionUtility(hero: HeroState, option: LevelOption): number {
       const braveryValue = weaponDefinitions[option.id].flavor === "damage" ? hero.traits.bravery * 0.75 : hero.traits.bravery * 0.25;
       const magePerkValue =
         hero.temperament === "duelist" && option.action === "upgrade"
-          ? (hasPerk(hero.perks, "mageEdgeStudy") ? 25 : 0) + (hasPerk(hero.perks, "mageMastersChoice") ? 50 : 0)
+          ? hasPerk(hero.perks, "mageEdgeStudy") ? 25 : 0
           : 0;
-      return 12 + focusValue + braveryValue + magePerkValue;
+      const affinityValue = isAffinityWeapon(hero, option.id) ? 18 : 0;
+      return 12 + focusValue + braveryValue + magePerkValue + affinityValue;
     }
     case "passive":
       return passiveUtility(hero, option.id) + (option.action === "upgrade" ? hero.traits.focus * 0.15 : 0);

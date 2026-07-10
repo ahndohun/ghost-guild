@@ -1,4 +1,5 @@
 import { temperamentForClass } from "../sim";
+import { emptyEquippedItems } from "../sim/items";
 import type { HeroLoadout, PermStats } from "../sim";
 import type { GuildSave } from "./save";
 
@@ -27,13 +28,14 @@ export function formatGold(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
-/** HeroLoadout temperament is always class-derived; perks come from that class tree. */
+/** HeroLoadout temperament is always class-derived; equipped items default empty on old saves. */
 export function currentLoadout(save: GuildSave): HeroLoadout {
   return {
     name: save.playerName,
     classId: save.classId,
     temperament: temperamentForClass(save.classId),
-    perks: save.perksByClass[save.classId],
+    perks: save.perksByClass[save.classId] ?? [],
     permStats: save.permStats,
+    equippedItems: save.equippedItems ?? emptyEquippedItems,
   };
 }

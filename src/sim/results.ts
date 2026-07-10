@@ -52,5 +52,6 @@ function heroResult(hero: HeroState, finalTick: number): HeroResult {
     gold,
     survivedSeconds,
     survived,
+    items: [...hero.lootedItems],
   };
 }

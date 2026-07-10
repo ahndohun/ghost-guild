@@ -11,6 +11,7 @@ import {
 import type {
   HeroClassId,
   HeroLoadout,
+  EquippedItems,
   PerkChoice,
   PerkId,
   PerkTier,
@@ -26,6 +27,7 @@ export type ServerLoadout = {
   readonly temperament: TemperamentId;
   readonly perks: readonly PerkId[];
   readonly permStats: PermStats;
+  readonly equippedItems: EquippedItems;
 };
 
 export type ArenaMatchResponse = {
@@ -44,13 +46,19 @@ type ServerPerks = {
   readonly tier1: PerkChoice | null;
   readonly tier2: PerkChoice | null;
   readonly tier3: PerkChoice | null;
+  readonly tier4: PerkChoice | null;
+  readonly tier5: PerkChoice | null;
 };
 
 const serverPerkSlots: readonly { readonly tier: PerkTier; readonly key: keyof ServerPerks }[] = [
   { tier: 1, key: "tier1" },
   { tier: 2, key: "tier2" },
   { tier: 3, key: "tier3" },
+  { tier: 4, key: "tier4" },
+  { tier: 5, key: "tier5" },
 ];
+
+const emptyEquippedItems: EquippedItems = { relicWeapon: null, armor: null, trinket: null };
 
 export function toServerLoadout(loadout: HeroLoadout): ServerLoadout {
   const classId = loadout.classId;
@@ -60,6 +68,7 @@ export function toServerLoadout(loadout: HeroLoadout): ServerLoadout {
     temperament: temperamentForClass(classId),
     perks: sanitizePerks(classId, loadout.perks),
     permStats: loadout.permStats ?? { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+    equippedItems: loadout.equippedItems ?? emptyEquippedItems,
   };
 }
 
@@ -71,6 +80,7 @@ export function toHeroLoadout(loadout: ServerLoadout): HeroLoadout {
     temperament: temperamentForClass(classId),
     perks: sanitizePerks(classId, loadout.perks),
     permStats: loadout.permStats,
+    equippedItems: loadout.equippedItems,
   };
 }
 
@@ -84,6 +94,7 @@ export function toLoadoutRequestBody(loadout: ServerLoadout): unknown {
     traits: traitsForTemperament(temperament),
     perks: toServerPerks(classId, loadout.perks),
     permStats: loadout.permStats,
+    equippedItems: loadout.equippedItems,
   };
 }
 
@@ -159,6 +170,7 @@ function parseServerLoadout(value: unknown): ServerLoadout | undefined {
     temperament,
     perks: parsePerks(heroClass, value["perks"]),
     permStats,
+    equippedItems: parseEquippedItems(value["equippedItems"]),
   };
 }
 
@@ -247,12 +259,30 @@ function parsePermStats(value: unknown): PermStats | undefined {
 }
 
 function parseHeroClass(value: unknown): HeroClassId | undefined {
+  if (value === "gambler") {
+    return "thief";
+  }
   for (const classId of heroClassIds) {
     if (value === classId) {
       return classId;
     }
   }
   return undefined;
+}
+
+function parseEquippedItems(value: unknown): EquippedItems {
+  if (!isRecord(value)) {
+    return emptyEquippedItems;
+  }
+  return {
+    relicWeapon: parseItemId(value["relicWeapon"]),
+    armor: parseItemId(value["armor"]),
+    trinket: parseItemId(value["trinket"]),
+  };
+}
+
+function parseItemId(value: unknown): string | null {
+  return typeof value === "string" && value.length >= 1 && value.length <= 80 ? value : null;
 }
 
 function parseName(value: unknown): string | undefined {
@@ -288,6 +318,8 @@ function toServerPerks(classId: HeroClassId, perks: readonly PerkId[]): ServerPe
     tier1: selectedPerkChoice(classId, sanitized, 1),
     tier2: selectedPerkChoice(classId, sanitized, 2),
     tier3: selectedPerkChoice(classId, sanitized, 3),
+    tier4: selectedPerkChoice(classId, sanitized, 4),
+    tier5: selectedPerkChoice(classId, sanitized, 5),
   };
 }
 

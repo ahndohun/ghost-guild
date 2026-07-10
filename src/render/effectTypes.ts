@@ -1,4 +1,4 @@
-import type { EnemyKind } from "../sim/types";
+import type { EnemyKind, WeaponId } from "../sim/types";
 
 export type Facing = "left" | "right";
 
@@ -28,13 +28,28 @@ export type HitReaction = {
   readonly startedTick: number;
 };
 
+/** Burst weapons: melee arcs, novas, smashes — any non-projectile field effect. */
+export type BurstWeaponId =
+  | "swordSweep"
+  | "frostNova"
+  | "garlicAura"
+  | "holySmash"
+  | "earthShatter"
+  | "whirlwindAxe"
+  | "shieldBash"
+  | "radiantBurst"
+  | "meteor";
+
 export type WeaponBurst = {
   readonly heroId: number;
-  readonly weaponId: "swordSweep" | "frostNova";
+  readonly weaponId: BurstWeaponId;
   readonly x: number;
   readonly y: number;
   readonly facing: Facing;
   readonly startedTick: number;
+  /** Optional aim target for directed bursts (meteor impact, etc.). */
+  readonly targetX?: number;
+  readonly targetY?: number;
 };
 
 export type RenderEffects = {
@@ -58,3 +73,5 @@ export type RenderEffects = {
   shakeUntilTick: number;
   screenFlashUntilTick: number;
 };
+
+export type { WeaponId };
