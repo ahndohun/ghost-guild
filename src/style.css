@@ -282,12 +282,17 @@ button.locked,
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(180deg, #1d1430 0%, #17111f 42%, #0e0c15 78%, #0a0810 100%);
+  /* Board-supplied arena backdrop; gradient stays as the load-failure fallback. */
+  background:
+    url("/assets/ui/title-arena-bg.png") center bottom / cover no-repeat,
+    linear-gradient(180deg, #1d1430 0%, #17111f 42%, #0e0c15 78%, #0a0810 100%);
+  image-rendering: pixelated;
   pointer-events: none;
 }
 
-/* Tiny star field via multi-layered box-shadow dots on a 1px seed */
+/* Star field retired — stars are baked into the arena backdrop image. */
 .title-stars {
+  display: none;
   position: absolute;
   inset: 0;
   z-index: 1;
