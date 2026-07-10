@@ -2,27 +2,27 @@
 
 보드 리뷰(2026-07-11 새벽): "스테이지도 몬스터도 Colosseum Survivors 컨셉에 걸맞지 않다. 영혼 없는 슬라임·박쥐 — 검투사도 무서워할 무시무시한 적이 필요하다."
 
-정당한 지적이다. 현 상태: 적 4종(slime/bat/brute/eliteBrute)은 장르 기본 팩 그대로이고 콜로세움과 무관하다. 스테이지는 코드에 모래·관중·벽이 있으나(`src/render/background.ts`) 팔레트가 너무 어두워 "어두운 격자 바닥"으로만 읽힌다(실측 스크린샷). 게임 제목이 **Ghost** Colosseum인데 유령이 한 마리도 없다.
+정당한 지적이다. 현 상태: 적 4종(slime/bat/brute/eliteBrute)은 장르 기본 팩 그대로이고 콜로세움과 무관하다. 스테이지는 코드에 모래·관중·벽이 있으나(`src/render/background.ts`) 팔레트가 너무 어두워 "어두운 격자 바닥"으로만 읽힌다(실측 스크린샷). **Colosseum Survivors**라는 제목에 맞게 생존 경기의 상대와 공간으로 교체해야 한다.
 
 ## 1. 콘셉트 — "그날의 경기 순서" (리서치 근거)
 
-실제 로마 콜로세움의 하루는 3막이었다: **오전 venatio(맹수전) → 정오 처형(damnatio ad bestias) → 오후 munera(검투사전)** (history.com/articles/colosseum-gladiators-ancient-rome-spectacles · en.wikipedia.org/wiki/Inaugural_games_of_the_Colosseum). 우리 180초 런의 웨이브 구조(기본 무리 상시 + 30s 추가층 + 120s 탱크층 + 45/90/135s 엘리트)와 **구조적으로 일치**한다. 여기에 Ghost 테마를 결합:
+실제 로마 콜로세움의 하루는 3막이었다: **오전 venatio(맹수전) → 정오 처형(damnatio ad bestias) → 오후 munera(검투사전)** (history.com/articles/colosseum-gladiators-ancient-rome-spectacles · en.wikipedia.org/wiki/Inaugural_games_of_the_Colosseum). 우리 180초 런의 웨이브 구조(기본 무리 상시 + 30s 추가층 + 120s 탱크층 + 45/90/135s 엘리트)와 **구조적으로 일치**한다.
 
-> **이 콜로세움에서 죽은 모든 것들이 밤마다 다시 싸운다.** 적 전원 = 이 모래 위에서 죽은 자들의 망령(맹수·죄수·검투사). 팔레트를 냉광(spectral) 계열로 통일해 따뜻한 색의 히어로와 실루엣·색 양쪽에서 분리한다 — VS·HoT의 가독성 원칙(위협 등급 = 실루엣+발광, vampire-survivors.fandom.com/wiki/Enemies).
+> **살아남으면 챔피언, 쓰러지면 다음 경기의 경고가 된다.** 한 런은 맹수전·처형극·검투사전이 연속되는 생존 경기다. 적은 초자연 존재가 아니라 사육된 맹수, 형벌 부대, 전문 검투사이며, 모래·청동·철·진홍 팔레트와 병과 실루엣으로 위협 등급을 구분한다.
 
 ### 매핑 표 (스탯 곡선 유지 — 리스킨이 곧 세계관 전환)
 
 | 현재 kind | 스탯 프로필 | 신규 정체 | 서사 슬롯 |
 |---|---|---|---|
-| slime (0s~, 느린 무리, hp10) | 상시 기본 무리 | **Condemned(처형수 망령)** — 사슬 끌며 몰려오는 원혼 | 정오 처형의 죽은 자들, 끝없이 밀려옴 |
-| bat (30s~, 빠른 소형, hp6) | 속도 위협 | **Pit Hound(투견 망령)** — 굶주린 아레나 사냥개 | 오전 venatio의 맹수 |
-| brute (120s~, 탱크, hp40) | 후반 압박 | **Murmillo Shade(중장 검투사 망령)** — 대방패+글라디우스 | 오후 munera의 검투사 |
+| slime (0s~, 느린 무리, hp10) | 상시 기본 무리 | **Condemned(형벌 부대)** — 사슬과 몽둥이를 든 다수의 죄수 | 정오 처형극의 압박, 끝없이 밀려옴 |
+| bat (30s~, 빠른 소형, hp6) | 속도 위협 | **Pit Hound(투견)** — 굶주린 아레나 사냥개 | 오전 venatio의 맹수 |
+| brute (120s~, 탱크, hp40) | 후반 압박 | **Murmillo(중장 검투사)** — 대방패+글라디우스 | 오후 munera의 검투사 |
 | eliteBrute (45/90/135s, hp150) | 고정 엘리트 3회 | **3막의 챔피언 3인** (아래) | 각 막의 피날레 |
 
 **엘리트 3연전 = 이름 있는 챔피언** (등장 시 배너 고지 — class-identity-plan P4 커멘터리 채널 재사용):
-- 45s **"굶주린 것" Beast of the Morning** — 맹수전 챔피언(사자/괴수 영수 실루엣)
+- 45s **"아침의 맹수" Beast of the Morning** — 맹수전 챔피언(사자/장갑 코뿔소 실루엣)
 - 90s **"집행자" The Executioner** — 정오의 처형인(두건+대낫/도끼)
-- 135s **"전대 챔피언" Wraith of the Undefeated** — 무패 검투사의 망령(관을 쓴 중장)
+- 135s **"무패의 챔피언" The Undefeated** — 관을 쓴 중장 검투사
 
 같은 스탯 곡선이라도 이름+실루엣+등장 배너만으로 "3막을 이겨내는 서사"가 생긴다. We Who Are About To Die도 역사 유형의 1:1 복제보다 병과 실루엣·계급 서사로 상대 스펙트럼을 만든다(we-who-are-about-to-die.fandom.com/wiki/Types_of_Enemies).
 
@@ -31,8 +31,8 @@
 ### A. 리스킨 + 스테이지 (sim 무변경 — 밸런스·결정론 리스크 0, ~3h+생성 큐)
 
 **A1. 적 스프라이트 4종 재생성** (PixelLab, low top-down 32px v3 스타일 잠금 유지)
-- Condemned / Pit Hound / Murmillo Shade / (엘리트) Wraith of the Undefeated — 스펙트럴 냉광 팔레트(청록 림), 히어로 난색과 대비.
-- kind 문자열 리네임(slime→condemned 등)은 sim 내부 명칭이라 로드아웃·고스트 스키마와 무관. 단 **59개 참조**(render·test 문자열)와 골든 스냅샷 1곳(test/sim.test.ts:495), tsloop 클라우드 플랜의 적 명칭 언급을 함께 갱신할 것. 리네임이 부담스러우면 kind는 유지하고 표기명·에셋만 교체해도 무방(고스트·코드 양쪽 무風險) — **표기·에셋 우선, 리네임은 여유 시**.
+- Condemned / Pit Hound / Murmillo / (엘리트) The Undefeated — 모래·청동·철·진홍 팔레트, 병과별 실루엣과 무기로 히어로와 구분.
+- kind 문자열 리네임(slime→condemned 등)은 sim 내부 명칭이라 로드아웃·리플레이 스키마와 무관. 단 **59개 참조**(render·test 문자열)와 골든 스냅샷 1곳(test/sim.test.ts:495), tsloop 클라우드 플랜의 적 명칭 언급을 함께 갱신할 것. 리네임이 부담스러우면 kind는 유지하고 표기명·에셋만 교체해도 무방(리플레이·코드 양쪽 무위험) — **표기·에셋 우선, 리네임은 여유 시**.
 - 엘리트 3인 차별화: 최소 = 팔레트·스케일 변형(VS의 위협 등급 문법), 이상 = 45/90/135 각각 전용 스프라이트.
 
 **A2. 스테이지 가독성 개편** (`src/render/background.ts` 코드만, 에셋 불요)
@@ -42,14 +42,14 @@
 - 히어로 명패처럼 화면이 아니라 월드에 그려지는 것들이므로 E2E 표면 불변.
 
 **A3. 등장·군중 연출** (render/audio 전용)
-- 적 스폰 시 모래에서 솟아오르는 등장 FX(스폰 틱 기준 페이드+상승 — 렌더 전용, "유령이 모래에서 깨어난다").
+- 적 스폰 시 철문이 열리고 달려 나오는 등장 FX(스폰 틱 기준 먼지+전진 — 렌더 전용).
 - 엘리트 처치·킬 스트릭에 군중 함성 SFX(audioEvents 훅 기존 구조 재사용).
 - 엘리트 등장 배너: "2막 — 집행자가 모래 위에 선다" (DQ풍, 캔버스 오버레이).
 
 ### B. 증축 — 검투사 페어 2종 + 피날레 (sim 변경 — 여유 시)
 
-- **Retiarius Shade**(60s~): 그물·삼지창 실루엣, 중간 스탯 원거리형(신규 kind — 스탯만 다르게, 행동 로직 재사용으로 리스크 최소화).
-- **Secutor Shade**(90s~): 빠른 추격형 — retiarius와 페어 등장(munera의 비대칭 페어 문법, en.wikipedia.org/wiki/List_of_Roman_gladiator_types).
+- **Retiarius**(60s~): 그물·삼지창 실루엣, 중간 스탯 원거리형(신규 kind — 스탯만 다르게, 행동 로직 재사용으로 리스크 최소화).
+- **Secutor**(90s~): 빠른 추격형 — retiarius와 페어 등장(munera의 비대칭 페어 문법, en.wikipedia.org/wiki/List_of_Roman_gladiator_types).
 - **170s 피날레: 황제의 여흥** — 마지막 10초 대형 웨이브에 챔피언 재등장(finaleScale 2 훅이 이미 있음 — 여기에 엘리트 1기 추가 스폰).
 - 각 신규 kind: 타입 유니언·정의·웨이브 타이머·xp/gold·스프라이트·렌더 매핑·결정론 테스트 세트. 골든 갱신 필수.
 
@@ -59,7 +59,7 @@
 2. **적 어휘에서 slime/bat 소멸** — 화면·카드·리더보드 어디에도 장르 기본 팩 이름이 없다.
 3. 45/90/135s 엘리트가 **이름 있는 챔피언으로 배너와 함께** 등장한다.
 4. 게이트: typecheck·vitest(골든 갱신 포함)·build → 배포 → tsloop → LOOP 기록. tsloop 플랜 중 적 명칭 언급 테스트 정합 확인.
-5. 결정론: 같은 시드 2회 동일, 고스트 리플레이 무결(A안은 sim 무변경이라 자동 충족).
+5. 결정론: 같은 시드 2회 동일, 저장된 리플레이 무결(A안은 sim 무변경이라 자동 충족).
 
 ## 4. 실행 노트
 

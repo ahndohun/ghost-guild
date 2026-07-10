@@ -26,6 +26,9 @@ export function damageMultiplier(hero: HeroState, weaponId: WeaponId): number {
   const knightFloor = hero.classId === "knight" ? 0.85 : 1;
   // Priest: weakest weapon damage.
   const priestSoft = hero.classId === "priest" ? 0.88 : 1;
+  // Paladin: sustain-heavy hybrid trades peak damage for tanking and two
+  // visible healing channels. Holy Smash still starts above Priest damage.
+  const paladinSoft = hero.classId === "paladin" ? 0.55 : 1;
   const perkAtk = 1 + statModTotal(hero.perks, "atk").pct;
   const weaponPerk = 1 + weaponModFor(hero.perks, weaponId).dmgPct;
   const itemStats = equippedStatMods(hero.equippedItems, hero.classId);
@@ -41,6 +44,7 @@ export function damageMultiplier(hero: HeroState, weaponId: WeaponId): number {
     mageSingleEdge *
     knightFloor *
     priestSoft *
+    paladinSoft *
     perkAtk *
     weaponPerk *
     itemAtk *

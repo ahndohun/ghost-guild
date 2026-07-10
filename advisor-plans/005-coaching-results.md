@@ -55,7 +55,7 @@ Arena Results:
 
 - Placement and match ranking.
 - Local row emphasis and opponent class or build inspection.
-- Offline ghost status when fallback bots were used.
+- Offline rival status when fallback bots were used.
 - World Leaderboard only when distinct server data arrives.
 - RUN AGAIN and ADJUST BUILD.
 
@@ -204,7 +204,7 @@ Expected: all commands exit 0 and TestSprite JSON parses.
 ## STOP conditions
 
 - Accurate death cause would require changing damage or enemy targeting.
-- Local coaching fields leak into a public API or stored ghost contract.
+- Local coaching fields leak into a public API or stored replay contract.
 - Recommendation logic cannot be grounded in captured evidence.
 - Run Again changes deterministic seed or loadout semantics unexpectedly.
 - Results cannot fit the fixed shell without body scrolling.

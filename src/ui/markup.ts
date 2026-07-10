@@ -1,12 +1,7 @@
-import { classDefinitions, heroClassIds, perkDefinitions, weaponDefinitions } from "../sim";
+import { classDefinitions, heroClassIds, perkDefinitions } from "../sim";
 import type { HeroClassId, PerkChoice, PerkTier } from "../sim";
 import { classPortraitPath, skillIconPath } from "./art";
 import { perkArtMetadata } from "./perkArt";
-
-export const recommendedClassIds: readonly HeroClassId[] = ["fighter", "knight", "mage"];
-
-const allOtherClassIds = heroClassIds.filter((classId) => !recommendedClassIds.includes(classId));
-export const additionalClassCount = allOtherClassIds.length;
 
 export function screenMarkup(): string {
   return `
@@ -44,11 +39,11 @@ export function screenMarkup(): string {
           aria-hidden="true"
         />
         <div class="title-brand">
-          <h1 class="title-logo-big"><span class="title-logo-line">GHOST</span><span class="title-logo-line">COLOSSEUM</span></h1>
+          <h1 class="title-logo-big" aria-label="Colosseum Survivors"><span class="title-logo-line">COLOSSEUM</span><span class="title-logo-line">SURVIVORS</span></h1>
         </div>
         <div class="title-shell">
           <div class="title-window">
-            <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
+            <p class="eyebrow">ENTER THE GRAND ARENA</p>
             <p class="title-tagline">You don't play the gladiator. You coach them.</p>
             <p class="title-subline">Pick a class, forge its specialization tree — then watch judgment decide the sand.</p>
             <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
@@ -59,77 +54,81 @@ export function screenMarkup(): string {
     <section id="screen-guild" class="screen guild-screen hidden">
       <div class="guild-shell">
         <header class="guild-topstrip">
-          <label class="player-name-field">
-            <span>Gladiator</span>
-            <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" />
-          </label>
+          <p class="guild-location">BARRACKS · GRAND COLOSSEUM</p>
           <div class="gold"><span class="gold-label">Gold</span><span id="gold-amount" data-testid="gold-amount">0</span></div>
-          <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
+          <div class="settings-menu">
+            <button type="button" class="settings-open" data-testid="settings-open" aria-expanded="false" aria-label="Open settings">⚙</button>
+            <div id="settings-popover" class="settings-popover hidden" data-testid="settings-popover" role="menu">
+              <button type="button" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false" role="menuitem">SOUND ON</button>
+              <button type="button" data-testid="coach-replay" role="menuitem">TUTORIAL</button>
+            </div>
+          </div>
         </header>
 
         <div class="guild-body">
+          <div class="lobby-stage" aria-label="Gladiator lobby">
+            <div class="lobby-stage-frame">
+              <canvas id="lobby-canvas" width="960" height="140" aria-label="Lobby stage"></canvas>
+              <div class="lobby-title-overlay">
+                <p class="eyebrow">YOUR GLADIATOR</p>
+                <h1>Colosseum Survivors</h1>
+                <p class="tagline">Coach the build. Trust their judgment.</p>
+              </div>
+            </div>
+            <div class="lobby-nameplate" aria-live="polite">
+              <button type="button" id="lobby-nameplate-title" class="lobby-nameplate-title" data-testid="rename-player">Gladiator · Knight · Guardian</button>
+              <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Holds ground; low-HP flee only below 25%.</p>
+              <p id="lobby-nameplate-best" class="lobby-nameplate-best" data-testid="nameplate-best">NO RUN RECORDED</p>
+            </div>
+          </div>
+
           <nav class="guild-nav" aria-label="Guild sections">
-            <button type="button" class="guild-tab" data-testid="guild-tab-overview" data-guild-tab="overview" aria-pressed="true">Overview</button>
-            <button type="button" class="guild-tab" data-testid="guild-tab-class" data-guild-tab="class" aria-pressed="false">Class</button>
-            <button type="button" class="guild-tab" data-testid="guild-tab-training" data-guild-tab="training" aria-pressed="false">Training</button>
-            <button type="button" class="guild-tab" data-testid="guild-tab-gear" data-guild-tab="gear" aria-pressed="false">Gear</button>
+            <button type="button" class="guild-tab" data-testid="guild-tab-class" data-guild-tab="class" aria-pressed="true">CLASS &amp; TREE</button>
+            <button type="button" class="guild-tab" data-testid="guild-tab-training" data-guild-tab="training" aria-pressed="false">TRAINING</button>
+            <button type="button" class="guild-tab" data-testid="guild-tab-gear" data-guild-tab="gear" aria-pressed="false">INVENTORY</button>
           </nav>
 
           <main class="guild-pane">
-            <div id="guild-section-overview" class="guild-section">
-              <div class="lobby-stage" aria-label="Gladiator lobby">
-                <div class="lobby-stage-frame">
-                  <canvas id="lobby-canvas" width="960" height="280" aria-label="Lobby stage"></canvas>
-                  <div class="lobby-title-overlay">
-                    <p class="eyebrow">BARRACKS</p>
-                    <h1>Ghost Colosseum</h1>
-                    <p class="tagline">Coach your gladiator. The crowd remembers.</p>
-                    <p class="onboarding-line">Your gladiator fights on its own - pick a class, unlock its specialization tree, hit DEPLOY, and watch. Win gold for perks and permanent upgrades.</p>
+            <div id="guild-section-class" class="guild-section">
+              <section class="panel class-picker-panel">
+                <h2>Choose a Class</h2>
+                <div class="class-roster" data-testid="class-roster">
+                  ${heroClassIds.map(classMarkup).join("")}
+                </div>
+                <article class="selected-class-detail" data-testid="selected-class-detail" aria-live="polite">
+                  <img id="selected-class-portrait" class="selected-class-portrait" data-testid="selected-class-portrait" src="${classPortraitPath("knight")}" alt="Knight portrait" width="64" height="64" decoding="async" />
+                  <div class="selected-class-heading">
+                    <span id="selected-class-behavior-name" data-testid="selected-class-behavior-name">Guardian</span>
+                    <h3 id="selected-class-name" data-testid="selected-class-name">Knight</h3>
                   </div>
-                </div>
-                <div class="lobby-nameplate" aria-live="polite">
-                  <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Guardian</p>
-                  <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Holds ground; low-HP flee only below 25%.</p>
-                </div>
-              </div>
-              <section class="panel overview-summary" data-testid="guild-overview-summary">
-                <h2>Overview</h2>
-                <div class="overview-identity">
-                  <img
-                    id="overview-class-portrait"
-                    class="overview-class-portrait"
-                    data-testid="overview-class-portrait"
-                    src="${classPortraitPath("knight")}"
-                    alt="Knight portrait"
-                    width="64"
-                    height="64"
-                    decoding="async"
-                  />
-                  <div>
-                    <span>Current Class</span>
-                    <strong id="overview-class-name">Knight</strong>
+                  <div class="selected-class-weapon">
+                    <img id="selected-class-weapon-icon" src="${skillIconPath("swordSweep")}" alt="" width="32" height="32" decoding="async" />
+                    <p><span>WEAPON</span><strong id="selected-class-weapons" data-testid="selected-class-weapons">Sword Sweep</strong></p>
                   </div>
-                </div>
-                <dl class="overview-grid">
-                  <div class="overview-cell"><dt>Equipped</dt><dd id="overview-equipped">—</dd></div>
-                  <div class="overview-cell"><dt>Recommended</dt><dd id="overview-recommendation">—</dd></div>
-                </dl>
+                  <p class="selected-class-strength"><span>STRENGTH</span><strong id="selected-class-strength" data-testid="selected-class-strength">High HP, shrugs contact hits</strong></p>
+                  <p class="selected-class-weakness"><span>WEAKNESS</span><strong id="selected-class-weakness" data-testid="selected-class-weakness">Lowest attack tier; slow feet</strong></p>
+                  <p class="selected-class-behavior"><span>BEHAVIOR</span><strong id="selected-class-behavior" data-testid="selected-class-behavior">Holds ground; low-HP flee only below 25%.</strong></p>
+                </article>
               </section>
-            </div>
-
-            <div id="guild-section-class" class="guild-section hidden">
-              <section class="panel">
-                <h2>Class</h2>
-                <p class="class-group-label">Recommended</p>
-                <div class="class-grid" data-class-group="recommended">
-                  ${recommendedClassIds.map(classMarkup).join("")}
+              <section class="panel perk-panel class-tree-panel">
+                <h2>Specialization Tree</h2>
+                <div class="perk-grid">
+                  ${perkSlotMarkup(1, "a")}
+                  ${perkSlotMarkup(1, "b")}
+                  ${perkSlotMarkup(2, "a")}
+                  ${perkSlotMarkup(2, "b")}
+                  ${perkSlotMarkup(3, "a")}
+                  ${perkSlotMarkup(3, "b")}
+                  ${perkSlotMarkup(4, "a")}
+                  ${perkSlotMarkup(4, "b")}
+                  ${perkSlotMarkup(5, "a")}
+                  ${perkSlotMarkup(5, "b")}
                 </div>
-                <button type="button" class="toggle-all-classes" data-testid="toggle-all-classes" aria-expanded="false" aria-controls="all-classes-grid">
-                  ALL CLASSES +${additionalClassCount}
-                </button>
-                <div id="all-classes-grid" class="class-grid all-classes-grid hidden" data-class-group="all">
-                  ${allOtherClassIds.map(classMarkup).join("")}
-                </div>
+                <article id="specialization-detail" class="specialization-detail" data-testid="specialization-detail" data-perk-testid="perk-t1-a" aria-live="polite">
+                  <p><span>NAME</span><strong id="specialization-detail-name" data-testid="specialization-detail-name">Bulwark</strong></p>
+                  <p><span>WHY</span><strong id="specialization-detail-reason" data-testid="specialization-detail-reason">Needs 150g; 0g held.</strong></p>
+                  <p><span>EFFECT</span><strong id="specialization-detail-effect" data-testid="specialization-detail-effect">Contact damage taken −12.5%.</strong></p>
+                </article>
               </section>
             </div>
 
@@ -142,21 +141,6 @@ export function screenMarkup(): string {
                   <button type="button" data-testid="buy-spd" disabled>SPD 80g</button>
                   <button type="button" data-testid="buy-luck" disabled>LUCK 100g</button>
                   <button type="button" data-testid="buy-lvl" disabled>LVL 200g</button>
-                </div>
-              </section>
-              <section class="panel perk-panel">
-                <h2>Class Specialization</h2>
-                <div class="perk-grid">
-                  ${perkSlotMarkup(1, "a")}
-                  ${perkSlotMarkup(1, "b")}
-                  ${perkSlotMarkup(2, "a")}
-                  ${perkSlotMarkup(2, "b")}
-                  ${perkSlotMarkup(3, "a")}
-                  ${perkSlotMarkup(3, "b")}
-                  ${perkSlotMarkup(4, "a")}
-                  ${perkSlotMarkup(4, "b")}
-                  ${perkSlotMarkup(5, "a")}
-                  ${perkSlotMarkup(5, "b")}
                 </div>
               </section>
             </div>
@@ -181,29 +165,96 @@ export function screenMarkup(): string {
         <aside id="coach-panel" class="coach-panel hidden" data-testid="coach-panel" aria-live="polite">
           <div class="coach-copy">
             <strong id="coach-step-label">COACH 1/4</strong>
-            <span id="coach-message">Choose a recommended class.</span>
+            <span id="coach-message">Choose a class.</span>
           </div>
           <button type="button" data-testid="coach-skip">SKIP</button>
         </aside>
 
         <footer class="guild-actions">
-          <div class="guild-actions-primary">
-            <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
-            <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>
-          </div>
-          <div class="guild-actions-settings">
-            <button type="button" class="settings-toggle" data-testid="coach-replay">REPLAY COACH</button>
-            <button type="button" class="settings-toggle" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
-            <button type="button" class="settings-toggle" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false">SOUND ON</button>
-          </div>
+          <button type="button" class="primary battle-open" data-testid="battle-open" aria-expanded="false">ENTER THE ARENA</button>
         </footer>
+
+        <div id="battle-modal" class="modal-backdrop hidden" data-testid="battle-modal" role="dialog" aria-modal="true" aria-labelledby="battle-modal-title">
+          <section class="modal-window battle-modal-window">
+            <p class="eyebrow">CHOOSE YOUR SAND</p>
+            <h2 id="battle-modal-title">Enter the arena</h2>
+            <div class="battle-mode-grid">
+              <button type="button" data-testid="deploy-solo">
+                <strong id="deploy-solo-label">PRACTICE BOUT</strong>
+                <span>Stand alone upon the sand.</span>
+              </button>
+              <button type="button" data-testid="deploy-arena">
+                <strong id="deploy-arena-label">GRAND BOUT</strong>
+                <span>Face three rival legends.</span>
+              </button>
+            </div>
+            <button type="button" class="autorun-choice" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
+            <div class="modal-actions">
+              <button type="button" data-testid="battle-close">NOT YET</button>
+            </div>
+          </section>
+        </div>
+
+        <div id="name-modal" class="modal-backdrop hidden" data-testid="name-modal" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+          <section class="modal-window name-modal-window">
+            <p class="eyebrow">THE SAND ASKS</p>
+            <h2 id="name-modal-title">Leave your name</h2>
+            <p id="name-modal-copy" class="modal-copy">The sand will remember it.</p>
+            <label class="player-name-field">
+              <span>GLADIATOR NAME</span>
+              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" />
+            </label>
+            <p id="name-modal-error" class="modal-error" aria-live="polite"></p>
+            <div class="modal-actions">
+              <button type="button" data-testid="name-modal-close">CANCEL</button>
+              <button type="button" class="primary" data-testid="confirm-player-name">ENTER THE BARRACKS</button>
+            </div>
+          </section>
+        </div>
       </div>
     </section>
     <section id="screen-run" class="screen hidden">
       <div class="run-shell game-window">
-        <div class="run-canvas-frame">
-          <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
+        <div class="spectator-hud" data-testid="spectator-hud" aria-label="Live run report">
+          <div class="hud-chip hud-identity" data-testid="run-identity">
+            <strong id="run-class" data-testid="run-class">Knight</strong>
+            <span id="run-behavior" data-testid="run-behavior">HOLD GROUND</span>
+            <small id="run-behavior-reason" data-testid="run-behavior-reason">Holding the arena center.</small>
+          </div>
+          <div class="hud-chip hud-time" data-testid="run-survival">
+            <span id="run-mode" data-testid="run-mode">SOLO</span>
+            <strong id="run-remaining" data-testid="run-remaining">180s LEFT</strong>
+            <div class="hud-progress-track" aria-hidden="true"><div id="run-progress-fill" class="hud-progress-fill"></div></div>
+            <small id="run-progress" data-testid="run-progress">0 / 180s</small>
+            <span id="hud-time" hidden>0s</span>
+          </div>
+          <div class="hud-chip hud-stats" data-testid="run-stats">
+            <span>KILLS <strong id="run-kills" data-testid="run-kills">0</strong></span>
+            <span>GOLD <strong id="run-gold" data-testid="run-gold">0</strong></span>
+            <span>SCORE <strong id="run-score" data-testid="run-score">0</strong></span>
+          </div>
+        </div>
+        <div id="run-canvas-frame" class="run-canvas-frame" tabindex="-1">
+          <canvas id="run-canvas" width="960" height="540" aria-label="Colosseum Survivors run"></canvas>
           <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
+          <div class="hud" aria-hidden="false">
+            <div class="hud-hp-orb">
+              <div class="hud-hp-well" aria-hidden="true">
+                <div class="hud-hp-fill" id="hud-hp-fill"></div>
+              </div>
+              <img class="hud-hp-frame" src="/assets/ui/hp-orb-frame.png" alt="" draggable="false" />
+              <span class="hud-hp-label">HP <strong id="hud-hp">0</strong></span>
+            </div>
+            <div class="hud-xp">
+              <span class="hud-xp-level">LV <strong id="hud-level">1</strong></span>
+              <div class="hud-xp-bar">
+                <div class="hud-xp-track" aria-hidden="true">
+                  <div class="hud-xp-fill" id="hud-xp-fill"></div>
+                </div>
+                <img class="hud-xp-frame" src="/assets/ui/xp-bar-frame.png" alt="" draggable="false" />
+              </div>
+            </div>
+          </div>
           <aside id="coach-run-panel" class="coach-panel coach-overlay hidden" data-testid="coach-run-panel" aria-live="polite">
             <div class="coach-copy">
               <strong>COACH 3/4</strong>
@@ -216,32 +267,13 @@ export function screenMarkup(): string {
           data-phase="" data-time="0" data-hp="0" data-level="1" data-kills="0" data-gold="0" data-seed=""
           data-class="" data-temperament=""></div>
       </div>
-      <div class="hud" aria-hidden="false">
-        <span class="hud-chip hud-time">TIME <strong id="hud-time">0s</strong></span>
-        <div class="hud-hp-orb">
-          <div class="hud-hp-well" aria-hidden="true">
-            <div class="hud-hp-fill" id="hud-hp-fill"></div>
-          </div>
-          <img class="hud-hp-frame" src="/assets/ui/hp-orb-frame.png" alt="" draggable="false" />
-          <span class="hud-hp-label">HP <strong id="hud-hp">0</strong></span>
-        </div>
-        <div class="hud-xp">
-          <span class="hud-xp-level">LV <strong id="hud-level">1</strong></span>
-          <div class="hud-xp-bar">
-            <div class="hud-xp-track" aria-hidden="true">
-              <div class="hud-xp-fill" id="hud-xp-fill"></div>
-            </div>
-            <img class="hud-xp-frame" src="/assets/ui/xp-bar-frame.png" alt="" draggable="false" />
-          </div>
-        </div>
-        <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false">SOUND ON</button>
-      </div>
     </section>
     <section id="screen-results" class="screen hidden">
       <div class="results-scroll">
         <div class="results-panel victory-window">
           <p class="eyebrow results-eyebrow">RESULTS</p>
           <h1 class="victory-title">The Sand Settles</h1>
+          <p id="result-outcome" class="result-outcome" data-testid="result-outcome">DEFEATED AT 0s</p>
           <p class="victory-sub">Match report from the colosseum floor</p>
           <aside id="coach-results-panel" class="coach-panel coach-results hidden" data-testid="coach-results-panel" aria-live="polite">
             <div class="coach-copy">
@@ -252,19 +284,33 @@ export function screenMarkup(): string {
           </aside>
           <dl class="result-grid">
             <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">0</dd></div>
-            <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
+            <div id="result-rank-cell" class="result-cell" data-testid="result-rank-cell"><dt>Placement</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
             <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">0</dd></div>
             <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">0s</dd></div>
-            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">0</dd></div>
           </dl>
+          <section class="result-rewards" aria-label="Run rewards">
+            <div class="gold-ledger" data-testid="result-gold-ledger">
+              <span>BEFORE <strong id="result-gold-before" data-testid="result-gold-before">0</strong></span>
+              <span>+ EARNED <strong id="result-gold-earned" data-testid="result-gold-earned">0</strong></span>
+              <span>AFTER <strong id="result-gold-after" data-testid="result-gold-after">0</strong></span>
+            </div>
+            <div class="result-loot"><span>LOOT</span><strong id="result-loot" data-testid="result-loot">No loot</strong></div>
+          </section>
           <p id="best-survival" class="best-survival" data-testid="best-survival"></p>
-          <h2 class="results-section-title">Match Ranking</h2>
-          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"></ol>
-          <section id="leaderboard-section" class="leaderboard-panel">
+          <section id="match-ranking-section" data-testid="match-ranking-section">
+            <h2 class="results-section-title">Match Ranking</h2>
+            <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"></ol>
+          </section>
+          <section id="leaderboard-section" class="leaderboard-panel" data-testid="leaderboard-section">
             <h2 class="results-section-title">World Leaderboard</h2>
+            <p id="leaderboard-status" class="leaderboard-status" data-testid="leaderboard-status">WORLD LEADERBOARD UNAVAILABLE</p>
             <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"></ol>
           </section>
-          <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
+          <div class="result-actions">
+            <button type="button" class="primary" data-testid="run-again">RUN AGAIN</button>
+            <button type="button" data-testid="adjust-build">ADJUST BUILD</button>
+            <button type="button" class="tertiary" data-testid="back-to-guild">BACK TO GUILD</button>
+          </div>
         </div>
       </div>
     </section>
@@ -306,18 +352,10 @@ function perkSlotMarkup(tier: PerkTier, choice: PerkChoice): string {
 
 function classMarkup(classId: HeroClassId): string {
   const definition = classDefinitions[classId];
-  const startingWeapons = definition.startingWeapons ?? [definition.startingWeapon];
-  const startingWeaponLabel = startingWeapons.map((weaponId) => weaponDefinitions[weaponId].name).join(" + ");
   return `
     <button type="button" class="class-card" data-testid="class-${classId}">
       <img class="class-portrait" src="${classPortraitPath(classId)}" alt="" width="64" height="64" decoding="async" />
       <strong>${definition.name}</strong>
-      <span class="class-skill">
-        <img class="class-skill-icon" src="${skillIconPath(definition.startingWeapon)}" alt="" width="32" height="32" decoding="async" />
-        <small>${startingWeaponLabel}</small>
-      </span>
-      <span class="class-strength">${definition.strength}</span>
-      <span class="class-weakness">${definition.weakness}</span>
       <small id="class-${classId}-status" class="class-status">Ready</small>
     </button>
   `;

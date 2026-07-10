@@ -76,7 +76,7 @@ const arenaMatch: MatchConfig = {
   ],
 };
 
-describe("Ghost Guild deterministic simulation", () => {
+describe("Colosseum Survivors deterministic simulation", () => {
   it("returns an identical MatchResult hash when the same seed runs twice", () => {
     const first = JSON.stringify(simulateMatch(guardianKnight));
     const second = JSON.stringify(simulateMatch(guardianKnight));
@@ -459,11 +459,11 @@ describe("Traits v3 class identity and specialization trees", () => {
   );
 });
 
-/** Roster v3: Knight is guardian; golden intentionally changed with class stats, skills, and item RNG. */
+/** AI W1/W2: separation + center-lane tactics intentionally change the deterministic seed-42 result. */
 const GOLDEN_GUARDIAN_KNIGHT = {
-  score: 2181,
-  kills: 164,
-  level: 9,
+  score: 3622,
+  kills: 282,
+  level: 11,
 };
 
 function collectedGemCount(loadout: HeroLoadout): number {

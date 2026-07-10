@@ -1,9 +1,9 @@
 import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "./helpers";
+import { expect, finishNameOnboarding, test } from "./helpers";
 
 type Rect = { x: number; y: number; width: number; height: number };
 
-const sections = ["overview", "class", "training", "gear"] as const;
+const sections = ["class", "training", "gear"] as const;
 const epsilon = 1;
 
 async function rect(locator: Locator): Promise<Rect> {
@@ -28,6 +28,7 @@ async function shellScale(page: Page): Promise<number> {
 test.describe("Guild fixed-shell geometry", () => {
   test("letterboxes one 960x540 shell and keeps every section control inside it", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
+    await finishNameOnboarding(page);
 
     const shell = page.locator(".guild-shell");
     const pane = page.locator(".guild-pane");
@@ -86,10 +87,27 @@ test.describe("Guild fixed-shell geometry", () => {
       await expect(page.locator(`#guild-section-${section}`)).toBeVisible();
 
       if (section === "class") {
-        const toggleAllClasses = page.getByTestId("toggle-all-classes");
-        if ((await toggleAllClasses.getAttribute("aria-expanded")) !== "true") {
-          await toggleAllClasses.click();
+        const classPaneBox = await rect(pane);
+        const classShellBox = await rect(shell);
+        const classCards = page.getByTestId("class-roster").locator(".class-card");
+        await expect(classCards).toHaveCount(11);
+
+        const classPaneMetrics = await pane.evaluate((element) => ({
+          clientHeight: element.clientHeight,
+          scrollHeight: element.scrollHeight,
+          scrollTop: element.scrollTop,
+        }));
+        expect(classPaneMetrics.scrollTop).toBe(0);
+
+        for (let index = 0; index < (await classCards.count()); index += 1) {
+          const classCard = classCards.nth(index);
+          await expect(classCard).toBeVisible();
+          await expect(classCard).toBeEnabled();
+          const classCardBox = await rect(classCard);
+          expectContained(classCardBox, classPaneBox);
+          expectContained(classCardBox, classShellBox);
         }
+        expect(classPaneMetrics.scrollHeight).toBeLessThanOrEqual(classPaneMetrics.clientHeight);
       }
 
       const interactiveControls = page.locator(
@@ -97,17 +115,17 @@ test.describe("Guild fixed-shell geometry", () => {
       );
       for (let index = 0; index < (await interactiveControls.count()); index += 1) {
         const control = interactiveControls.nth(index);
-        await control.scrollIntoViewIfNeeded();
+        if (section !== "class") {
+          await control.scrollIntoViewIfNeeded();
+        }
         expectContained(await rect(control), await rect(shell));
       }
 
       for (const persistentControl of [
         page.getByTestId(`guild-tab-${section}`),
-        page.getByTestId("deploy-solo"),
-        page.getByTestId("deploy-arena"),
+        page.getByTestId("battle-open"),
         page.getByTestId("coach-skip"),
-        page.getByTestId("coach-replay"),
-        page.getByTestId("toggle-autorun"),
+        page.getByTestId("settings-open"),
       ]) {
         expectContained(await rect(persistentControl), await rect(shell));
       }

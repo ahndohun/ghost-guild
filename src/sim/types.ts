@@ -103,6 +103,14 @@ export type Vec2 = {
   y: number;
 };
 
+export type HeroIntent =
+  | "engage"
+  | "kite"
+  | "flee"
+  | "loot"
+  | "hold-ground"
+  | "reposition";
+
 export type TraitProfile = {
   bravery: number;
   greed: number;
@@ -197,6 +205,10 @@ export type HeroState = {
   baseSpeed: number;
   moveDirX: number;
   moveDirY: number;
+  /** Local deterministic observation; never serialized in MatchResult. */
+  currentIntent: HeroIntent;
+  /** Concise spectator-facing explanation for currentIntent. */
+  currentIntentReason: string;
   reevaluateTicks: number;
   progressAnchorX: number;
   progressAnchorY: number;
@@ -267,6 +279,11 @@ export type LevelDialogState = {
   heroId: number;
   text: string;
   ticksRemaining: number;
+  /** Local coaching detail; omitted only when no selectable option exists. */
+  selectedOptionId?: WeaponId | PassiveId;
+  selectedOptionLabel?: string;
+  newLevel?: number;
+  reason?: string;
 };
 
 export type MatchState = {

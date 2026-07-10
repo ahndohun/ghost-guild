@@ -3,9 +3,11 @@ const bgmVolume = 0.35;
 
 export type BgmTrack = "guild" | "battle";
 
+const arenaThemeSource = "/assets/audio/bgm-battle.mp3";
+
 const bgmSources: Record<BgmTrack, string> = {
-  guild: "/assets/audio/bgm-spooky-dungeon.mp3",
-  battle: "/assets/audio/bgm-battle.mp3",
+  guild: arenaThemeSource,
+  battle: arenaThemeSource,
 };
 
 export type SoundName =

@@ -83,10 +83,11 @@ const heroSpriteIds: Record<HeroClassId, SpriteId> = {
 
 /**
  * PixelLab body is ~32px inside a ~64px canvas.
- * Lobby draws at 5–6× content scale (nearest-neighbor), matching battle.
+ * Full lobby draws at 5–6× content scale; the compact persistent band can
+ * scale lower while preserving nearest-neighbor pixels and a complete body.
  */
 const HERO_CONTENT_PX = 32;
-const HERO_CONTENT_SCALE_MIN = 5;
+const HERO_CONTENT_SCALE_MIN = 2;
 const HERO_CONTENT_SCALE_MAX = 6;
 const HERO_CONTENT_SCALE_DEFAULT = 5.5;
 /** Code-drawn maps are 16×16; scale so fallback height ≈ pixel content size. */
@@ -135,6 +136,7 @@ export function createLobbyStage(documentRef: Document, windowRef: Window): Lobb
 
   const nameplateTitle = requiredElement(documentRef, "lobby-nameplate-title");
   const nameplateRule = requiredElement(documentRef, "lobby-nameplate-rule");
+  const nameplateBest = requiredElement(documentRef, "lobby-nameplate-best");
   const reducedMotionQuery = windowRef.matchMedia("(prefers-reduced-motion: reduce)");
 
   let appearance: LobbyAppearance = {
@@ -306,6 +308,9 @@ export function createLobbyStage(documentRef: Document, windowRef: Window): Lobb
     const temperament = temperamentDefinitions[next.temperament];
     nameplateTitle.textContent = `${next.playerName} · ${className} · ${temperament.name}`;
     nameplateRule.textContent = temperament.hardRule;
+    nameplateBest.textContent = next.bestSurvivalSeconds === undefined
+      ? "NO RUN RECORDED"
+      : `BEST · ${next.bestSurvivalSeconds}s SURVIVED`;
   }
 
   function syncCanvasSize(): void {
@@ -507,7 +512,8 @@ function computeScene(width: number, height: number): SceneMetrics {
     trainingDummy: propScaleBase.trainingDummy * fit,
   };
 
-  // Prefer 5.5× content; stay within 5–6×. On short frames, still hold the floor at 5×.
+  // Prefer 5.5× content in the full stage; compact persistent lobby bands may
+  // scale to 2× so the whole silhouette remains readable instead of clipping.
   let heroContentScale = HERO_CONTENT_SCALE_DEFAULT;
   if (height < 220) {
     heroContentScale = Math.max(

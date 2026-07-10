@@ -1,4 +1,4 @@
-# 인수인계: ghost-guild UI·아트 개편 (002 잔여분 + 003~005)
+# 인수인계: Colosseum Survivors UI·아트 개편 (002 잔여분 + 003~005)
 
 수신: gpt-5.6-sol (high) — 당신이 이 작업의 오케스트레이터다.
 발신: Claude Fable 5 (어드바이저, 2026-07-11까지 001~002 대부분 진행)
@@ -6,7 +6,7 @@
 
 ## 0. 임무 요약
 
-/Users/ahndohun/projects/ghost-guild 리포에서 advisor-plans/ 의 계획을 순서대로 완수한다.
+리포지토리 루트에서 `advisor-plans/`의 계획을 순서대로 완수한다.
 각 계획 문서가 최우선 스펙이다 — 착수 전 해당 계획을 전체 정독하고, STOP 조건을 우회 없이 지키고, 완료 시 advisor-plans/README.md 상태 행을 갱신한다.
 
 남은 작업 순서:

@@ -8,9 +8,15 @@ import {
   updateDamageNumberTones,
   weaponCooldownKey,
 } from "./effectEvents";
-import type { Facing, Position, RenderEffects } from "./effectTypes";
+import type { EnemyDeathPresentation, Facing, Position, RenderEffects } from "./effectTypes";
 
-export type { Facing, ImpactSpark, RenderEffects, WeaponBurst } from "./effectTypes";
+export type {
+  EnemyDeathPresentation,
+  Facing,
+  ImpactSpark,
+  RenderEffects,
+  WeaponBurst,
+} from "./effectTypes";
 
 export type GemSpark = {
   readonly x: number;
@@ -34,6 +40,8 @@ const poofDurationTicks = 14;
 const sparkDurationTicks = 6;
 const hitReactionDurationTicks = 3;
 const weaponBurstDurationTicks = 12;
+const actorAttackDurationTicks = 10;
+const enemyDeathDurationTicks = 22;
 const ignoreLootBangDurationTicks = 15; // 0.5s @ 30tps
 const gemSparkDurationTicks = 12;
 const trailHistoryLength = 5;
@@ -56,6 +64,11 @@ export function renderEffectsFor(canvas: HTMLCanvasElement): RenderEffects {
     enemyHeadings: new Map(),
     heroHeadings: new Map(),
     eliteIds: new Set(),
+    heroAttackStartedTicks: new Map(),
+    enemyAttackCooldowns: new Map(),
+    enemyAttackStartedTicks: new Map(),
+    movingEnemyIds: new Set(),
+    enemyDeaths: [],
     poofs: [],
     sparks: [],
     hitReactions: new Map(),
@@ -84,12 +97,15 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
   if (effects.seed !== undefined && (effects.seed !== state.seed || (effects.lastTick ?? 0) > state.tick)) {
     resetRenderEffects(effects);
   }
+  const shouldUpdateEnemyMovement = effects.lastTick !== state.tick;
 
   const currentEnemyIds = new Set<number>();
   const currentEnemyPositions = new Map<number, Position>();
   const currentEnemyHealth = new Map<number, number>();
   const currentEnemyKinds = new Map<number, EnemyKind>();
   const currentEliteIds = new Set<number>();
+  const currentEnemyAttackCooldowns = new Map<number, number>();
+  const currentMovingEnemyIds = new Set<number>();
   const currentWeaponCooldowns = new Map<string, number>();
 
   for (const enemy of state.enemies) {
@@ -99,8 +115,19 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
       previous === undefined
         ? nearestHeroDelta(enemy, state.heroes)
         : { x: enemy.x - previous.x, y: enemy.y - previous.y };
+    if (
+      shouldUpdateEnemyMovement &&
+      previous !== undefined &&
+      distanceSquared(previous, enemy) > 0.01 * 0.01
+    ) {
+      currentMovingEnemyIds.add(enemy.id);
+    }
     updateFacing(effects.enemyFacings, enemy.id, heading.x);
     updateHeading(effects.enemyHeadings, enemy.id, heading.x, heading.y);
+    const previousAttackCooldown = effects.enemyAttackCooldowns.get(enemy.id);
+    if (previousAttackCooldown !== undefined && enemy.attackCooldownTicks > previousAttackCooldown) {
+      effects.enemyAttackStartedTicks.set(enemy.id, state.tick);
+    }
     if (previousHp !== undefined && enemy.hp < previousHp) {
       addImpactSparks(effects, enemy, state.tick);
       effects.hitReactions.set(enemy.id, hitReactionFor(enemy, state.heroes, state.tick));
@@ -109,6 +136,7 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
     currentEnemyPositions.set(enemy.id, { x: enemy.x, y: enemy.y });
     currentEnemyHealth.set(enemy.id, enemy.hp);
     currentEnemyKinds.set(enemy.id, enemy.kind);
+    currentEnemyAttackCooldowns.set(enemy.id, enemy.attackCooldownTicks);
     if (enemy.kind === "eliteBrute") {
       currentEliteIds.add(enemy.id);
     }
@@ -117,6 +145,18 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
   for (const [enemyId, position] of effects.enemyPositions) {
     if (!currentEnemyIds.has(enemyId)) {
       effects.poofs.push({ x: position.x, y: position.y, startedTick: state.tick });
+      const kind = effects.enemyKinds.get(enemyId);
+      if (kind !== undefined) {
+        effects.enemyDeaths.push({
+          actorId: enemyId,
+          kind,
+          x: position.x,
+          y: position.y,
+          heading: effects.enemyHeadings.get(enemyId) ?? { x: 0, y: 1 },
+          elite: effects.eliteIds.has(enemyId),
+          startedTick: state.tick,
+        });
+      }
     }
   }
 
@@ -137,15 +177,18 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
     for (const weapon of hero.weapons) {
       const key = weaponCooldownKey(hero.id, weapon.id);
       const previousCooldown = effects.weaponCooldowns.get(key);
-      if (previousCooldown !== undefined && weapon.cooldownTicks > previousCooldown && isBurstWeapon(weapon.id)) {
-        effects.weaponBursts.push({
-          heroId: hero.id,
-          weaponId: weapon.id,
-          x: hero.x,
-          y: hero.y,
-          facing: facingFor(effects.heroFacings, hero.id),
-          startedTick: state.tick,
-        });
+      if (previousCooldown !== undefined && weapon.cooldownTicks > previousCooldown) {
+        effects.heroAttackStartedTicks.set(hero.id, state.tick);
+        if (isBurstWeapon(weapon.id)) {
+          effects.weaponBursts.push({
+            heroId: hero.id,
+            weaponId: weapon.id,
+            x: hero.x,
+            y: hero.y,
+            facing: facingFor(effects.heroFacings, hero.id),
+            startedTick: state.tick,
+          });
+        }
       }
       currentWeaponCooldowns.set(key, weapon.cooldownTicks);
     }
@@ -156,8 +199,23 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
   effects.enemyPositions = currentEnemyPositions;
   effects.enemyHealth = currentEnemyHealth;
   effects.enemyKinds = currentEnemyKinds;
+  effects.enemyAttackCooldowns = currentEnemyAttackCooldowns;
+  if (shouldUpdateEnemyMovement) {
+    effects.movingEnemyIds = currentMovingEnemyIds;
+  }
   effects.weaponCooldowns = currentWeaponCooldowns;
   effects.eliteIds = currentEliteIds;
+  effects.heroAttackStartedTicks = activeStartedTicks(
+    effects.heroAttackStartedTicks,
+    state.tick,
+    actorAttackDurationTicks,
+  );
+  effects.enemyAttackStartedTicks = activeStartedTicks(
+    effects.enemyAttackStartedTicks,
+    state.tick,
+    actorAttackDurationTicks,
+  );
+  effects.enemyDeaths = activeEnemyDeaths(effects, state.tick);
   effects.poofs = effects.poofs.filter((poof) => state.tick - poof.startedTick <= poofDurationTicks);
   effects.sparks = effects.sparks.filter((spark) => state.tick - spark.startedTick <= sparkDurationTicks);
   effects.weaponBursts = effects.weaponBursts.filter((burst) => state.tick - burst.startedTick <= weaponBurstDurationTicks);
@@ -278,6 +336,27 @@ export function headingFor(headings: Map<number, Position>, id: number): Positio
   return headings.get(id) ?? { x: 0, y: 1 };
 }
 
+export function heroAttackStartedTick(effects: RenderEffects, heroId: number): number | undefined {
+  return effects.heroAttackStartedTicks.get(heroId);
+}
+
+export function enemyAttackStartedTick(effects: RenderEffects, enemyId: number): number | undefined {
+  return effects.enemyAttackStartedTicks.get(enemyId);
+}
+
+export function isEnemyMoving(effects: RenderEffects, enemyId: number): boolean {
+  return effects.movingEnemyIds.has(enemyId);
+}
+
+export function activeEnemyDeaths(
+  effects: RenderEffects,
+  tick: number,
+): EnemyDeathPresentation[] {
+  return effects.enemyDeaths.filter(
+    (death) => tick >= death.startedTick && tick - death.startedTick < enemyDeathDurationTicks,
+  );
+}
+
 export function shakeOffset(effects: RenderEffects, tick: number): Position {
   const remainingTicks = effects.shakeUntilTick - tick;
   if (remainingTicks <= 0) {
@@ -316,6 +395,11 @@ function resetRenderEffects(effects: RenderEffects): void {
   effects.enemyHeadings = new Map();
   effects.heroHeadings = new Map();
   effects.eliteIds = new Set();
+  effects.heroAttackStartedTicks = new Map();
+  effects.enemyAttackCooldowns = new Map();
+  effects.enemyAttackStartedTicks = new Map();
+  effects.movingEnemyIds = new Set();
+  effects.enemyDeaths = [];
   effects.poofs = [];
   effects.sparks = [];
   effects.hitReactions = new Map();
@@ -325,6 +409,20 @@ function resetRenderEffects(effects: RenderEffects): void {
   effects.shakeUntilTick = 0;
   effects.screenFlashUntilTick = 0;
   temperamentFxByEffects.set(effects, createTemperamentFx());
+}
+
+function activeStartedTicks(
+  startedTicks: ReadonlyMap<number, number>,
+  tick: number,
+  durationTicks: number,
+): Map<number, number> {
+  const active = new Map<number, number>();
+  for (const [actorId, startedTick] of startedTicks) {
+    if (tick >= startedTick && tick - startedTick < durationTicks) {
+      active.set(actorId, startedTick);
+    }
+  }
+  return active;
 }
 
 function createTemperamentFx(): TemperamentFxState {

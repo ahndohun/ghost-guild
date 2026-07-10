@@ -10,6 +10,7 @@ import {
   perkCosts,
   perkDefinitions,
   sanitizePerks,
+  weaponModFor,
 } from "../src/sim/perks";
 import { temperamentForClass, temperamentIds, temperamentDefinitions } from "../src/sim/temperament";
 import { damageMultiplier, goldMultiplier, magnetRadius } from "../src/sim/stats";
@@ -19,7 +20,7 @@ import { BASE_MAGNET_RADIUS, HERO_RADIUS } from "../src/sim/constants";
 import { botLoadouts } from "../src/ui/bots";
 import { affinityWeightForClass } from "../src/sim/levelup";
 import { weaponVisualProfiles } from "../src/render/weapons";
-import { damageEnemy } from "../src/sim/weapons";
+import { applyLifeDrainHeal, damageEnemy } from "../src/sim/weapons";
 import { createMulberry32 } from "../src/sim/rng";
 import { tickEnemies } from "../src/sim/enemies";
 
@@ -175,6 +176,21 @@ describe("Roster v3 specialization trees (110 nodes)", () => {
       }
     }
   });
+
+  it("keeps the legacy elfBladespell id as pure Archer weapon mastery", () => {
+    const perkId = "elfBladespell" as const;
+    const definition = perkDefinitions.elf.find((perk) => perk.id === perkId);
+
+    expect(definition).toMatchObject({
+      id: perkId,
+      name: "Master Archer",
+      effect: "Magic Arrow + Crossbow Bolt +12%.",
+    });
+    expect(weaponModFor([perkId], "magicArrow").dmgPct).toBeCloseTo(0.12);
+    expect(weaponModFor([perkId], "crossbowBolt").dmgPct).toBeCloseTo(0.12);
+    expect(weaponModFor([perkId], "swordSweep").dmgPct).toBe(0);
+    expect(weaponModFor([perkId], "fireBolt").dmgPct).toBe(0);
+  });
 });
 
 describe("Roster v3 class signatures (owned-file combat hooks)", () => {
@@ -188,7 +204,7 @@ describe("Roster v3 class signatures (owned-file combat hooks)", () => {
     expect(goldMultiplier(fighter)).toBe(1);
   });
 
-  it("gives dwarf reduced hitbox radius and elf dual starting weapons + slot cap 3", () => {
+  it("gives dwarf reduced hitbox radius and the elf archer a pure ranged opener + slot cap 3", () => {
     const match = createMatch({
       seed: 2,
       heroes: [loadout("dwarf"), loadout("elf"), loadout("monk")],
@@ -197,11 +213,43 @@ describe("Roster v3 class signatures (owned-file combat hooks)", () => {
     const elf = match.state.heroes[1]!;
     const monk = match.state.heroes[2]!;
     expect(dwarf.radius).toBeCloseTo(HERO_RADIUS * 0.75, 5);
-    expect(elf.weapons.map((w) => w.id).sort()).toEqual(["fireBolt", "swordSweep"]);
+    expect(elf.weapons.map((w) => w.id)).toEqual(["magicArrow"]);
+    expect(classDefinitions.elf.name).toBe("Elf Archer");
     expect(classDefinitions.elf.weaponSlotCap).toBe(3);
     expect(classDefinitions.monk.weaponSlotCap).toBe(1);
     expect(monk.weapons).toHaveLength(1);
     expect(monk.weapons[0]!.id).toBe("garlicAura");
+  });
+
+  it("gives cadence-dependent classes their distinct signature attack rhythm", () => {
+    const cadence = (classId: HeroClassId, weaponId: WeaponId): number => {
+      const match = createMatch({ seed: 23, heroes: [loadout(classId)] });
+      const hero = match.state.heroes[0]!;
+      hero.weapons = [{ id: weaponId, level: 1, cooldownTicks: 0, healCooldownTicks: 0 }];
+      match.state.enemies = [{
+        id: 304,
+        kind: "slime",
+        x: hero.x + 40,
+        y: hero.y,
+        hp: 100,
+        maxHp: 100,
+        speed: 0,
+        damage: 0,
+        radius: 11,
+        slowTicks: 0,
+        attackCooldownTicks: 0,
+        hitFlashTicks: 0,
+        lastHitHeroId: undefined,
+      }];
+      match.step();
+      return hero.weapons[0]!.cooldownTicks;
+    };
+
+    expect(cadence("elf", "magicArrow")).toBe(18);
+    expect(cadence("mage", "magicArrow")).toBe(30);
+    expect(cadence("mage", "fireBolt")).toBe(23);
+    expect(cadence("thief", "shadowDaggers")).toBe(15);
+    expect(cadence("monk", "garlicAura")).toBe(7);
   });
 
   it("knights deal less weapon damage than fighters with equal gear (ATK floor)", () => {
@@ -209,6 +257,9 @@ describe("Roster v3 class signatures (owned-file combat hooks)", () => {
     const knight = match.state.heroes[0]!;
     const fighter = match.state.heroes[1]!;
     expect(damageMultiplier(knight, "swordSweep")).toBeLessThan(damageMultiplier(fighter, "swordSweep"));
+
+    const paladin = createMatch({ seed: 4, heroes: [loadout("paladin")] }).state.heroes[0]!;
+    expect(damageMultiplier(paladin, "holySmash")).toBeCloseTo(0.55);
   });
 
   it("warlock and thief keep deterministic full-run outcomes on one seed", () => {
@@ -227,7 +278,7 @@ describe("Roster v3 class signatures (owned-file combat hooks)", () => {
     );
   });
 
-  it("uses seeded PRNG for thief crit and applies warlock 8% lifesteal", () => {
+  it("uses seeded PRNG for thief crit and applies the two Warlock lifesteal layers", () => {
     const runCrits = (seed: number): readonly number[] => {
       const match = createMatch({ seed, heroes: [loadout("thief")] });
       const hero = match.state.heroes[0]!;
@@ -300,6 +351,15 @@ describe("Roster v3 class signatures (owned-file combat hooks)", () => {
       },
     });
     expect(warlock.hp).toBeCloseTo(warlock.maxHp - 9.2);
+
+    warlock.hp = warlock.maxHp - 30;
+    applyLifeDrainHeal(warlock, 100, {
+      state: warlockMatch.state,
+      rng: createMulberry32(19),
+      nextProjectileId: () => 2,
+      nextDamageNumberId: () => 2,
+    });
+    expect(warlock.hp).toBeCloseTo(warlock.maxHp - 18);
   });
 
   it("applies Knight mitigation, Dwarf cadence, and Paladin weak heal pulse", () => {
@@ -331,6 +391,9 @@ describe("Roster v3 class signatures (owned-file combat hooks)", () => {
     const cadence = (classId: "fighter" | "dwarf"): number => {
       const match = createMatch({ seed: 21, heroes: [loadout(classId)] });
       const hero = match.state.heroes[0]!;
+      // Compare the class cadence modifier on the same weapon now that P1 gives
+      // Fighter and Dwarf distinct opening weapons.
+      hero.weapons[0]!.id = "swordSweep";
       match.state.enemies = [{
         id: 303,
         kind: "slime",
@@ -355,7 +418,29 @@ describe("Roster v3 class signatures (owned-file combat hooks)", () => {
     const paladin = paladinMatch.state.heroes[0]!;
     paladin.hp -= 10;
     paladinMatch.step();
-    expect(paladin.hp).toBeCloseTo(paladin.maxHp - 8);
+    expect(paladin.hp).toBeCloseTo(paladin.maxHp - 9);
+
+    const smiteMatch = createMatch({ seed: 23, heroes: [loadout("paladin")] });
+    const smiter = smiteMatch.state.heroes[0]!;
+    smiter.hp -= 10;
+    smiter.weapons[0]!.healCooldownTicks = 99;
+    smiteMatch.state.enemies = [{
+      id: 305,
+      kind: "slime",
+      x: smiter.x + 20,
+      y: smiter.y,
+      hp: 100,
+      maxHp: 100,
+      speed: 0,
+      damage: 0,
+      radius: 11,
+      slowTicks: 0,
+      attackCooldownTicks: 0,
+      hitFlashTicks: 0,
+      lastHitHeroId: undefined,
+    }];
+    smiteMatch.step();
+    expect(smiter.hp).toBeCloseTo(smiter.maxHp - 9.25);
   });
 
   it("affinity weapons are listed for every class", () => {

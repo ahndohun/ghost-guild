@@ -63,7 +63,56 @@ export function resolvePendingLevelUp(hero: HeroState, rng: Rng): LevelDialogSta
     heroId: hero.id,
     text: `${hero.name}: ${line}`,
     ticksRemaining: LEVEL_UP_PAUSE_TICKS,
+    selectedOptionId: picked.id,
+    selectedOptionLabel: picked.label,
+    newLevel: hero.level,
+    reason: choiceReason(hero, picked),
   };
+}
+
+function choiceReason(hero: HeroState, picked: LevelOption): string {
+  const className = classDefinitions[hero.classId].name;
+  switch (hero.temperament) {
+    case "guardian":
+      return `${className} favors defense and focus.`;
+    case "aggressiveCaster":
+    case "berserker":
+      return `${className} favors damage.`;
+    case "hoarder":
+      return `${className} favors economy.`;
+    case "duelist":
+      return picked.kind === "weapon" && picked.action === "upgrade"
+        ? `${className} favors owned weapon upgrades.`
+        : `${className} follows its highest-utility option.`;
+    case "survivor":
+      return `${className} favors defense and speed.`;
+    case "vanguard":
+      return vanguardChoiceReason(className, picked);
+    default:
+      return assertNever(hero.temperament);
+  }
+}
+
+function vanguardChoiceReason(className: string, picked: LevelOption): string {
+  if (picked.kind === "weapon") {
+    return picked.action === "upgrade"
+      ? `${className}'s focus favors an owned weapon upgrade.`
+      : `${className}'s focus favors a new weapon.`;
+  }
+
+  switch (picked.id) {
+    case "gold":
+    case "magnet":
+      return `${className}'s greed favors economy.`;
+    case "damage":
+      return `${className}'s bravery favors damage.`;
+    case "maxHp":
+      return `${className} favors durability.`;
+    case "speed":
+      return `${className} favors mobility.`;
+    default:
+      return assertNever(picked);
+  }
 }
 
 /** Apply one seeded level-up choice without raising level, dialog, or pause. */

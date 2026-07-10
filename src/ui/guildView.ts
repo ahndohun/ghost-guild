@@ -1,10 +1,9 @@
-import { classDefinitions, heroClassIds, perkCosts, perkDefinitions, temperamentForClass } from "../sim";
+import { heroClassIds, perkCosts, perkDefinitions, temperamentForClass } from "../sim";
 import { getItemDefinition, itemSlots, rarityColor } from "../sim/items";
 import type { PerkDefinition } from "../sim/perks";
 import type { HeroClassId, ItemId, ItemSlot, PerkChoice, PerkId, PerkTier } from "../sim";
-import { requiredButton, requiredElement, requiredInput } from "./dom";
-import { classPortraitPath, itemIllustrationPath } from "./art";
-import { formatEquippedSummary, recommendNextAction } from "./guildOverview";
+import { requiredButton, requiredElement } from "./dom";
+import { itemIllustrationPath } from "./art";
 import { formatItemCard, slotLabel } from "./inventory";
 import type { LobbyStageController } from "./lobbyStage";
 import { formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
@@ -36,13 +35,10 @@ export const perkSlots: readonly PerkSlot[] = [
 
 export function renderGuildView(documentRef: Document, save: GuildSave, controls: GuildViewControls): void {
   requiredElement(documentRef, "gold-amount").textContent = formatGold(save.gold);
-  requiredInput(documentRef, "player-name").value = save.playerName;
-  renderGuildBestSurvival(documentRef, save.bestSurvivalSeconds);
   controls.autorunButton.textContent = save.autorun ? "AUTO-RUN ON" : "AUTO-RUN OFF";
   controls.autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
   renderPerks(documentRef, save);
   renderInventory(documentRef, save);
-  renderGuildOverview(documentRef, save);
 
   controls.lobbyStage.setAppearance({
     playerName: save.playerName,
@@ -72,6 +68,7 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
     button.disabled = false;
     button.classList.toggle("selected", selected);
     button.classList.remove("locked");
+    button.setAttribute("aria-pressed", selected ? "true" : "false");
     const status = documentRef.getElementById(`class-${classId}-status`);
     if (status !== null) {
       status.textContent = selected ? "Selected" : "Ready";
@@ -79,45 +76,11 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
   }
 }
 
-/**
- * Overview tab (Plan 002 Step 1): read-only projections only, no controls.
- * Current class + behavior + recent record are already covered by the lobby
- * nameplate / top strip; this fills the two remaining fields.
- */
-function renderGuildOverview(documentRef: Document, save: GuildSave): void {
-  const portrait = documentRef.getElementById("overview-class-portrait");
-  if (portrait instanceof HTMLImageElement) {
-    portrait.src = classPortraitPath(save.classId);
-    portrait.alt = `${className(save.classId)} portrait`;
-  }
-  const classNameElement = documentRef.getElementById("overview-class-name");
-  if (classNameElement !== null) {
-    classNameElement.textContent = className(save.classId);
-  }
-  const equipped = documentRef.getElementById("overview-equipped");
-  if (equipped !== null) {
-    equipped.textContent = formatEquippedSummary(save);
-  }
-  const recommendation = documentRef.getElementById("overview-recommendation");
-  if (recommendation !== null) {
-    recommendation.textContent = recommendNextAction(save);
-  }
-}
-
-function className(classId: HeroClassId): string {
-  return classDefinitions[classId].name;
-}
-
-function renderGuildBestSurvival(documentRef: Document, bestSurvivalSeconds: number | undefined): void {
-  const el = requiredElement(documentRef, "best-survival-guild");
-  const hasRecord = typeof bestSurvivalSeconds === "number" && Number.isFinite(bestSurvivalSeconds);
-  el.classList.toggle("hidden", !hasRecord);
-  el.textContent = hasRecord ? `Best ${bestSurvivalSeconds}s` : "";
-}
-
 function renderPerks(documentRef: Document, save: GuildSave): void {
   const selectedPerks = save.perksByClass[save.classId] ?? [];
   const defs: Partial<Record<HeroClassId, readonly PerkDefinition[]>> = perkDefinitions;
+  const detail = requiredElement(documentRef, "specialization-detail");
+  const inspectedTestId = detail.dataset["perkTestid"] ?? "perk-t1-a";
 
   for (const slot of perkSlots) {
     const button = documentRef.querySelector(`[data-testid="perk-t${slot.tier}-${slot.choice}"]`);
@@ -127,6 +90,7 @@ function renderPerks(documentRef: Document, save: GuildSave): void {
     const perk = perkForSlot(save.classId, slot, defs);
     if (perk === undefined) {
       button.disabled = true;
+      button.setAttribute("aria-disabled", "true");
       continue;
     }
 
@@ -161,13 +125,83 @@ function renderPerks(documentRef: Document, save: GuildSave): void {
     if (costEl !== null) {
       costEl.textContent = `${formatGold(cost)}g`;
     }
-    button.disabled = pathLocked || unaffordable;
+    button.dataset.perkName = perk.name;
+    button.dataset.perkEffect = perk.effect;
+    button.dataset.perkReason = perkReason({
+      cost,
+      gold: save.gold,
+      pathLocked,
+      previousTierChosen,
+      selected,
+      tier: slot.tier,
+      tierChosen,
+    });
+    button.setAttribute("aria-controls", "specialization-detail");
+    button.title = `${perk.name} — ${perk.effect} — ${formatGold(cost)}g`;
+    button.setAttribute("aria-label", `${perk.name}. ${perk.effect}. ${formatGold(cost)} gold.`);
+    // Keep every real node keyboard-focusable for inspection. The purchase
+    // handler independently guards path and gold requirements.
+    button.disabled = false;
+    button.setAttribute("aria-disabled", pathLocked || unaffordable ? "true" : "false");
     button.classList.toggle("selected", selected);
     button.classList.toggle("locked", pathLocked);
     button.classList.toggle("unaffordable", unaffordable);
     button.classList.toggle("affordable", affordable);
     button.setAttribute("aria-pressed", selected ? "true" : "false");
   }
+
+  const inspected = documentRef.querySelector(`[data-testid="${inspectedTestId}"]`);
+  const fallback = documentRef.querySelector(`[data-testid="perk-t1-a"]`);
+  if (inspected instanceof HTMLButtonElement) {
+    renderSpecializationDetail(documentRef, inspected);
+  } else if (fallback instanceof HTMLButtonElement) {
+    renderSpecializationDetail(documentRef, fallback);
+  }
+}
+
+export function renderSpecializationDetail(
+  documentRef: Document,
+  button: HTMLButtonElement,
+): void {
+  const testId = button.getAttribute("data-testid");
+  if (testId === null) {
+    return;
+  }
+  const detail = requiredElement(documentRef, "specialization-detail");
+  detail.dataset.perkTestid = testId;
+  requiredElement(documentRef, "specialization-detail-name").textContent =
+    button.dataset["perkName"] ?? "Unknown node";
+  requiredElement(documentRef, "specialization-detail-reason").textContent =
+    button.dataset["perkReason"] ?? "Unavailable.";
+  requiredElement(documentRef, "specialization-detail-effect").textContent =
+    button.dataset["perkEffect"] ?? "No effect.";
+  documentRef.querySelectorAll(".class-tree-panel .perk-card").forEach((card) => {
+    card.classList.toggle("inspected", card === button);
+  });
+}
+
+function perkReason(input: {
+  readonly cost: number;
+  readonly gold: number;
+  readonly pathLocked: boolean;
+  readonly previousTierChosen: boolean;
+  readonly selected: boolean;
+  readonly tier: PerkTier;
+  readonly tierChosen: boolean;
+}): string {
+  if (input.selected) {
+    return "Forged and active for this class.";
+  }
+  if (input.tierChosen) {
+    return `Tier ${input.tier} path already chosen.`;
+  }
+  if (input.pathLocked || !input.previousTierChosen) {
+    return `Choose a Tier ${input.tier - 1} node first.`;
+  }
+  if (input.gold < input.cost) {
+    return `Needs ${formatGold(input.cost)}g; ${formatGold(input.gold)}g held.`;
+  }
+  return `Ready to forge for ${formatGold(input.cost)}g.`;
 }
 
 /**

@@ -1,4 +1,4 @@
-# Ghost Guild — Worker Conventions
+# Colosseum Survivors — Worker Conventions
 
 Read DESIGN.md first — it is the single source of truth for game rules and numbers.
 

@@ -1,11 +1,10 @@
 import { heroClassIds, perkCosts, perkDefinitions } from "../sim";
 import { itemSlots } from "../sim/items";
 import type { HeroClassId, ItemId, ItemSlot, PerkId, PerkTier } from "../sim";
-import { requiredButton, requiredInput } from "./dom";
+import { requiredButton } from "./dom";
 import { equipFromStash, inventoryFromSave, unequipSlot } from "./inventory";
-import { perkSlots } from "./guildView";
+import { perkSlots, renderSpecializationDetail } from "./guildView";
 import { nextUpgradeCost, permStatUpgrades } from "./meta";
-import { normalizePlayerNameInput } from "./save";
 import type { GuildSave } from "./save";
 import { persist } from "./screenUtils";
 
@@ -22,20 +21,16 @@ export function wireGuildInteractions(context: GuildInteractionContext): {
   readonly autorunButton: HTMLButtonElement;
 } {
   const autorunButton = requiredButton(context.documentRef, "toggle-autorun");
-  const playerNameInput = requiredInput(context.documentRef, "player-name");
-
-  playerNameInput.addEventListener("change", () => {
-    updateSave(context, (save) => ({
-      ...save,
-      playerName: normalizePlayerNameInput(playerNameInput.value, save.playerName),
-    }));
-  });
 
   for (const slot of perkSlots) {
     const button = context.documentRef.querySelector(`[data-testid="perk-t${slot.tier}-${slot.choice}"]`);
     if (!(button instanceof HTMLButtonElement)) {
       continue;
     }
+    const inspect = (): void => renderSpecializationDetail(context.documentRef, button);
+    button.addEventListener("focus", inspect);
+    button.addEventListener("pointerenter", inspect);
+    button.addEventListener("click", inspect);
     button.addEventListener("click", () => {
       const save = context.getSave();
       const defs = perkDefinitions as Partial<

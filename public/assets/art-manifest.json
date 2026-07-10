@@ -49,240 +49,1066 @@
     "fighter": {
       "id": "actor.fighter",
       "role": "class",
-      "canvas": { "width": 64, "height": 64 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/fighter/{direction}.png"
+          "path": "assets/art/actors/fighter/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/fighter/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/fighter/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/fighter/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/fighter/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/fighter"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/fighter/{direction}.png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        }
+      }
     },
     "knight": {
       "id": "actor.knight",
       "role": "class",
-      "canvas": { "width": 64, "height": 64 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/knight/{direction}.png"
+          "path": "assets/art/actors/knight/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/knight/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/knight/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/knight/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/knight/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/knight"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/knight/{direction}.png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        }
+      }
     },
     "berserker": {
       "id": "actor.berserker",
       "role": "class",
-      "canvas": { "width": 60, "height": 60 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/berserker/{direction}.png"
+          "path": "assets/art/actors/berserker/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/berserker/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/berserker/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/berserker/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/berserker/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/berserker"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/berserker/{direction}.png",
+        "dimensions": {
+          "width": 60,
+          "height": 60
+        }
+      }
     },
     "dwarf": {
       "id": "actor.dwarf",
       "role": "class",
-      "canvas": { "width": 64, "height": 64 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/dwarf/{direction}.png"
+          "path": "assets/art/actors/dwarf/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/dwarf/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/dwarf/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/dwarf/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/dwarf/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/dwarf"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/dwarf/{direction}.png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        }
+      }
     },
     "paladin": {
       "id": "actor.paladin",
       "role": "class",
-      "canvas": { "width": 60, "height": 60 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/paladin/{direction}.png"
+          "path": "assets/art/actors/paladin/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/paladin/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/paladin/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/paladin/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/paladin/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/paladin"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/paladin/{direction}.png",
+        "dimensions": {
+          "width": 60,
+          "height": 60
+        }
+      }
     },
     "mage": {
       "id": "actor.mage",
       "role": "class",
-      "canvas": { "width": 64, "height": 64 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/mage/{direction}.png"
+          "path": "assets/art/actors/mage/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/mage/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/mage/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/mage/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/mage/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/mage"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/mage/{direction}.png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        }
+      }
     },
     "priest": {
       "id": "actor.priest",
       "role": "class",
-      "canvas": { "width": 64, "height": 64 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/priest/{direction}.png"
+          "path": "assets/art/actors/priest/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/priest/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/priest/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/priest/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/priest/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/priest"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/priest/{direction}.png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        }
+      }
     },
     "warlock": {
       "id": "actor.warlock",
       "role": "class",
-      "canvas": { "width": 64, "height": 64 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/warlock/{direction}.png"
+          "path": "assets/art/actors/warlock/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/warlock/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/warlock/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/warlock/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/warlock/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/warlock"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/warlock/{direction}.png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        }
+      }
     },
     "elf": {
       "id": "actor.elf",
       "role": "class",
-      "canvas": { "width": 56, "height": 56 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/elf/{direction}.png"
+          "path": "assets/art/actors/elf/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/elf/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/elf/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/elf/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/elf/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/elf"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/elf/{direction}.png",
+        "dimensions": {
+          "width": 56,
+          "height": 56
+        }
+      }
     },
     "thief": {
       "id": "actor.thief",
       "role": "class",
-      "canvas": { "width": 60, "height": 60 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/thief/{direction}.png"
+          "path": "assets/art/actors/thief/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/thief/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/thief/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/thief/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/thief/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/thief"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/thief/{direction}.png",
+        "dimensions": {
+          "width": 60,
+          "height": 60
+        }
+      }
     },
     "monk": {
       "id": "actor.monk",
       "role": "class",
-      "canvas": { "width": 60, "height": 60 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/monk/{direction}.png"
+          "path": "assets/art/actors/monk/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/monk/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/monk/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/monk/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/monk/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
-      "runtimeToken": "assets/sprites/monk"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/monk/{direction}.png",
+        "dimensions": {
+          "width": 60,
+          "height": 60
+        }
+      }
     },
     "slime": {
       "id": "actor.slime",
       "role": "enemy",
-      "canvas": { "width": 56, "height": 56 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/slime/{direction}.png"
+          "path": "assets/art/actors/slime/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/slime/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/slime/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/slime/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/slime/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts"],
-      "runtimeToken": "assets/sprites/slime"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/slime/{direction}.png",
+        "dimensions": {
+          "width": 56,
+          "height": 56
+        }
+      }
     },
     "bat": {
       "id": "actor.bat",
       "role": "enemy",
-      "canvas": { "width": 56, "height": 56 },
+      "canvas": {
+        "width": 64,
+        "height": 64
+      },
       "contentHeight": 32,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/bat/{direction}.png"
+          "path": "assets/art/actors/bat/idle.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/bat/walk.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/bat/attack.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/bat/hit.png",
+          "dimensions": {
+            "width": 256,
+            "height": 512
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/bat/death.png",
+          "dimensions": {
+            "width": 384,
+            "height": 512
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts"],
-      "runtimeToken": "assets/sprites/bat"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/bat/{direction}.png",
+        "dimensions": {
+          "width": 56,
+          "height": 56
+        }
+      }
     },
     "brute": {
       "id": "actor.brute",
       "role": "enemy",
-      "canvas": { "width": 80, "height": 80 },
+      "canvas": {
+        "width": 80,
+        "height": 80
+      },
       "contentHeight": 40,
-      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "feetAnchor": {
+        "x": 0.5,
+        "y": 0.75
+      },
       "animations": {
         "idle": {
-          "frameCount": 1,
-          "frameDurationMs": 1000,
+          "frameCount": 4,
+          "frameDurationMs": 150,
           "loop": true,
-          "pathTemplate": "assets/sprites/brute/{direction}.png"
+          "path": "assets/art/actors/brute/idle.png",
+          "dimensions": {
+            "width": 320,
+            "height": 640
+          }
+        },
+        "walk": {
+          "frameCount": 4,
+          "frameDurationMs": 100,
+          "loop": true,
+          "path": "assets/art/actors/brute/walk.png",
+          "dimensions": {
+            "width": 320,
+            "height": 640
+          }
+        },
+        "attack": {
+          "frameCount": 4,
+          "frameDurationMs": 80,
+          "loop": false,
+          "path": "assets/art/actors/brute/attack.png",
+          "dimensions": {
+            "width": 320,
+            "height": 640
+          }
+        },
+        "hit": {
+          "frameCount": 4,
+          "frameDurationMs": 60,
+          "loop": false,
+          "path": "assets/art/actors/brute/hit.png",
+          "dimensions": {
+            "width": 320,
+            "height": 640
+          }
+        },
+        "death": {
+          "frameCount": 6,
+          "frameDurationMs": 120,
+          "loop": false,
+          "path": "assets/art/actors/brute/death.png",
+          "dimensions": {
+            "width": 480,
+            "height": 640
+          }
         }
       },
-      "consumers": ["src/render/pixelSprites.ts"],
-      "runtimeToken": "assets/sprites/brute"
+      "consumers": [
+        "src/render/pixelSprites.ts"
+      ],
+      "runtimeToken": "assets/art/actors/",
+      "fallback": {
+        "pathTemplate": "assets/sprites/brute/{direction}.png",
+        "dimensions": {
+          "width": 80,
+          "height": 80
+        }
+      }
     }
   },
   "classPortraits": {

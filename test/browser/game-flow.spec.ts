@@ -1,11 +1,18 @@
-import { expect, test } from "./helpers";
+import {
+  expect,
+  expectImagesLoaded,
+  finishNameOnboarding,
+  startArenaFromGuild,
+  startSoloFromGuild,
+  test,
+} from "./helpers";
 
 // Screen containers (#screen-*) are the documented DOM surface from
 // DESIGN.md section 9 and are used the same way by the TestSprite plans in
 // plans/*.json. Every interactive control uses its data-testid instead.
 const resultsTimeoutMs = 15000;
 
-test.describe("Ghost Guild core flow", () => {
+test.describe("Colosseum Survivors core flow", () => {
   test("root URL shows the title screen; PRESS START opens the Guild", async ({ page }) => {
     await page.goto("/");
 
@@ -14,28 +21,31 @@ test.describe("Ghost Guild core flow", () => {
     await expect(page.getByTestId("start-game")).toBeVisible();
 
     await page.getByTestId("start-game").click();
+    await finishNameOnboarding(page);
 
     await expect(page.locator("#screen-guild")).toBeVisible();
     await expect(page.locator("#screen-title")).toBeHidden();
-    await expect(page.getByTestId("deploy-solo")).toBeVisible();
+    await expect(page.getByTestId("battle-open")).toBeVisible();
   });
 
   test("seed and fast query params skip the title and expose the Guild directly", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
+    await finishNameOnboarding(page);
 
     await expect(page.locator("#screen-guild")).toBeVisible();
     await expect(page.locator("#screen-title")).toBeHidden();
-    await expect(page.getByTestId("deploy-solo")).toBeVisible();
+    await expect(page.getByTestId("battle-open")).toBeVisible();
   });
 
   test("selecting Mage updates the selected class and its specialization text", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
+    await finishNameOnboarding(page);
 
     const knightCard = page.getByTestId("class-knight");
     const mageCard = page.getByTestId("class-mage");
     const firstPerkCard = page.getByTestId("perk-t1-a");
 
-    // Fresh save defaults to Overview; Class and Training are behind tabs.
+    // Fresh save opens Class for coach step one; Training stays behind its tab.
     const perkTextBeforeSelect = (await firstPerkCard.textContent()) ?? "";
 
     await page.getByTestId("guild-tab-class").click();
@@ -47,41 +57,36 @@ test.describe("Ghost Guild core flow", () => {
 
     await expect(mageCard).toHaveClass(/\bselected\b/);
     await expect(knightCard).not.toHaveClass(/\bselected\b/);
+    await expect(mageCard).toHaveAttribute("aria-pressed", "true");
+    await expect(knightCard).toHaveAttribute("aria-pressed", "false");
 
-    await page.getByTestId("guild-tab-overview").click();
-    await expect(page.getByTestId("overview-class-portrait")).toHaveAttribute(
+    await expect(page.getByTestId("selected-class-portrait")).toHaveAttribute(
       "src",
       "/assets/art/portraits/mage.png",
     );
 
-    await page.getByTestId("guild-tab-training").click();
     // The specialization tree re-renders per class (Knight "Bulwark" vs Mage
-    // "Edge Study" on tier 1a) — this is the Guild's class identity signal.
+    // "Edge Study" on tier 1a) inside CLASS & TREE.
     await expect(firstPerkCard).not.toHaveText(perkTextBeforeSelect);
-    const perkIcons = page.locator(".perk-card img.perk-icon");
+    const perkIcons = page.locator("#guild-section-class .perk-card img.perk-icon");
     await expect(perkIcons).toHaveCount(10);
-    expect(
-      await perkIcons.evaluateAll((images) => images.every((image) => {
-        return image instanceof HTMLImageElement && image.complete && image.naturalWidth === 32;
-      })),
-    ).toBe(true);
+    await expectImagesLoaded(perkIcons, 32);
     await expect(firstPerkCard).toHaveAttribute("data-perk-family", /^(attack|defense|movement|economy|behavior|signature)$/);
+
+    await page.getByTestId("guild-tab-training").click();
+    await expect(page.getByTestId("buy-atk")).toBeVisible();
+    await expect(firstPerkCard).toBeHidden();
   });
 
   test("Guild sections expose one active pane and support pointer and keyboard navigation", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
+    await finishNameOnboarding(page);
 
-    const overviewTab = page.getByTestId("guild-tab-overview");
     const classTab = page.getByTestId("guild-tab-class");
     const trainingTab = page.getByTestId("guild-tab-training");
+    const inventoryTab = page.getByTestId("guild-tab-gear");
 
-    await expect(overviewTab).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator("#guild-section-overview")).toBeVisible();
-    await expect(page.locator("#guild-section-class")).toBeHidden();
-
-    await classTab.click();
     await expect(classTab).toHaveAttribute("aria-pressed", "true");
-    await expect(overviewTab).toHaveAttribute("aria-pressed", "false");
     await expect(page.locator("#guild-section-class")).toBeVisible();
 
     await trainingTab.focus();
@@ -91,13 +96,20 @@ test.describe("Ghost Guild core flow", () => {
     await expect(page.locator("#guild-section-training")).toBeVisible();
     await expect(page.locator("#guild-section-class")).toBeHidden();
 
-    const primaryActions = page.locator(".guild-actions button.primary");
-    await expect(primaryActions).toHaveCount(1);
-    await expect(primaryActions).toHaveAttribute("data-testid", "deploy-solo");
+    await inventoryTab.click();
+    await expect(inventoryTab).toHaveAttribute("aria-pressed", "true");
+    await expect(trainingTab).toHaveAttribute("aria-pressed", "false");
+    await expect(page.locator("#guild-section-gear")).toBeVisible();
+    await expect(page.locator(".lobby-stage")).toBeVisible();
+
+    const primaryAction = page.locator(".guild-actions button.primary");
+    await expect(primaryAction).toHaveCount(1);
+    await expect(primaryAction).toHaveAttribute("data-testid", "battle-open");
   });
 
   test("Gear shows item-specific art and effects before equip", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
+    await finishNameOnboarding(page);
     await page.evaluate(() => {
       const key = "ghost-guild-save-v1";
       const raw = localStorage.getItem(key);
@@ -130,11 +142,7 @@ test.describe("Ghost Guild core flow", () => {
     await expect(stashCards).toHaveCount(5);
     const stashIcons = stashCards.locator("img.item-icon");
     await expect(stashIcons).toHaveCount(5);
-    expect(
-      await stashIcons.evaluateAll((images) => images.every((image) => {
-        return image instanceof HTMLImageElement && image.complete && image.naturalWidth === 32;
-      })),
-    ).toBe(true);
+    await expectImagesLoaded(stashIcons, 32);
     expect(await stashCards.evaluateAll((cards) => cards.map((card) => card.getAttribute("data-rarity")))).toEqual([
       "common",
       "magic",
@@ -148,26 +156,51 @@ test.describe("Ghost Guild core flow", () => {
     expect(await emptyCopy.evaluate((element) => element.getBoundingClientRect().width)).toBeGreaterThan(120);
   });
 
-  test("DEPLOY SOLO reaches Results; BACK TO GUILD returns to the Guild", async ({ page }) => {
+  test("DEPLOY SOLO reports rewards, supports Run Again, then Adjust Build", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
+    await finishNameOnboarding(page);
 
-    await page.getByTestId("deploy-solo").click();
+    await startSoloFromGuild(page);
 
     await expect(page.locator("#screen-results")).toBeVisible({ timeout: resultsTimeoutMs });
     await expect(page.getByTestId("result-score")).toHaveText(/^\d+$/);
+    await expect(page.getByTestId("result-outcome")).toHaveText(/^(DEFEATED AT \d+s|SURVIVED 180s)$/);
+    await expect(page.getByTestId("result-rank-cell")).toBeHidden();
+    await expect(page.getByTestId("match-ranking-section")).toBeHidden();
+    await expect(page.getByTestId("leaderboard-section")).toBeHidden();
+    await expect(page.getByTestId("result-gold-before")).toHaveText("0");
+    await expect(page.getByTestId("result-gold-earned")).toHaveText(/^\d+$/);
+    await expect(page.getByTestId("result-gold-after")).toHaveText(/^\d+$/);
+    await expect(page.getByTestId("result-loot")).not.toHaveText("");
 
-    await page.getByTestId("back-to-guild").click();
+    const firstGoldAfter = Number(await page.getByTestId("result-gold-after").textContent());
+    await expect(page.getByTestId("run-again")).toHaveClass(/\bprimary\b/);
+    await expect(page.getByTestId("run-again")).toBeFocused();
+    await page.getByTestId("run-again").click();
+    await expect.poll(async () => Number(await page.getByTestId("result-gold-before").textContent())).toBe(firstGoldAfter);
+    await expect(page.locator("#game-state")).toHaveAttribute("data-mode", "solo");
+    await expect(page.locator("#game-state")).toHaveAttribute("data-seed", "7");
+
+    await page.getByTestId("adjust-build").click();
 
     await expect(page.locator("#screen-guild")).toBeVisible();
+    await expect(page.getByTestId("guild-tab-training")).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("guild-tab-training")).toBeFocused();
   });
 
   test("DEPLOY ARENA produces at least two match ranking rows", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
 
-    await page.getByTestId("deploy-arena").click();
+    await finishNameOnboarding(page);
+    await startArenaFromGuild(page);
 
     await expect(page.locator("#screen-results")).toBeVisible({ timeout: resultsTimeoutMs });
+    await expect(page.getByTestId("result-outcome")).toHaveText(/^ARENA PLACEMENT #\d+$/);
+    await expect(page.getByTestId("result-rank-cell")).toBeVisible();
+    await expect(page.getByTestId("match-ranking-section")).toBeVisible();
+    await expect(page.getByTestId("leaderboard-section")).toBeVisible();
     const rankingRows = page.getByTestId("result-ranking").locator("li");
     await expect.poll(() => rankingRows.count()).toBeGreaterThanOrEqual(2);
+    await expect(page.getByTestId("leaderboard-status")).toHaveText(/(UNAVAILABLE|NO WORLD ENTRIES|WORLD RANKINGS LIVE)/);
   });
 });

@@ -8,7 +8,7 @@
 
 **A. 첫인상 채널인 시작 무기가 6/11 중복.** swordSweep 시작 = fighter·knight·berserker·dwarf·paladin·elf 6클래스, fireBolt = mage·warlock 2클래스 (`src/sim/data.ts` classDefinitions). 플레이어가 클래스 인상을 형성하는 첫 60초 동안 화면에 보이는 것이 동일한 금색 호(arc) 하나다. 레퍼런스 공식(VS·HoT)은 정반대: **캐릭터 = 시작 공격의 공간 패턴**.
 
-**B. 시그니처 규칙이 전부 '보이지 않는 숫자'.** warlock 흡혈 8%, thief 크리 20%×2, dwarf 히트박스 −25%, knight 접촉 −15%, paladin +2HP/5s, berserker kill-heal/fatigue — 모두 수치 모디파이어로만 존재하고 시각 표현이 0이다. 렌더 계층에 이 규칙들을 그리는 코드가 없다 (`src/render/` 전수 확인).
+**B. 시그니처 규칙이 전부 '보이지 않는 숫자'.** warlock 흡혈 8%, thief 크리 20%×2, dwarf 히트박스 −25%, knight 접촉 −15%, paladin +1HP/5s, berserker kill-heal/fatigue — 모두 수치 모디파이어로만 존재하고 시각 표현이 0이다. 렌더 계층에 이 규칙들을 그리는 코드가 없다 (`src/render/` 전수 확인).
 
 **C. 스프라이트 3중 문제.** ① 방향별 정지 1프레임뿐 — 공격·걷기 애니메이션이 없어 모든 클래스가 "미끄러지는 인형"으로 동일하게 움직인다. ② 팔레트·실루엣 수렴 — paladin과 priest가 둘 다 금백 중장갑(priest는 스펙상 로브 힐 전문가 — DESIGN §10 "Asset = spec" 규칙 위반), fighter와 thief가 회색 검사로 중복. ③ elf가 검+구슬 기사 실루엣 — 대중이 기대하는 엘프 판타지(궁수)와 정면 충돌, 활이 게임 전체에 존재하지 않음.
 
@@ -46,12 +46,12 @@
 | Mage | fireBolt (유지, 유일) | 직선 화염 투사체 |
 | Warlock | fireBolt → **lifeDrain** | 크림슨 흡혈 빔 |
 | Priest | holyBolt (유지) + affinityWeapons 첫 픽 radiantBurst 가중 | 십자 볼트→확장 광휘 |
-| Elf | swordSweep+fireBolt → **swordSweep+magicArrow** (표기 "Elven Arrow") | 검 호 + 유도 화살 병행 |
+| Elf | swordSweep+fireBolt → **magicArrow only** (표기 "Elf Archer") | 0.6초 유도 화살 연사; 근접 무기 없음 |
 | Thief | throwingAxe → **shadowDaggers** (throwingAxe는 어피니티로) | 3단 단검 부채 |
 | Monk | garlicAura (유지, 유일) | 지속 오라 |
 
 - 골든 테스트는 의도 변경으로 깨진다 — 커밋 메시지에 원인 명시 후 갱신(선례 `ee2e47f`).
-- 로드아웃·고스트 호환: 스키마 불변(무기는 classId에서 유도). 서버 무변경.
+- 로드아웃·저장 리플레이 호환: 스키마 불변(무기는 classId에서 유도). 서버 무변경.
 
 ### P1.5. 기계적 개성 — 전투 리듬 + 시그니처 모먼트 (sim 변경, ~3h) — 축3
 보드 재강조(2026-07-11): "스프라이트만 다른 똑같은 캐릭터처럼 느껴진다." 시각 교체(P2·P3)만으로는 이 지적을 못 넘는다. **스프라이트를 전부 같은 것으로 바꿔도 행동만으로 클래스가 식별되는 수준**이 목표다. 두 레버:
@@ -71,7 +71,7 @@
 | Thief | **Shadowstep** | 포위 감지(3방향+) | 반대편 급가속 이탈(쿨 10s) | 잔상 대시+동전 흩날림 |
 | Mage | **Arcane Surge** | 레벨업 직후 | 3초 쿨다운 절반 | 청색 룬 회오리 |
 
-나머지 5종(Fighter=흔들리지 않는 완벽 리듬 그 자체가 정체성, Dwarf=연타 12히트 시 무료 earthShatter, Priest=주기 Sanctuary 링, Elf=근접 접근 시 Elven Grace 스텝, Monk=무기 만렙 각성 연출)은 2순위 — 시간 시 추가.
+나머지 5종(Fighter=흔들리지 않는 완벽 리듬 그 자체가 정체성, Dwarf=연타 12히트 시 무료 earthShatter, Priest=주기 Sanctuary 링, Elf Archer=검증된 18틱 Magic Arrow 연사, Monk=무기 만렙 각성 연출)은 2순위 — 시간 시 추가.
 - 전부 seeded 결정론 내에서(트리거는 상태 조건이라 RNG 불요), 골든 갱신 필수. 밸런스 영향은 property 테스트(비전투 정지 방지·클래스별 상이 결과)로 가드.
 - 아이템 유니크가 이 모먼트를 변조하면(예: Berserker 유니크 "Bloodhowl Axe"가 Rage 지속 2배) 아이템 시스템과 자연 결합.
 
@@ -84,7 +84,7 @@ sim 불변·렌더만 수정이므로 결정론 무風險. `src/render/effects.t
 | Berserker kill-heal / 90s fatigue | 처치 순간 붉은 흡수 번쩍 + 상시 분노 오라(fatigue 진입 시 오라 소등 — 약점도 보여준다) |
 | Thief 크리 20%×2 | 크리 데미지 숫자 대형+금색, "CRIT!" 스파크 |
 | Dwarf 히트박스 −25% | 스프라이트 드로 스케일 실제 축소(hitbox와 정합) + 빠른 케이던스 잔상 |
-| Paladin +2HP/5s | 5초 주기 금색 힐 링 파동 |
+| Paladin +1HP/5s | 5초 주기 금색 힐 링 파동 |
 | Knight 접촉 −15% | 접촉 피격 시 방패 스파크(피해 감소가 보인다) |
 | Monk 무기 진화 Lv | 레벨 구간별 오라 색 진화 |
 | Priest 힐 특화 | 힐 발동 광휘 + 잔광 |
@@ -114,7 +114,7 @@ sim 불변·렌더만 수정이므로 결정론 무風險. `src/render/effects.t
 2. 클래스 판타지 게이트(docs/roster-v3.md §fantasy) 11문장 대비: 각 문장이 "화면에서" 확인돼야 한다 (카드 텍스트 말고).
 3. paladin vs priest 스프라이트를 나란히 놓고 3초 안에 구분.
 4. 게이트: typecheck·vitest(골든 갱신 포함)·build → 배포 → tsloop → LOOP 기록.
-5. 결정론: 같은 시드 2회 실행 동일 결과(기존 property 테스트), 고스트 리플레이 무결.
+5. 결정론: 같은 시드 2회 실행 동일 결과(기존 property 테스트), 저장 리플레이 무결.
 
 ## 5. 실행 노트
 

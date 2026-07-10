@@ -13,6 +13,16 @@ export type DeathPoof = {
   readonly startedTick: number;
 };
 
+export type EnemyDeathPresentation = {
+  readonly actorId: number;
+  readonly kind: EnemyKind;
+  readonly x: number;
+  readonly y: number;
+  readonly heading: Position;
+  readonly elite: boolean;
+  readonly startedTick: number;
+};
+
 export type ImpactSpark = {
   readonly x: number;
   readonly y: number;
@@ -64,6 +74,11 @@ export type RenderEffects = {
   enemyHeadings: Map<number, Position>;
   heroHeadings: Map<number, Position>;
   eliteIds: Set<number>;
+  heroAttackStartedTicks: Map<number, number>;
+  enemyAttackCooldowns: Map<number, number>;
+  enemyAttackStartedTicks: Map<number, number>;
+  movingEnemyIds: Set<number>;
+  enemyDeaths: EnemyDeathPresentation[];
   poofs: DeathPoof[];
   sparks: ImpactSpark[];
   hitReactions: Map<number, HitReaction>;

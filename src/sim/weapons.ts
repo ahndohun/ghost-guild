@@ -36,7 +36,7 @@ export function tickHeroWeapons(hero: HeroState, runtime: WeaponRuntime): void {
     return;
   }
 
-  // Paladin class: weak heal pulse +2 HP / 5s (stored on first weapon heal cooldown).
+  // Paladin class: weak heal pulse +1 HP / 5s (stored on first weapon heal cooldown).
   if (hero.classId === "paladin") {
     tickPaladinHeal(hero, runtime);
   }
@@ -148,7 +148,7 @@ function fireArc(
 function fireHolySmash(hero: HeroState, weapon: WeaponState, runtime: WeaponRuntime): boolean {
   const hit = fireArc(hero, weapon, runtime, "holySmash", 50);
   if (hit) {
-    const healBase = 2;
+    const healBase = 0.75;
     const heal = healBase * classSignatureMultiplier(hero);
     hero.hp = Math.min(hero.maxHp, hero.hp + heal);
     addDamageNumber(runtime, hero.x, hero.y - 16, heal, "heal");
@@ -360,7 +360,7 @@ function tickPaladinHeal(hero: HeroState, runtime: WeaponRuntime): void {
     return;
   }
   if (hero.hp < hero.maxHp) {
-    const amount = 2 * classSignatureMultiplier(hero);
+    const amount = classSignatureMultiplier(hero);
     hero.hp = Math.min(hero.maxHp, hero.hp + amount);
     addDamageNumber(runtime, hero.x, hero.y - 16, amount, "heal");
   }
@@ -414,7 +414,7 @@ export function damageEnemy(input: DamageInput): void {
 }
 
 export function applyLifeDrainHeal(hero: HeroState, damage: number, runtime: WeaponRuntime): void {
-  const heal = damage * 0.15 * classSignatureMultiplier(hero);
+  const heal = damage * 0.12 * classSignatureMultiplier(hero);
   if (heal <= 0 || !hero.alive) {
     return;
   }
@@ -444,13 +444,30 @@ function cooldownFor(hero: HeroState, weapon: WeaponState): number {
   const levelMultiplier = 1 - (weapon.level - 1) * 0.05;
   const mageExecution =
     hasPerk(hero.perks, "mageExecutionForm") && isHighestLevelWeapon(hero, weapon.id) ? 0.88 : 1;
-  // Dwarf class signature: weapon cd −10%.
-  const dwarfCadence = hero.classId === "dwarf" ? 0.9 : 1;
+  // Class cadence signatures are scoped to their owner so the shared weapon
+  // definitions remain honest for off-class unlocks.
+  const classCadence =
+    hero.classId === "dwarf"
+      ? 0.9
+      : hero.classId === "elf" && weapon.id === "magicArrow"
+        ? 18 / 30
+        : hero.classId === "mage" && weapon.id === "fireBolt"
+          ? 23 / 33
+          : hero.classId === "thief" && weapon.id === "shadowDaggers"
+            ? 15 / 39
+            : hero.classId === "monk" && weapon.id === "garlicAura"
+              ? 7 / 15
+              : 1;
   const perkCd = 1 + weaponModFor(hero.perks, weapon.id).cdPct;
   const itemCd = 1 + listWeaponMods(hero.equippedItems, hero.classId)
     .filter((effect) => effect.weapon === "all" || effect.weapon === weapon.id)
     .reduce((sum, effect) => sum + (effect.cdPct ?? 0), 0);
-  return Math.max(6, Math.round(base * levelMultiplier * mageExecution * dwarfCadence * perkCd * itemCd));
+  return Math.max(
+    6,
+    Math.round(
+      base * levelMultiplier * mageExecution * classCadence * perkCd * itemCd,
+    ),
+  );
 }
 
 function weaponDamage(weaponId: WeaponId, level: number, hero: HeroState): number {

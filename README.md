@@ -1,29 +1,27 @@
-# 👻 Ghost Colosseum
+# ⚔️ Colosseum Survivors
 
 [![CI](https://github.com/ahndohun/ghost-guild/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ahndohun/ghost-guild/actions/workflows/ci.yml)
 
 > **You don't play the gladiator. You coach them.**
 
-A colosseum survivors (Vampire Survivors × a 2% pinch of Dragon Quest) where your gladiator fights **entirely on its own judgment**. You are the guildmaster: between bouts you pick their **temperament** — a Berserker ignores loot while enemies stand and never flees; a Hoarder detours for gold even at death's door — carve their identity deeper with **perk nodes** (no weakness-fixing allowed), buy permanent upgrades, unlock classes. Then you hit DEPLOY and watch your coaching pay off (or backfire) against ghost loadouts of players worldwide.
+**Colosseum Survivors** is an autonomous arena-survival game (Vampire Survivors × a 2% pinch of Dragon Quest) where your gladiator fights **entirely on its own judgment**. Between bouts you choose a class, forge its specialization tree, equip recovered items, and buy permanent upgrades. Then you press **ENTER THE ARENA** and watch your coaching pay off—or backfire—against the arena and asynchronous rival builds.
 
 **🎮 Play it now: https://ghost-guild.vercel.app**
 
-![demo](docs/screenshots/demo.gif)
-
-| Guild console | Mid-battle |
+| Barracks & build | Autonomous Elf Archer run |
 |---|---|
-| ![guild](docs/screenshots/guild.png) | ![battle](docs/screenshots/battle-late.jpg) |
+| ![guild](docs/screenshots/guild.png) | ![battle](docs/screenshots/battle.png) |
 
 Built for **TestSprite Hackathon Season 3** — by an AI agent organization, verified by the TestSprite CLI loop. See [LOOP.md](LOOP.md).
 
 ## How to play (30 seconds)
 
-1. Pick a temperament card. It changes how the gladiator *behaves*, not how strong it is — each has a visible hard rule (Berserker: won't loot while enemies are near; Duelist: kites at exactly weapon range; Survivor: flees early; Hoarder: loots through pain) plus a signature passive.
-2. Hit **DEPLOY SOLO**. The hero moves, fights, loots, and announces its own level-up picks in a DQ-style dialog. You can only watch.
-3. Death or 180s survival → gold → **perk nodes** (3 tiers × pick-1-of-2 per temperament — every perk amplifies the identity, none patch weaknesses), permanent upgrades (ATK/HP/SPD/LUCK/starting level), and a 5-class roster with honest tradeoff cards — from the reliable Knight to two rule-benders: the **Monk** (one weapon honed to Lv.8, never ranged) and the **Gambler** (never chooses — every level-up is a seeded dice roll) → tune → repeat. Toggle **AUTO-RUN** and it becomes an idle game.
-4. **DEPLOY ARENA**: your hero + up to 3 real players' loadouts fight the same waves in one arena, ranked by score, feeding a world leaderboard. If the matchmaking API is unreachable you fight bundled bot ghosts instead — the arena never dead-ends.
+1. Pick any of **11 free classes** from the always-visible two-row roster. A class defines stats, starting skills, signature rules, and autonomous behavior—from the steady Fighter and immovable Knight to the rapid-fire **Elf Archer**, loot-driven Thief, and one-weapon Monk.
+2. In **Class & Tree**, forge a class-specific specialization: **5 tiers × pick 1 of 2**, with progress preserved per class. Use **Training** for permanent ATK/HP/SPD/LUCK/starting-level upgrades and **Inventory** to compare recovered relic weapons, armor, and trinkets.
+3. Press **ENTER THE ARENA → PRACTICE BOUT**. The gladiator moves, fights, loots, and chooses level-up options without direct control while you read the battle. Death or surviving the full 180 seconds returns a truthful run report, earned gold, and recovered loot. **AUTO-RUN** lives in this same bout menu.
+4. Choose **GRAND BOUT** to place your build beside up to three rival saved loadouts on the same deterministic waves, ranked by score with results feeding a world leaderboard. If matchmaking is unavailable, bundled offline rivals keep the arena playable.
 
-Same seed, different temperament, wildly different battles — you can watch a Berserker walk straight past a gem pile mid-brawl while a Hoarder dies reaching for it. Coaching is the game.
+Same seed, different class and specialization, wildly different battles: a Berserker stays locked in combat while a Thief bends its route toward loot. Coaching is the game.
 
 ## Architecture: multiplayer without netcode
 
@@ -33,7 +31,7 @@ The simulation (`src/sim/`) is a **pure, deterministic** TS module — fixed 30H
 - `api/match` — server picks 3 opponents + assigns a seed
 - every client replays the **identical** battle locally; `api/result` + `api/leaderboard` rank the world
 
-No sockets, no sync, no server ticks — and a judge playing alone at 3am still fights real players' ghosts. Determinism is enforced by vitest gates (same-seed hash equality, golden seed snapshot, 4-hero arena hash) and doubles as the E2E surface: `?seed=N&fast=1` makes any cloud test run reproducible.
+No sockets, no sync, no server ticks—and a judge playing alone at 3am still fights recorded builds from real players. Determinism is enforced by vitest gates (same-seed hash equality, golden seed snapshot, 4-hero arena hash) and doubles as the E2E surface: `?seed=N&fast=1` makes any cloud test run reproducible.
 
 ## The loop (agents build, TestSprite referees)
 
@@ -53,11 +51,11 @@ Run it yourself: `node scripts/tsloop.mjs <maker> [note]` — runs the 4-test cl
 
 ## Stack
 
-Vite + TypeScript + Canvas 2D (no game engine, no UI framework). Code-defined 16×16 pixel sprites, Press Start 2P. Pure sim / render / DOM-UI split. Vercel static + functions + Blob. vitest + TestSprite CLI (Node ≥ 20).
+Vite + TypeScript + Canvas 2D (no game engine, no UI framework). Manifest-driven pixel-art assets and directional actor atlases, produced through a PixelLab pipeline and rendered with nearest-neighbor scaling; Press Start 2P supplies the UI type. Pure sim / render / DOM-UI split. Vercel static + functions + Blob. vitest + TestSprite CLI (Node ≥ 20).
 
 ```bash
 npm install
-npm run dev        # local dev (API routes need `vercel dev` or fall back to bot ghosts)
+npm run dev        # local dev (API routes need `vercel dev` or fall back to offline rivals)
 npm run test       # determinism gates
 npm run typecheck
 ```
@@ -66,5 +64,4 @@ npm run typecheck
 
 Concept & orchestration: Claude Fable 5 · Implementation: Codex (GPT-5.5) & Grok 4.5 workers · Verification: TestSprite CLI · Human: [@ahndohun](https://github.com/ahndohun) (zero lines of code written by hand)
 
-Music: "Spooky Dungeon" by Memoraphile @ You're Perfect Studio (CC0, OpenGameArt)
-Battle music: "8 bit battle theme" by celestialghost8 (CC0, OpenGameArt)
+Music: "8 bit battle theme" by celestialghost8 (CC0, OpenGameArt)

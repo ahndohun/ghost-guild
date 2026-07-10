@@ -15,15 +15,14 @@ type ManifestEntry = {
   readonly path: string;
 };
 
-type ActorEntry = ManifestEntry & {
+type ActorEntry = {
+  readonly id: string;
   readonly role: "class" | "enemy";
   readonly canvas: { readonly width: number; readonly height: number };
-  readonly animations: {
-    readonly idle: {
+  readonly animations: Readonly<Record<string, {
       readonly frameCount: number;
-      readonly pathTemplate: string;
-    };
-  };
+      readonly path: string;
+  }>>;
 };
 
 type ArtManifest = {
@@ -116,7 +115,7 @@ describe("production art manifest", () => {
     ]);
   });
 
-  it("tracks the current eleven class and three enemy static sprite sets", () => {
+  it("tracks the current eleven class and three enemy animation sets", () => {
     expect(Object.keys(manifest.actors).sort()).toEqual([...classActors, ...enemyActors].sort());
     for (const actorId of classActors) {
       expect(manifest.actors[actorId]?.role).toBe("class");
@@ -125,8 +124,15 @@ describe("production art manifest", () => {
       expect(manifest.actors[actorId]?.role).toBe("enemy");
     }
     for (const [actorId, actor] of Object.entries(manifest.actors)) {
-      expect(actor.animations.idle.frameCount, actorId).toBe(1);
-      expect(actor.animations.idle.pathTemplate, actorId).toContain(`/${actorId}/`);
+      expect(Object.keys(actor.animations).sort(), actorId).toEqual([
+        "attack",
+        "death",
+        "hit",
+        "idle",
+        "walk",
+      ]);
+      expect(actor.animations.idle?.frameCount, actorId).toBe(4);
+      expect(actor.animations.idle?.path, actorId).toContain(`/${actorId}/`);
       expect(actor.canvas.width, actorId).toBeGreaterThan(0);
       expect(actor.canvas.height, actorId).toBeGreaterThan(0);
     }
@@ -171,7 +177,7 @@ describe("production art manifest", () => {
   });
 
   it("keeps manifest ids globally unique", () => {
-    const entries: ManifestEntry[] = [
+    const entries: Array<{ readonly id: string }> = [
       ...Object.values(manifest.actors),
       ...Object.values(manifest.classPortraits),
       ...Object.values(manifest.skillIcons),

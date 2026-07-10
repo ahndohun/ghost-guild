@@ -13,15 +13,15 @@ Board directive 2026-07-10: drop Gambler; reference Capcom's *Dungeons & Dragons
 | Class | Capcom root | HP | SPD | Start weapon(s) | Embedded behavior | Signature / rule |
 |---|---|---|---|---|---|---|
 | **Fighter** | Fighter | 110 | 95 | Sword Sweep | vanguard (balanced) | none — reliability IS the identity |
-| **Knight** | — (board) | 140 | 85 | Sword Sweep | guardian (survivor-derived: holds ground, late flee) | contact damage −15%, ATK lowest tier |
-| **Berserker** | — | 80 | 100 | Sword Sweep | berserker (combat-locked) | kill-heal (existing berserker signature) |
-| **Dwarf** | Dwarf | 120 | 90 | Sword Sweep (fast cadence) | berserker-derived close-in | **small hitbox** (hero radius −25%), weapon cd −10% |
-| **Paladin** | — (board) | 125 | 88 | Sword Sweep + weak Heal Pulse (+2HP/5s) | vanguard-guardian mid | hybrid: tankier than Priest, heals worse; softer than Knight |
+| **Knight** | — (board) | 140 | 85 | Shield Bash | guardian (survivor-derived: holds ground, late flee) | contact damage −15%, ATK lowest tier |
+| **Berserker** | — | 80 | 100 | Whirlwind Axe | berserker (combat-locked) | kill-heal (existing berserker signature) |
+| **Dwarf** | Dwarf | 120 | 90 | Earth Shatter (fast cadence) | berserker-derived close-in | **small hitbox** (hero radius −25%), weapon cd −10% |
+| **Paladin** | — (board) | 125 | 88 | Holy Smash + weak Heal Pulse (+1HP/5s) | vanguard-guardian mid | hybrid: damage ×0.55, tankier than Priest, heals worse; softer than Knight |
 | **Mage** | Magic-User | 70 | 100 | Fire Bolt | duelist (precision kiting) | highest burst |
 | **Priest** | Cleric | 95 | 95 | Holy Bolt + Heal Pulse | survivor (long-run ops) | heal specialist, weakest weapon dmg |
-| **Warlock** | — | 75 | 95 | Fire Bolt (dark) | berserker-derived aggressive caster | **lifesteal 8%** of damage dealt |
-| **Elf** | Elf | 90 | 100 | Sword Sweep **+** Fire Bolt (starts with 2) | duelist | **weapon slots 4→3**; both parents' tools, neither's peak |
-| **Thief** | Thief | 85 | **115** | Throwing Axe | hoarder (loot-driven kiting) | **crit 20% ×2 dmg** (class-scoped RNG branch), magnet +60px, gold +20% |
+| **Warlock** | — | 75 | 95 | Life Drain | berserker-derived aggressive caster | **lifesteal 8%** of damage dealt |
+| **Elf Archer** | Elf | 90 | 100 | Magic Arrow | duelist | **0.6s Elf-only arrow cadence**, weapon slots 4→3; fragile when cornered |
+| **Thief** | Thief | 85 | **115** | Shadow Daggers | hoarder (loot-driven kiting) | **crit 20% ×2 dmg** (class-scoped RNG branch), magnet +60px, gold +20% |
 | **Monk** | — (kept) | 110 | 100 | Garlic Aura | berserker | weapon slot locked to 1, cap Lv.8, contact −20% |
 
 - Gambler removed. Save/ghost migration: gambler → thief (keeps the greed identity), refund unmappable perk gold. Server keeps accepting "gambler" in old ghost payloads, remapping to thief on read.
@@ -49,14 +49,14 @@ Node authoring: workers generate per-class tables from this schema + tier themes
 ## Execution phases
 
 1. (running) Traits v3 cycle — infrastructure: class-keyed trees, temperament derivation, UI.
-2. Roster v3 cycle: sim class data + new temperament derivations + crit branch (Thief) + dual-start/slot-cap (Elf) + hitbox (Dwarf) + lifesteal (Warlock) + weak-heal (Paladin); tree expansion to 5 tiers; UI grid for 10 classes; sprites (already generating: fighter/berserker/paladin/warlock; pending: elf/dwarf/thief); server CLASSES + gambler remap; bots refresh; golden update (intended).
+2. Roster v3 cycle: sim class data + new temperament derivations + crit branch (Thief) + pure-archer cadence/slot-cap (Elf) + hitbox (Dwarf) + lifesteal (Warlock) + weak-heal (Paladin); tree expansion to 5 tiers; UI grid for 11 classes; sprites; server CLASSES + gambler remap; bots refresh; golden update (intended).
 3. Verification: determinism gates, per-class behavior smoke (distinct outcomes on one seed), tsloop, board report.
 
 ## Class fantasy gate (board 2026-07-10)
 
 Every class must deliver the fantasy people expect from that job — visually (sprite silhouette/colors/weapon), mechanically (signature skill), and behaviorally. One expected-fantasy line per class is the review gate:
 
-Fighter=reliable master-at-arms · Knight=immovable bulwark · Berserker=blood-fueled whirlwind · Dwarf=stout tunnel-fighter who shrugs blows · Paladin=holy protector who smites and mends · Mage=arcane artillery · Priest=divine light that outlasts darkness · Warlock=life-stealing dark caster · Elf=graceful blade-and-spell duelist · Thief=untouchable blur that strikes gold · Monk=one weapon, perfected.
+Fighter=reliable master-at-arms · Knight=immovable bulwark · Berserker=blood-fueled whirlwind · Dwarf=stout tunnel-fighter who shrugs blows · Paladin=holy protector who smites and mends · Mage=arcane artillery · Priest=divine light that outlasts darkness · Warlock=life-stealing dark caster · Elf Archer=rapid homing volleys from a safe firing lane · Thief=untouchable blur that strikes gold · Monk=one weapon, perfected.
 
 ## Skill & effect volume (board 2026-07-10)
 

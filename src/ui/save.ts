@@ -118,7 +118,9 @@ export function defaultSave(): GuildSave {
     autorun: false,
     soundMuted: false,
     nextSeed: 1,
-    playerName: randomGladiatorName(),
+    // Identity is chosen once in the DQ-style onboarding modal. Returning
+    // saves already carrying a name pass straight through that gate.
+    playerName: "",
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     unlockedClasses: allClassesUnlocked(),
     equippedItems: emptyEquippedItems,
@@ -477,8 +479,4 @@ function parsePlayerName(value: unknown, fallback: string): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function randomGladiatorName(): string {
-  return `Gladiator-${String(Math.floor(Math.random() * 10000)).padStart(4, "0")}`;
 }

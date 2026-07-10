@@ -1,7 +1,7 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "Guild screen derives identity from eleven classes",
+  "name": "Guild screen exposes the complete eleven-class growth hub",
   "priority": "p0",
   "planSteps": [
     {
@@ -10,35 +10,155 @@
     },
     {
       "type": "action",
-      "description": "Press START"
+      "description": "Click the button with data-testid start-game"
     },
     {
       "type": "action",
-      "description": "Open the Class section"
-    },
-    {
-      "type": "assertion",
-      "description": "The Class section initially recommends Fighter, Knight, and Mage"
+      "description": "Enter TestSprite-3113 into the input with data-testid player-name"
     },
     {
       "type": "action",
-      "description": "Expand All Classes"
+      "description": "Click the button with data-testid confirm-player-name"
     },
     {
       "type": "assertion",
-      "description": "The guild screen shows all eleven class choices: fighter, knight, berserker, dwarf, paladin, mage, priest, warlock, elf, thief, monk"
+      "description": "The button with data-testid guild-tab-class is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid guild-tab-class has text CLASS & TREE"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid guild-tab-class has aria-pressed true"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid guild-tab-training is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid guild-tab-training has text TRAINING"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid guild-tab-gear is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid guild-tab-gear has text INVENTORY"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid battle-open is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid battle-open has text ENTER THE ARENA"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid class-roster is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-fighter is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-knight is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-berserker is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-dwarf is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-paladin is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-mage is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-priest is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-warlock is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-elf is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-thief is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid class-monk is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "No button labeled MORE is present"
+    },
+    {
+      "type": "assertion",
+      "description": "No button labeled ALL CLASSES is present"
     },
     {
       "type": "action",
-      "description": "Open the Training section"
+      "description": "Click the button with data-testid class-mage"
     },
     {
       "type": "assertion",
-      "description": "The guild screen shows a class specialization tree"
+      "description": "The element with data-testid selected-class-name has text Mage"
     },
     {
       "type": "assertion",
-      "description": "The guild screen has no standalone temperament choices"
+      "description": "The element with data-testid selected-class-weapons has text Fire Bolt"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid selected-class-strength contains non-empty text"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid selected-class-weakness contains non-empty text"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid selected-class-behavior contains non-empty text"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid perk-t1-a is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid perk-t5-b is visible"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid guild-tab-training"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid buy-atk is visible"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid guild-tab-gear"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid inventory-panel is visible"
     }
   ]
 }

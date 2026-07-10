@@ -1,7 +1,8 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "arena-match",
+  "name": "Arena bout reports placement, rivals, and truthful world status",
+  "priority": "p0",
   "planSteps": [
     {
       "type": "action",
@@ -9,19 +10,47 @@
     },
     {
       "type": "action",
+      "description": "Enter TestSprite-3113 into the input with data-testid player-name"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid confirm-player-name"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid battle-open"
+    },
+    {
+      "type": "assertion",
+      "description": "The dialog with data-testid battle-modal is visible"
+    },
+    {
+      "type": "action",
       "description": "Click the button with data-testid deploy-arena"
     },
     {
       "type": "assertion",
-      "description": "The element #screen-results is visible"
+      "description": "The element with data-testid result-outcome contains text matching ARENA PLACEMENT followed by a numeric rank"
     },
     {
       "type": "assertion",
-      "description": "The list with data-testid result-ranking contains at least 2 rows ranking this match's own gladiators by score"
+      "description": "The element with data-testid result-rank-cell is visible"
     },
     {
       "type": "assertion",
-      "description": "When the element with data-testid leaderboard-list is visible, it represents world leaderboard standings (persisted across matches), not a required duplicate of the result-ranking rows"
+      "description": "The element with data-testid match-ranking-section is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The list with data-testid result-ranking contains at least two rows"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid leaderboard-section is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid leaderboard-status eventually contains WORLD RANKINGS LIVE, NO WORLD ENTRIES, or WORLD LEADERBOARD UNAVAILABLE"
     },
     {
       "type": "action",
@@ -29,7 +58,15 @@
     },
     {
       "type": "assertion",
-      "description": "The element #screen-guild is visible"
+      "description": "The button with data-testid guild-tab-class is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid guild-tab-class has aria-pressed true"
+    },
+    {
+      "type": "assertion",
+      "description": "The button with data-testid battle-open is visible"
     }
   ]
 }

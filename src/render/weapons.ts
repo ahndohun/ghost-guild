@@ -19,29 +19,389 @@ type TrailInput = {
   readonly color: string;
 };
 
+export type WeaponVisualPoint = {
+  readonly x: number;
+  readonly y: number;
+};
+
+type WeaponVisualPrimitiveBase = {
+  readonly role: string;
+  readonly opacity: number;
+};
+
+export type WeaponVisualPrimitive =
+  | (WeaponVisualPrimitiveBase & {
+      readonly kind: "polygon";
+      readonly points: readonly WeaponVisualPoint[];
+      readonly fill: string;
+      readonly stroke?: string;
+      readonly lineWidth?: number;
+    })
+  | (WeaponVisualPrimitiveBase & {
+      readonly kind: "line";
+      readonly points: readonly WeaponVisualPoint[];
+      readonly stroke: string;
+      readonly lineWidth: number;
+    })
+  | (WeaponVisualPrimitiveBase & {
+      readonly kind: "ring";
+      readonly x: number;
+      readonly y: number;
+      readonly radius: number;
+      readonly stroke: string;
+      readonly lineWidth: number;
+      readonly fill?: string;
+    });
+
+export type WeaponSignatureProjection = {
+  readonly weaponId: WeaponId;
+  readonly primitives: readonly WeaponVisualPrimitive[];
+};
+
 const black = "#05040a";
 
 /** Reviewable visual contract: every skill has its own shape/palette/motion signature. */
 export const weaponVisualProfiles: Record<WeaponId, string> = {
   swordSweep: "gold arc slash",
   fireBolt: "orange square ember trail",
-  holyBolt: "mint cross bolt",
+  holyBolt: "white-mint cross bolt",
   throwingAxe: "rotating bronze axe",
   frostNova: "cyan expanding ice ring",
   garlicAura: "ivory pulsing ward",
-  holySmash: "gold forward smite pillars",
-  lifeDrain: "crimson tether beam",
-  shadowDaggers: "violet three-dagger fan",
+  holySmash: "warm-gold descending pillars and mint healing ring",
+  lifeDrain: "crimson ownerward return tether",
+  shadowDaggers: "black-violet three-dagger fan",
   earthShatter: "ochre fractured quake",
   magicArrow: "emerald homing chevron",
   whirlwindAxe: "red circular blade storm",
-  shieldBash: "steel knockback cone",
-  radiantBurst: "white-gold expanding sun",
+  shieldBash: "filled steel shield and knockback cone wave",
+  radiantBurst: "white-mint expanding sun",
   meteor: "orange falling fire crater",
   chainLightning: "blue jagged electric chain",
   poisonFlask: "green tumbling vial cloud",
   crossbowBolt: "brown silver straight quarrel",
 };
+
+/** Pure geometry seam used by both Canvas rendering and visual-contract tests. */
+export function projectBurstWeaponSignature(
+  burst: WeaponBurst,
+  age: number,
+): WeaponSignatureProjection | undefined {
+  switch (burst.weaponId) {
+    case "shieldBash":
+      return projectShieldBash(burst, age);
+    case "holySmash":
+      return projectHolySmash(burst, age);
+    case "radiantBurst":
+      return projectRadiantBurst(burst, age);
+    default:
+      return undefined;
+  }
+}
+
+export function projectProjectileWeaponSignature(
+  projectile: ProjectileState,
+  tick: number,
+): WeaponSignatureProjection | undefined {
+  switch (projectile.weaponId) {
+    case "holyBolt":
+      return projectHolyBolt(projectile);
+    case "lifeDrain":
+      return projectLifeDrain(projectile, tick);
+    case "shadowDaggers":
+      return projectShadowDagger(projectile);
+    default:
+      return undefined;
+  }
+}
+
+function projectHolyBolt(projectile: ProjectileState): WeaponSignatureProjection {
+  const direction = projectileDirection(projectile);
+  const perpendicular = { x: -direction.y, y: direction.x };
+  return {
+    weaponId: projectile.weaponId,
+    primitives: [
+      {
+        kind: "line",
+        role: "holy-axis",
+        points: [
+          { x: projectile.x - direction.x * 9, y: projectile.y - direction.y * 9 },
+          { x: projectile.x + direction.x * 9, y: projectile.y + direction.y * 9 },
+        ],
+        stroke: "#ffffff",
+        lineWidth: 5,
+        opacity: 0.94,
+      },
+      {
+        kind: "line",
+        role: "holy-cross",
+        points: [
+          { x: projectile.x - perpendicular.x * 7, y: projectile.y - perpendicular.y * 7 },
+          { x: projectile.x + perpendicular.x * 7, y: projectile.y + perpendicular.y * 7 },
+        ],
+        stroke: "#9fe3b0",
+        lineWidth: 5,
+        opacity: 0.9,
+      },
+    ],
+  };
+}
+
+function projectLifeDrain(projectile: ProjectileState, tick: number): WeaponSignatureProjection {
+  const direction = projectileDirection(projectile);
+  const tetherLength = 68;
+  const ownerwardEnd = {
+    x: projectile.x - direction.x * tetherLength,
+    y: projectile.y - direction.y * tetherLength,
+  };
+  const returnProgress = ((tick + projectile.id * 3) % 10) / 10;
+  const pulse = {
+    x: projectile.x - direction.x * tetherLength * returnProgress,
+    y: projectile.y - direction.y * tetherLength * returnProgress,
+  };
+
+  return {
+    weaponId: projectile.weaponId,
+    primitives: [
+      {
+        kind: "line",
+        role: "return-tether",
+        points: [{ x: projectile.x, y: projectile.y }, ownerwardEnd],
+        stroke: "#8f1538",
+        lineWidth: 6,
+        opacity: 0.74,
+      },
+      {
+        kind: "line",
+        role: "return-tether-core",
+        points: [{ x: projectile.x, y: projectile.y }, ownerwardEnd],
+        stroke: "#d14355",
+        lineWidth: 2,
+        opacity: 0.9,
+      },
+      {
+        kind: "ring",
+        role: "return-pulse",
+        x: pulse.x,
+        y: pulse.y,
+        radius: 4,
+        fill: "#d14355",
+        stroke: "#ff6f85",
+        lineWidth: 2,
+        opacity: 0.96,
+      },
+    ],
+  };
+}
+
+function projectShadowDagger(projectile: ProjectileState): WeaponSignatureProjection {
+  const direction = projectileDirection(projectile);
+  const perpendicular = { x: -direction.y, y: direction.x };
+  return {
+    weaponId: projectile.weaponId,
+    primitives: [
+      {
+        kind: "line",
+        role: "shadow-trail",
+        points: [
+          { x: projectile.x - direction.x * 18, y: projectile.y - direction.y * 18 },
+          { x: projectile.x - direction.x * 5, y: projectile.y - direction.y * 5 },
+        ],
+        stroke: "#5b2f7f",
+        lineWidth: 4,
+        opacity: 0.52,
+      },
+      {
+        kind: "polygon",
+        role: "shadow-blade",
+        points: [
+          { x: projectile.x + direction.x * 9, y: projectile.y + direction.y * 9 },
+          {
+            x: projectile.x - direction.x * 2 + perpendicular.x * 3,
+            y: projectile.y - direction.y * 2 + perpendicular.y * 3,
+          },
+          { x: projectile.x - direction.x * 8, y: projectile.y - direction.y * 8 },
+          {
+            x: projectile.x - direction.x * 2 - perpendicular.x * 3,
+            y: projectile.y - direction.y * 2 - perpendicular.y * 3,
+          },
+        ],
+        fill: "#05040a",
+        stroke: "#8b5bc3",
+        lineWidth: 2,
+        opacity: 0.98,
+      },
+      {
+        kind: "line",
+        role: "shadow-core",
+        points: [
+          { x: projectile.x - direction.x * 4, y: projectile.y - direction.y * 4 },
+          { x: projectile.x + direction.x * 5, y: projectile.y + direction.y * 5 },
+        ],
+        stroke: "#c18aef",
+        lineWidth: 2,
+        opacity: 0.9,
+      },
+    ],
+  };
+}
+
+function projectShieldBash(burst: WeaponBurst, age: number): WeaponSignatureProjection | undefined {
+  const duration = 9;
+  if (age < 0 || age > duration) {
+    return undefined;
+  }
+
+  const progress = Math.min(1, (age + 1) / (duration + 1));
+  const opacity = 1 - progress;
+  const facing = burst.facing === "right" ? 1 : -1;
+  const nearX = burst.x + facing * 10;
+  const farX = burst.x + facing * (32 + progress * 43);
+  const halfHeight = 14 + progress * 18;
+  const shieldX = burst.x + facing * (22 + progress * 18);
+
+  return {
+    weaponId: burst.weaponId,
+    primitives: [
+      {
+        kind: "polygon",
+        role: "shield-wave",
+        points: [
+          { x: nearX, y: burst.y - 7 },
+          { x: farX, y: burst.y - halfHeight },
+          { x: farX, y: burst.y + halfHeight },
+          { x: nearX, y: burst.y + 7 },
+        ],
+        fill: "#718399",
+        stroke: "#dce6f2",
+        lineWidth: 3,
+        opacity: opacity * 0.65,
+      },
+      {
+        kind: "polygon",
+        role: "shield-face",
+        points: [
+          { x: shieldX + facing * 12, y: burst.y },
+          { x: shieldX + facing * 7, y: burst.y - 18 },
+          { x: shieldX - facing * 7, y: burst.y - 14 },
+          { x: shieldX - facing * 9, y: burst.y + 8 },
+          { x: shieldX, y: burst.y + 21 },
+          { x: shieldX + facing * 9, y: burst.y + 8 },
+        ],
+        fill: "#a8b4c8",
+        stroke: "#f3f7ff",
+        lineWidth: 3,
+        opacity,
+      },
+    ],
+  };
+}
+
+function projectHolySmash(burst: WeaponBurst, age: number): WeaponSignatureProjection | undefined {
+  const duration = 10;
+  if (age < 0 || age > duration) {
+    return undefined;
+  }
+  const progress = Math.min(1, (age + 1) / (duration + 1));
+  const opacity = 1 - progress;
+  const facing = burst.facing === "right" ? 1 : -1;
+  const pillarOffsets = [
+    { distance: 38, y: -20 },
+    { distance: 58, y: 0 },
+    { distance: 78, y: 20 },
+  ] as const;
+  const pillars: WeaponVisualPrimitive[] = pillarOffsets.map((offset, index) => {
+    const groundX = burst.x + facing * offset.distance;
+    const groundY = burst.y + offset.y;
+    return {
+      kind: "line",
+      role: "judgment-pillar",
+      points: [
+        { x: groundX - facing * (2 - index), y: groundY - 68 + progress * 25 },
+        { x: groundX, y: groundY },
+      ],
+      stroke: "#f4c65e",
+      lineWidth: 7,
+      opacity: opacity * (1 - index * 0.08),
+    };
+  });
+
+  return {
+    weaponId: burst.weaponId,
+    primitives: [
+      ...pillars,
+      {
+        kind: "ring",
+        role: "healing-ring",
+        x: burst.x,
+        y: burst.y,
+        radius: 18 + progress * 17,
+        stroke: "#9fe3b0",
+        lineWidth: 3,
+        opacity: opacity * 0.9,
+      },
+    ],
+  };
+}
+
+function projectRadiantBurst(burst: WeaponBurst, age: number): WeaponSignatureProjection | undefined {
+  const duration = 14;
+  if (age < 0 || age > duration) {
+    return undefined;
+  }
+  const progress = Math.min(1, (age + 1) / (duration + 1));
+  const radius = 16 + (weaponDefinitions.radiantBurst.radius - 16) * progress;
+  const opacity = 1 - progress;
+  const rays: WeaponVisualPrimitive[] = [];
+  for (let index = 0; index < 8; index += 1) {
+    const angle = index * Math.PI / 4;
+    rays.push({
+      kind: "line",
+      role: "sun-ray",
+      points: [
+        {
+          x: burst.x + Math.cos(angle) * radius * 0.34,
+          y: burst.y + Math.sin(angle) * radius * 0.34,
+        },
+        {
+          x: burst.x + Math.cos(angle) * radius * 0.78,
+          y: burst.y + Math.sin(angle) * radius * 0.78,
+        },
+      ],
+      stroke: "#9fe3b0",
+      lineWidth: index % 2 === 0 ? 4 : 2,
+      opacity: opacity * (index % 2 === 0 ? 0.92 : 0.7),
+    });
+  }
+
+  return {
+    weaponId: burst.weaponId,
+    primitives: [
+      {
+        kind: "ring",
+        role: "radiant-ring",
+        x: burst.x,
+        y: burst.y,
+        radius,
+        fill: "rgba(255, 255, 255, 0.08)",
+        stroke: "#ffffff",
+        lineWidth: 5,
+        opacity,
+      },
+      {
+        kind: "ring",
+        role: "radiant-heart",
+        x: burst.x,
+        y: burst.y,
+        radius: radius * 0.58,
+        stroke: "#9fe3b0",
+        lineWidth: 3,
+        opacity: opacity * 0.85,
+      },
+      ...rays,
+    ],
+  };
+}
 
 export function drawWeaponFields(context: CanvasRenderingContext2D, heroes: readonly HeroState[], tick: number): void {
   for (const hero of heroes) {
@@ -99,7 +459,7 @@ export function drawProjectile(context: CanvasRenderingContext2D, projectile: Pr
       drawFireBolt(context, projectile);
       return;
     case "holyBolt":
-      drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius + 4, color: "#9fe3b0" });
+      drawProjectileWeaponSignature(context, projectile, tick);
       return;
     case "frostNova":
       drawFrostNovaProjectile(context, projectile);
@@ -114,7 +474,7 @@ export function drawProjectile(context: CanvasRenderingContext2D, projectile: Pr
       drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius, color: "#ffe08a" });
       return;
     case "lifeDrain":
-      drawLifeDrain(context, projectile);
+      drawLifeDrain(context, projectile, tick);
       return;
     case "shadowDaggers":
       drawShadowDagger(context, projectile, tick);
@@ -204,29 +564,11 @@ function drawSwordSweep(context: CanvasRenderingContext2D, burst: WeaponBurst, a
 }
 
 function drawHolySmash(context: CanvasRenderingContext2D, burst: WeaponBurst, age: number): void {
-  const duration = 10;
-  if (age < 0 || age > duration) {
+  const projection = projectBurstWeaponSignature(burst, age);
+  if (projection === undefined) {
     return;
   }
-  const progress = (age + 1) / duration;
-  const alpha = 1 - progress;
-  const center = burst.facing === "right" ? 0 : Math.PI;
-  const spread = 50 * Math.PI / 180;
-  const radius = weaponDefinitions.holySmash.radius * (0.7 + progress * 0.3);
-  context.save();
-  context.globalAlpha = alpha;
-  context.lineWidth = 8;
-  context.strokeStyle = "rgba(255, 240, 160, 0.85)";
-  context.beginPath();
-  context.arc(burst.x, burst.y, radius, center - spread, center + spread);
-  context.stroke();
-  // Self-heal spark ring
-  context.strokeStyle = `rgba(159, 227, 176, ${alpha * 0.7})`;
-  context.lineWidth = 2;
-  context.beginPath();
-  context.arc(burst.x, burst.y, 18 + progress * 10, 0, Math.PI * 2);
-  context.stroke();
-  context.restore();
+  drawWeaponSignatureProjection(context, projection);
 }
 
 function drawEarthShatter(context: CanvasRenderingContext2D, burst: WeaponBurst, age: number): void {
@@ -282,62 +624,70 @@ function drawWhirlwind(context: CanvasRenderingContext2D, burst: WeaponBurst, ag
 }
 
 function drawShieldBash(context: CanvasRenderingContext2D, burst: WeaponBurst, age: number): void {
-  const duration = 9;
-  if (age < 0 || age > duration) {
+  const projection = projectBurstWeaponSignature(burst, age);
+  if (projection === undefined) {
     return;
   }
-  const progress = (age + 1) / duration;
-  const alpha = 1 - progress;
-  const facing = burst.facing === "right" ? 1 : -1;
-  const reach = 20 + progress * 50;
-  context.save();
-  context.globalAlpha = alpha;
-  context.fillStyle = "#a8b4c8";
-  context.strokeStyle = "#e8eef8";
-  context.lineWidth = 2;
-  const x = burst.x + facing * reach;
-  context.beginPath();
-  context.ellipse(x, burst.y, 14, 22, 0, 0, Math.PI * 2);
-  context.fill();
-  context.stroke();
-  // Knockback chevrons
-  context.strokeStyle = `rgba(200, 220, 255, ${alpha})`;
-  context.beginPath();
-  context.moveTo(x + facing * 10, burst.y - 12);
-  context.lineTo(x + facing * 22, burst.y);
-  context.lineTo(x + facing * 10, burst.y + 12);
-  context.stroke();
-  context.restore();
+  drawWeaponSignatureProjection(context, projection);
+}
+
+function drawWeaponSignatureProjection(
+  context: CanvasRenderingContext2D,
+  projection: WeaponSignatureProjection,
+): void {
+  for (const primitive of projection.primitives) {
+    context.save();
+    context.globalAlpha = primitive.opacity;
+    if (primitive.kind === "ring") {
+      context.strokeStyle = primitive.stroke;
+      context.lineWidth = primitive.lineWidth;
+      context.beginPath();
+      context.arc(primitive.x, primitive.y, primitive.radius, 0, Math.PI * 2);
+      if (primitive.fill !== undefined) {
+        context.fillStyle = primitive.fill;
+        context.fill();
+      }
+      context.stroke();
+    } else {
+      const first = primitive.points[0];
+      if (first !== undefined) {
+        context.strokeStyle =
+          primitive.kind === "line" ? primitive.stroke : (primitive.stroke ?? primitive.fill);
+        context.lineWidth = primitive.lineWidth ?? 1;
+        context.beginPath();
+        context.moveTo(first.x, first.y);
+        for (const point of primitive.points.slice(1)) {
+          context.lineTo(point.x, point.y);
+        }
+        if (primitive.kind === "polygon") {
+          context.closePath();
+          context.fillStyle = primitive.fill;
+          context.fill();
+        }
+        context.stroke();
+      }
+    }
+    context.restore();
+  }
 }
 
 function drawRadiantBurst(context: CanvasRenderingContext2D, burst: WeaponBurst, age: number): void {
-  const duration = 14;
-  if (age < 0 || age > duration) {
+  const projection = projectBurstWeaponSignature(burst, age);
+  if (projection === undefined) {
     return;
   }
-  const progress = (age + 1) / duration;
-  const radius = 16 + (weaponDefinitions.radiantBurst.radius - 16) * progress;
-  const alpha = 1 - progress * 0.75;
-  context.save();
-  context.strokeStyle = `rgba(255, 246, 200, ${alpha})`;
-  context.lineWidth = 3;
-  context.beginPath();
-  context.arc(burst.x, burst.y, radius, 0, Math.PI * 2);
-  context.stroke();
-  context.strokeStyle = `rgba(159, 227, 176, ${alpha * 0.6})`;
-  context.lineWidth = 1;
-  context.beginPath();
-  context.arc(burst.x, burst.y, radius * 0.7, 0, Math.PI * 2);
-  context.stroke();
-  // Cross of light
-  context.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.5})`;
-  context.beginPath();
-  context.moveTo(burst.x - radius * 0.4, burst.y);
-  context.lineTo(burst.x + radius * 0.4, burst.y);
-  context.moveTo(burst.x, burst.y - radius * 0.4);
-  context.lineTo(burst.x, burst.y + radius * 0.4);
-  context.stroke();
-  context.restore();
+  drawWeaponSignatureProjection(context, projection);
+}
+
+function drawProjectileWeaponSignature(
+  context: CanvasRenderingContext2D,
+  projectile: ProjectileState,
+  tick: number,
+): void {
+  const projection = projectProjectileWeaponSignature(projectile, tick);
+  if (projection !== undefined) {
+    drawWeaponSignatureProjection(context, projection);
+  }
 }
 
 function drawMeteor(context: CanvasRenderingContext2D, burst: WeaponBurst, age: number): void {
@@ -433,36 +783,12 @@ function drawFireBolt(context: CanvasRenderingContext2D, projectile: ProjectileS
   drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius + 4, color: "#ff8a4a" });
 }
 
-function drawLifeDrain(context: CanvasRenderingContext2D, projectile: ProjectileState): void {
-  const direction = projectileDirection(projectile);
-  for (let step = 4; step >= 1; step -= 1) {
-    drawTrailPixel(context, {
-      x: projectile.x,
-      y: projectile.y,
-      directionX: direction.x,
-      directionY: direction.y,
-      step,
-      color: `rgba(120, 40, 180, ${0.15 + (5 - step) * 0.1})`,
-    });
-  }
-  drawPixelBolt(context, { x: projectile.x, y: projectile.y, size: projectile.radius + 5, color: "#9b6bff" });
-  // Violet core
-  context.fillStyle = "#e0c0ff";
-  context.fillRect(Math.round(projectile.x) - 1, Math.round(projectile.y) - 1, 2, 2);
+function drawLifeDrain(context: CanvasRenderingContext2D, projectile: ProjectileState, tick: number): void {
+  drawProjectileWeaponSignature(context, projectile, tick);
 }
 
 function drawShadowDagger(context: CanvasRenderingContext2D, projectile: ProjectileState, tick: number): void {
-  const direction = projectileDirection(projectile);
-  context.save();
-  context.translate(Math.round(projectile.x), Math.round(projectile.y));
-  context.rotate(Math.atan2(direction.y, direction.x) + tick * 0.05);
-  context.fillStyle = black;
-  context.fillRect(-7, -2, 14, 4);
-  context.fillStyle = "#c070a0";
-  context.fillRect(-5, -1, 10, 2);
-  context.fillStyle = "#2a1030";
-  context.fillRect(4, -1, 3, 2);
-  context.restore();
+  drawProjectileWeaponSignature(context, projectile, tick);
 }
 
 function drawMagicArrow(context: CanvasRenderingContext2D, projectile: ProjectileState): void {

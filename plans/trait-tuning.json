@@ -1,40 +1,68 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "Monk class embeds Berserker identity into a solo run",
+  "name": "Monk embeds Berserker behavior into a solo run",
   "priority": "p0",
   "planSteps": [
     {
       "type": "action",
-      "description": "Navigate to https://ghost-guild.vercel.app/"
+      "description": "Navigate to https://ghost-guild.vercel.app/?seed=7&fast=1"
     },
     {
       "type": "action",
-      "description": "Press START"
+      "description": "Enter TestSprite-3113 into the input with data-testid player-name"
     },
     {
       "type": "action",
-      "description": "Open the Class section"
+      "description": "Click the button with data-testid confirm-player-name"
     },
     {
       "type": "action",
-      "description": "Expand All Classes"
-    },
-    {
-      "type": "action",
-      "description": "Select the Monk class"
-    },
-    {
-      "type": "action",
-      "description": "Deploy the solo gladiator"
+      "description": "Click the button with data-testid class-monk"
     },
     {
       "type": "assertion",
-      "description": "The solo run becomes active"
+      "description": "The button with data-testid class-monk has aria-pressed true"
     },
     {
       "type": "assertion",
-      "description": "The game-state mirror reports class monk and temperament berserker"
+      "description": "The element with data-testid selected-class-name has text Monk"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid selected-class-weapons has text Garlic Aura"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid selected-class-behavior-name has text Berserker"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid battle-open"
+    },
+    {
+      "type": "assertion",
+      "description": "The dialog with data-testid battle-modal is visible"
+    },
+    {
+      "type": "action",
+      "description": "Click the button with data-testid deploy-solo"
+    },
+    {
+      "type": "assertion",
+      "description": "The element with data-testid result-score contains a number"
+    },
+    {
+      "type": "assertion",
+      "description": "The hidden element with id game-state has data-mode equal to solo"
+    },
+    {
+      "type": "assertion",
+      "description": "The hidden element with id game-state has data-class equal to monk"
+    },
+    {
+      "type": "assertion",
+      "description": "The hidden element with id game-state has data-temperament equal to berserker"
     }
   ]
 }

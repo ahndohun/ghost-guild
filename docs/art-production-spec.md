@@ -1,4 +1,4 @@
-# Ghost Colosseum production art specification
+# Colosseum Survivors production art specification
 
 This document defines the production contract for every visual file registered in
 `public/assets/art-manifest.json`. `DESIGN.md` remains authoritative for game
@@ -154,15 +154,22 @@ working directory outside `public/`; only reviewed delivery PNGs enter runtime.
 
 ## 7. Generation and post-processing
 
-1. Make the local reference visible before reference-based generation.
-2. Generate one coherent asset or one action family on solid `#FF00FF` using
-   built-in image generation.
-3. For actors, keep each action separate. For projectiles/impacts, use separate
-   sheets when their bounding box would change actor scale.
-4. Run the `generate2dsprite` processor only for chroma removal, frame splitting,
-   shared-scale alignment, feet anchoring, atlas assembly, and QC metadata.
+PixelLab MCP is the production generator. The resumable queue, concurrency, and
+download procedure is specified in [pixellab-mcp-workflow.md](pixellab-mcp-workflow.md).
+
+1. Run `get_balance`, `list_characters`, and `get_character` before spending a
+   generation. Reuse an accepted character with `create_character_state` when
+   the request is a silhouette or costume correction.
+2. Generate 8-direction actors in the locked low top-down view. Keep each
+   action separate; projectiles and impacts never share an actor sheet.
+3. Prefer cheap templates for idle/walk/hit/death and custom v3 only for the
+   class-specific attack. Pro mode requires a separate, explicit cost approval.
+4. Download completed jobs into ignored `.art-work/`, then run
+   `assemble-pixellab-atlas.py` for deterministic frame sampling, feet
+   anchoring, atlas assembly, and QC metadata.
 5. Reject edge-touching frames, inconsistent body scale, identity drift,
-   anti-aliased magenta fringes, or mixed camera angles.
+   anti-aliased magenta fringes, or mixed camera angles. Never run the synthetic
+   builder with `--force-synthetic` over a reviewed PixelLab atlas.
 6. Register the reviewed PNG in `art-manifest.json`, wire a consumer, and run the
    verifier before committing.
 

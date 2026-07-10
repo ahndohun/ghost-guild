@@ -992,7 +992,7 @@ export const perkDefinitions: Record<HeroClassId, readonly PerkDefinition[]> = {
       tier: 1,
       choice: "b",
       name: "Leaf Guard",
-      effect: "Max HP +6 flat and earlier retreat (round hybrid fragility).",
+      effect: "Max HP +6 flat and earlier retreat (round low durability).",
       changesBehavior: true,
       effects: [
           { kind: "behaviorRule", rule: "earlyFlee" },
@@ -1015,7 +1015,7 @@ export const perkDefinitions: Record<HeroClassId, readonly PerkDefinition[]> = {
       tier: 2,
       choice: "b",
       name: "Woodland Step",
-      effect: "Max HP +8 flat and earlier retreat (round neither-parent toughness).",
+      effect: "Max HP +8 flat and earlier retreat (round corner risk).",
       changesBehavior: true,
       effects: [
           { kind: "behaviorRule", rule: "earlyFlee" },
@@ -1061,7 +1061,7 @@ export const perkDefinitions: Record<HeroClassId, readonly PerkDefinition[]> = {
       tier: 4,
       choice: "b",
       name: "Leaf Ward",
-      effect: "Max HP +10% (round neither-parent toughness).",
+      effect: "Max HP +10% (round fragile 90 HP).",
       changesBehavior: true,
       effects: [
           { kind: "behaviorRule", rule: "earlyFlee" },
@@ -1072,13 +1072,12 @@ export const perkDefinitions: Record<HeroClassId, readonly PerkDefinition[]> = {
       id: "elfBladespell",
       tier: 5,
       choice: "a",
-      name: "Blade-Spell",
-      effect: "Sword + Bolt + Arrow +12%.",
+      name: "Master Archer",
+      effect: "Magic Arrow + Crossbow Bolt +12%.",
       changesBehavior: false,
       effects: [
-          { kind: "weaponMod", weapon: "swordSweep", dmgPct: 0.12 },
-          { kind: "weaponMod", weapon: "fireBolt", dmgPct: 0.12 },
           { kind: "weaponMod", weapon: "magicArrow", dmgPct: 0.12 },
+          { kind: "weaponMod", weapon: "crossbowBolt", dmgPct: 0.12 },
       ],
     },
     {
@@ -1086,7 +1085,7 @@ export const perkDefinitions: Record<HeroClassId, readonly PerkDefinition[]> = {
       tier: 5,
       choice: "b",
       name: "Woodland Endurance",
-      effect: "Max HP +12% (round, still hybrid).",
+      effect: "Max HP +12% and earlier retreat (round fragile 90 HP).",
       changesBehavior: true,
       effects: [
           { kind: "behaviorRule", rule: "earlyFlee" },

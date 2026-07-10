@@ -1,11 +1,15 @@
-import { WORLD_HEIGHT, WORLD_WIDTH } from "../sim/constants";
+import { TICKS_PER_SECOND, WORLD_HEIGHT, WORLD_WIDTH } from "../sim/constants";
 import type { EnemyState, HeroClassId, HeroState, MatchState } from "../sim";
 import { drawBackground } from "./background";
 import {
+  activeEnemyDeaths,
+  enemyAttackStartedTick,
   facingFor,
   hasHitFlash,
   headingFor,
+  heroAttackStartedTick,
   hitOffset,
+  isEnemyMoving,
   isDuelistInRangeBand,
   longestWeaponRange,
   prepareRenderEffects,
@@ -13,18 +17,25 @@ import {
   shakeOffset,
   temperamentFxFor,
 } from "./effects";
-import type { Facing, RenderEffects, TemperamentFxState } from "./effects";
+import type { EnemyDeathPresentation, Facing, RenderEffects, TemperamentFxState } from "./effects";
 import { drawDamageNumbers, drawDeathPoofs, drawImpactSparks, drawScreenFlash } from "./feedback";
 import { drawDrop } from "./items";
+import { drawLevelDialog } from "./levelDialog";
+import {
+  activeHeroPlaybackActorKeys,
+  advanceActorPlayback,
+  pruneActorPlaybackStates,
+  type ActorActionCandidate,
+  type ActorPlaybackState,
+} from "./actorPlayback";
 import { drawCharacter } from "./pixelSprites";
+import type { CharacterAction } from "./pixelSprites";
 import { drawSprite, spriteScale } from "./sprites";
 import type { SpriteId } from "./sprites";
 import { drawProjectile, drawWeaponBursts, drawWeaponFields } from "./weapons";
 
 const palette = {
   ink: "#e8e3d5",
-  black: "#05040a",
-  white: "#ffffff",
 };
 
 /** Class accent colors for HP bars, nameplates, and combat chrome. */
@@ -66,7 +77,17 @@ type EnemyDrawInput = {
   readonly enemy: EnemyState;
   readonly facing: Facing;
   readonly tick: number;
+  readonly phase: MatchState["phase"];
+  readonly presentationTimeMs: number;
 };
+
+type PlaybackSession = {
+  seed: number;
+  lastTimeMs: number;
+  actors: Map<string, ActorPlaybackState>;
+};
+
+const playbackSessions = new WeakMap<RenderEffects, PlaybackSession>();
 
 const heroSprites: Record<HeroClassId, SpriteId> = {
   fighter: "heroKnight",
@@ -89,7 +110,11 @@ const enemySprites: Record<EnemyKind, SpriteId> = {
   eliteBrute: "eliteBrute",
 };
 
-export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void {
+export function renderMatch(
+  canvas: HTMLCanvasElement,
+  state: MatchState,
+  presentationTimeMs = state.tick * (1000 / TICKS_PER_SECOND),
+): void {
   const context = canvas.getContext("2d");
   if (context === null) {
     return;
@@ -97,6 +122,13 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
 
   const effects = renderEffectsFor(canvas);
   prepareRenderEffects(effects, state);
+  const enemyDeaths = activeEnemyDeaths(effects, state.tick);
+  const activeHeroActorKeys = activeHeroPlaybackActorKeys(state.heroes, state.tick);
+  const playbackSession = playbackSessionFor(effects, presentationTimeMs, state.seed);
+  pruneActorPlaybackStates(
+    playbackSession.actors,
+    activePlaybackActorKeys(state, enemyDeaths, activeHeroActorKeys),
+  );
 
   context.save();
   context.imageSmoothingEnabled = false;
@@ -121,6 +153,14 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
     drawShadow(context, { x: enemy.x + offset.x, y: enemy.y + offset.y, radius: enemy.radius });
   }
 
+  for (const death of enemyDeaths) {
+    drawShadow(context, {
+      x: death.x,
+      y: death.y,
+      radius: enemyRadiusForKind(death.kind),
+    });
+  }
+
   for (const hero of state.heroes) {
     if (hero.alive) {
       drawShadow(context, { x: hero.x, y: hero.y, radius: hero.radius });
@@ -133,7 +173,14 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
       enemy,
       facing: facingFor(effects.enemyFacings, enemy.id),
       tick: state.tick,
+      phase: state.phase,
+      presentationTimeMs,
     });
+  }
+
+
+  for (const death of enemyDeaths) {
+    drawEnemyDeath(context, effects, death, state.seed, presentationTimeMs);
   }
 
   const temperamentFx = temperamentFxFor(effects);
@@ -144,7 +191,16 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
   }
 
   for (const hero of state.heroes) {
-    drawHero(context, hero, effects, facingFor(effects.heroFacings, hero.id));
+    if (activeHeroActorKeys.has(`hero:${hero.id}`)) {
+      drawHero(
+        context,
+        hero,
+        effects,
+        facingFor(effects.heroFacings, hero.id),
+        state,
+        presentationTimeMs,
+      );
+    }
   }
 
   for (const hero of state.heroes) {
@@ -163,7 +219,7 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
   drawScreenFlash(context, effects, state.tick);
 
   if (state.dialog !== undefined) {
-    drawDialog(context, state.dialog.text);
+    drawLevelDialog(context, state.dialog);
   }
 }
 
@@ -194,6 +250,87 @@ function enemyPixelSize(enemy: EnemyState): number {
   return Math.min(raw, 44);
 }
 
+function enemyRadiusForKind(kind: EnemyKind): number {
+  switch (kind) {
+    case "slime":
+      return 11;
+    case "bat":
+      return 9;
+    case "brute":
+      return 15;
+    case "eliteBrute":
+      return 18;
+  }
+}
+
+function enemyPixelSizeForKind(kind: EnemyKind): number {
+  const raw = enemyRadiusForKind(kind) * 2.2;
+  return kind === "brute" || kind === "eliteBrute" ? Math.min(raw, 52) : Math.min(raw, 44);
+}
+
+function playbackFor(
+  effects: RenderEffects,
+  actorKey: string,
+  candidate: ActorActionCandidate,
+  presentationTimeMs: number,
+  seed: number,
+): { readonly action: CharacterAction; readonly elapsedMs: number } {
+  const session = playbackSessionFor(effects, presentationTimeMs, seed);
+  const previous = session.actors.get(actorKey);
+  const transition = advanceActorPlayback(previous, candidate, presentationTimeMs);
+  session.actors.set(actorKey, transition.state);
+  return transition.playback;
+}
+
+function playbackSessionFor(
+  effects: RenderEffects,
+  presentationTimeMs: number,
+  seed: number,
+): PlaybackSession {
+  let session = playbackSessions.get(effects);
+  if (session === undefined || session.seed !== seed || presentationTimeMs < session.lastTimeMs) {
+    session = { seed, lastTimeMs: presentationTimeMs, actors: new Map() };
+    playbackSessions.set(effects, session);
+  }
+  session.lastTimeMs = Math.max(session.lastTimeMs, presentationTimeMs);
+  return session;
+}
+
+function activePlaybackActorKeys(
+  state: MatchState,
+  enemyDeaths: readonly EnemyDeathPresentation[],
+  heroActorKeys: ReadonlySet<string>,
+): Set<string> {
+  const activeKeys = new Set<string>();
+  for (const enemy of state.enemies) {
+    activeKeys.add(`enemy:${enemy.id}`);
+  }
+  for (const death of enemyDeaths) {
+    activeKeys.add(`enemy-death:${death.actorId}:${death.startedTick}`);
+  }
+  for (const heroActorKey of heroActorKeys) {
+    activeKeys.add(heroActorKey);
+  }
+  return activeKeys;
+}
+
+function enemyActionCandidate(input: EnemyDrawInput, flash: boolean): ActorActionCandidate {
+  if (flash) {
+    return {
+      action: "hit",
+      retriggerToken: input.effects.hitReactions.get(input.enemy.id)?.startedTick ?? input.tick,
+    };
+  }
+  const attackTick = enemyAttackStartedTick(input.effects, input.enemy.id);
+  if (attackTick !== undefined) {
+    return { action: "attack", retriggerToken: attackTick };
+  }
+  if (input.phase === "running" && isEnemyMoving(input.effects, input.enemy.id)) {
+    return { action: "walk" };
+  }
+  return { action: "idle" };
+}
+
 function drawEnemy(context: CanvasRenderingContext2D, input: EnemyDrawInput): void {
   const offset = hitOffset(input.effects, input.enemy, input.tick);
   const x = input.enemy.x + offset.x;
@@ -202,6 +339,13 @@ function drawEnemy(context: CanvasRenderingContext2D, input: EnemyDrawInput): vo
   const heading = headingFor(input.effects.enemyHeadings, input.enemy.id);
   const sizePx = enemyPixelSize(input.enemy);
   const pixelId = enemyPixelId(input.enemy.kind);
+  const playback = playbackFor(
+    input.effects,
+    `enemy:${input.enemy.id}`,
+    enemyActionCandidate(input, flash),
+    input.presentationTimeMs,
+    input.effects.seed ?? 0,
+  );
 
   const drew = drawCharacter(context, {
     id: pixelId,
@@ -210,6 +354,8 @@ function drawEnemy(context: CanvasRenderingContext2D, input: EnemyDrawInput): vo
     headingX: heading.x,
     headingY: heading.y,
     sizePx,
+    action: playback.action,
+    actionElapsedMs: playback.elapsedMs,
     flash,
   });
 
@@ -228,6 +374,46 @@ function drawEnemy(context: CanvasRenderingContext2D, input: EnemyDrawInput): vo
   // Elite marker: gold crown ring so eliteBrute still reads as elite on brute sprite.
   if (input.enemy.kind === "eliteBrute") {
     drawEliteMarker(context, x, y, sizePx);
+  }
+}
+
+function drawEnemyDeath(
+  context: CanvasRenderingContext2D,
+  effects: RenderEffects,
+  death: EnemyDeathPresentation,
+  seed: number,
+  presentationTimeMs: number,
+): void {
+  const pixelId = enemyPixelId(death.kind);
+  const sizePx = enemyPixelSizeForKind(death.kind);
+  const playback = playbackFor(
+    effects,
+    `enemy-death:${death.actorId}:${death.startedTick}`,
+    { action: "death", retriggerToken: death.startedTick },
+    presentationTimeMs,
+    seed,
+  );
+  const drew = drawCharacter(context, {
+    id: pixelId,
+    x: death.x,
+    y: death.y,
+    headingX: death.heading.x,
+    headingY: death.heading.y,
+    sizePx,
+    action: playback.action,
+    actionElapsedMs: playback.elapsedMs,
+  });
+  if (!drew) {
+    drawSprite(context, {
+      id: enemySprites[death.kind],
+      x: death.x,
+      y: death.y,
+      scale: spriteScale,
+      flip: death.heading.x < 0,
+    });
+  }
+  if (death.elite) {
+    drawEliteMarker(context, death.x, death.y, sizePx);
   }
 }
 
@@ -255,12 +441,41 @@ function drawHero(
   hero: HeroState,
   effects: RenderEffects,
   facing: Facing,
+  state: MatchState,
+  presentationTimeMs: number,
 ): void {
   const accent = classColors[hero.classId];
-  drawHeroName(context, hero, accent);
+  if (hero.alive) {
+    drawHeroName(context, hero, accent);
+  }
 
   const heading = headingFor(effects.heroHeadings, hero.id);
   const flash = hero.hitFlashTicks > 0;
+  let candidate: ActorActionCandidate;
+  if (!hero.alive) {
+    candidate = { action: "death", retriggerToken: hero.deathTick };
+  } else if (flash) {
+    candidate = { action: "hit", retriggerToken: state.tick };
+  } else {
+    const attackTick = heroAttackStartedTick(effects, hero.id);
+    if (attackTick !== undefined) {
+      candidate = { action: "attack", retriggerToken: attackTick };
+    } else if (
+      state.phase === "running" &&
+      (Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01)
+    ) {
+      candidate = { action: "walk" };
+    } else {
+      candidate = { action: "idle" };
+    }
+  }
+  const playback = playbackFor(
+    effects,
+    `hero:${hero.id}`,
+    candidate,
+    presentationTimeMs,
+    state.seed,
+  );
   const drew = drawCharacter(context, {
     id: hero.classId,
     x: hero.x,
@@ -268,6 +483,8 @@ function drawHero(
     headingX: heading.x,
     headingY: heading.y,
     sizePx: 32,
+    action: playback.action,
+    actionElapsedMs: playback.elapsedMs,
     flash,
   });
 
@@ -282,10 +499,12 @@ function drawHero(
     });
   }
 
-  context.fillStyle = "#1b1520";
-  context.fillRect(hero.x - 18, hero.y - 26, 36, 4);
-  context.fillStyle = accent;
-  context.fillRect(hero.x - 18, hero.y - 26, 36 * Math.max(0, Math.min(1, hero.hp / hero.maxHp)), 4);
+  if (hero.alive) {
+    context.fillStyle = "#1b1520";
+    context.fillRect(hero.x - 18, hero.y - 26, 36, 4);
+    context.fillStyle = accent;
+    context.fillRect(hero.x - 18, hero.y - 26, 36 * Math.max(0, Math.min(1, hero.hp / hero.maxHp)), 4);
+  }
 }
 
 /** Subtle always-on temperament aura drawn under the hero sprite. */
@@ -469,7 +688,7 @@ function drawSurvivorTrail(
     }
   }
 
-  // Directional residue opposite movement (always-on subtle ghost)
+  // Directional residue opposite movement (always-on subtle afterimage)
   const moveX = Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01 ? hero.vx : hero.moveDirX;
   const moveY = Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01 ? hero.vy : hero.moveDirY;
   const len = Math.hypot(moveX, moveY);
@@ -593,18 +812,4 @@ function drawHeroName(context: CanvasRenderingContext2D, hero: HeroState, color:
   context.strokeRect(x, y, width, 16);
   context.fillStyle = palette.ink;
   context.fillText(hero.name, x + width / 2, y + 8, width - 8);
-}
-
-function drawDialog(context: CanvasRenderingContext2D, text: string): void {
-  context.fillStyle = palette.black;
-  context.fillRect(96, 430, 768, 76);
-  context.strokeStyle = palette.white;
-  context.lineWidth = 3;
-  context.strokeRect(96, 430, 768, 76);
-  context.strokeRect(103, 437, 754, 62);
-  context.fillStyle = palette.ink;
-  context.font = "14px 'Press Start 2P', monospace";
-  context.textAlign = "left";
-  context.textBaseline = "middle";
-  context.fillText(text, 122, 468);
 }

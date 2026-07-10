@@ -3,6 +3,7 @@ import { HERO_RADIUS, WORLD_HEIGHT, WORLD_WIDTH } from "../src/sim/constants";
 import {
   collectEquippedEffects,
   equippedStatMods,
+  listWeaponMods,
   setPieceCount,
 } from "../src/sim/itemEffects";
 import {
@@ -136,6 +137,31 @@ describe("items v3 catalog", () => {
     const midas = getItemDefinition("unique_midasFang");
     expect(midas?.description).toContain("gold");
     expect(midas?.effects.some((e) => e.kind === "trigger" && e.when === "onKill")).toBe(true);
+  });
+
+  it("keeps Twinstar Brooch useful only for the Elf Archer weapon pair", () => {
+    const twinstar = getItemDefinition("unique_twinstarBrooch");
+    const equipped: EquippedItems = {
+      relicWeapon: null,
+      armor: null,
+      trinket: "unique_twinstarBrooch",
+    };
+    const mods = listWeaponMods(equipped, "elf");
+    const damageBonusFor = (weapon: "magicArrow" | "crossbowBolt" | "swordSweep" | "fireBolt"): number =>
+      mods
+        .filter((effect) => effect.weapon === "all" || effect.weapon === weapon)
+        .reduce((total, effect) => total + (effect.dmgPct ?? 0), 0);
+
+    expect(twinstar).toMatchObject({
+      id: "unique_twinstarBrooch",
+      name: "Twinstar Brooch",
+      description: "Magic Arrow and Crossbow Bolt damage +12%. SPD +6%.",
+      classLock: "elf",
+    });
+    expect(damageBonusFor("magicArrow")).toBeCloseTo(0.12);
+    expect(damageBonusFor("crossbowBolt")).toBeCloseTo(0.12);
+    expect(damageBonusFor("swordSweep")).toBe(0);
+    expect(damageBonusFor("fireBolt")).toBe(0);
   });
 });
 

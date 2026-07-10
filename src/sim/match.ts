@@ -178,6 +178,8 @@ function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
     baseSpeed: definition.speed * (1 + permStats.spd * 0.05 + itemStats.spdPct) + itemStats.spdFlat,
     moveDirX: 1,
     moveDirY: 0,
+    currentIntent: "reposition",
+    currentIntentReason: "Scanning the arena.",
     reevaluateTicks: 0,
     progressAnchorX: WORLD_WIDTH / 2 + offset.x,
     progressAnchorY: WORLD_HEIGHT / 2 + offset.y,

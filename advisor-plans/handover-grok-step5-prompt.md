@@ -1,4 +1,4 @@
-너는 /Users/ahndohun/projects/ghost-guild 리포(이미 cwd)에서 기능 작업을 수행하는 프론트엔드 개발자다. 현재 브랜치 advisor/002-fixed-guild-shell에서 그대로 작업한다. 브랜치 전환·커밋·push 금지 — 파일 수정과 테스트 실행만. 보고는 한국어로.
+너는 현재 저장소 루트(이미 cwd)에서 기능 작업을 수행하는 프론트엔드 개발자다. 현재 브랜치 advisor/002-fixed-guild-shell에서 그대로 작업한다. 브랜치 전환·커밋·push 금지 — 파일 수정과 테스트 실행만. 보고는 한국어로.
 
 ## 착수 전 필독
 1. advisor-plans/002-fixed-guild-shell.md 의 Step 5, Step 6 섹션과 "Target layout contract" (스펙 원문)

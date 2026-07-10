@@ -193,8 +193,8 @@ const priestInvestedCohort = summarizeCohort("priestT2B", priestT2BLoadout);
 
 describe("balance calibration (judgment seeds 10000..10039)", () => {
   it("fresh Knight/Guardian/perm0 remains mortal but reaches the mid-run", () => {
-    // Roster v3 intentional shift: 140 HP, late-flee Guardian, and contact mitigation.
-    // Golden cohort recalibrated from the old Vanguard baseline.
+    // W1/W2 movement restores the pre-weapon-split progression target: a fresh
+    // player sees the mid-run, but still cannot clear the arena without investment.
     expect(freshCohort.survivalCount).toBe(0);
     expect(freshCohort.medianSurvivedSeconds).toBeGreaterThanOrEqual(90);
     expect(freshCohort.medianSurvivedSeconds).toBeLessThanOrEqual(125);

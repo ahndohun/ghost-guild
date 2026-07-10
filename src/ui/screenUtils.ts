@@ -12,10 +12,10 @@ export type VisibleScreen = "title" | "guild" | "run" | "results";
 
 const screenOrder: readonly VisibleScreen[] = ["title", "guild", "run", "results"];
 
-/** Guild subsections (Plan 002): a fixed shell with one bounded pane visible at a time. */
-export type GuildSection = "overview" | "class" | "training" | "gear";
+/** Three growth destinations; identity and record stay in the persistent stage. */
+export type GuildSection = "class" | "training" | "gear";
 
-export const guildSectionOrder: readonly GuildSection[] = ["overview", "class", "training", "gear"];
+export const guildSectionOrder: readonly GuildSection[] = ["class", "training", "gear"];
 
 export type GuildSectionPanes = Record<GuildSection, HTMLElement>;
 export type GuildSectionTabs = Record<GuildSection, HTMLButtonElement>;

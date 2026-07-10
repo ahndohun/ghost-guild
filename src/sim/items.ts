@@ -449,10 +449,10 @@ const uniqueItems: readonly ItemDefinition[] = [
     rarity: "unique",
     slot: "trinket",
     classLock: "elf",
-    description: "Sword Sweep and Fire Bolt damage +12%. SPD +6%.",
+    description: "Magic Arrow and Crossbow Bolt damage +12%. SPD +6%.",
     effects: [
-      { kind: "weaponMod", weapon: "swordSweep", dmgPct: 0.12 },
-      { kind: "weaponMod", weapon: "fireBolt", dmgPct: 0.12 },
+      { kind: "weaponMod", weapon: "magicArrow", dmgPct: 0.12 },
+      { kind: "weaponMod", weapon: "crossbowBolt", dmgPct: 0.12 },
       { kind: "statMod", stat: "spd", pct: 0.06 },
     ],
   },

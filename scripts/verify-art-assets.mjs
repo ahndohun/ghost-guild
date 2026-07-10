@@ -65,6 +65,20 @@ async function verifyManifest(value) {
     await verifyConsumers(actor, label);
 
     const canvas = dimensionsOf(actor.canvas, `${label}.canvas`);
+    if (isRecord(actor.fallback) && typeof actor.fallback.pathTemplate === "string") {
+      const fallbackLabel = `${label}.fallback`;
+      if (!actor.fallback.pathTemplate.includes("{direction}")) {
+        errors.push(`${fallbackLabel}.pathTemplate must include {direction}`);
+      } else {
+        const fallbackDimensions = dimensionsOf(actor.fallback.dimensions, `${fallbackLabel}.dimensions`);
+        for (const direction of directions) {
+          const assetPath = actor.fallback.pathTemplate.replaceAll("{direction}", direction);
+          await verifyDeclaredPng(assetPath, fallbackDimensions, `${fallbackLabel}.${direction}`, activePaths);
+        }
+      }
+    } else {
+      errors.push(`${label} must declare a directional fallback`);
+    }
     const animations = entriesOf(actor.animations, `${label}.animations`);
     if (animations.length === 0) {
       errors.push(`${label} must declare at least one animation`);

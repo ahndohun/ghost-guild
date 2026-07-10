@@ -8,6 +8,19 @@ import { collectEquippedEffects } from "./itemEffects";
 import type { DropState, EnemyState, HeroState, ItemId, MatchState, PerkEffect, PerkId } from "./types";
 import type { Rng } from "./rng";
 
+const COLLISION_CELL_SIZE = 32;
+const COLLISION_NEIGHBOR_RANGE = 2;
+const COLLISION_PASSES = 4;
+const SMALL_CLUSTER_COLLISION_PASSES = 8;
+const COLLISION_EPSILON = 0.001;
+const COLLISION_RELAXATION = 1.35;
+
+type CollisionActor = {
+  readonly kind: "hero" | "enemy";
+  readonly sortKey: number;
+  readonly body: HeroState | EnemyState;
+};
+
 export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: () => number): void {
   const remaining: EnemyState[] = [];
 
@@ -65,9 +78,148 @@ export function tickEnemies(state: MatchState): void {
     applyTouchDamage(enemy, target, state.tick);
   }
 
+  resolveActorOverlaps(state);
+
   if (state.screenShakeTicks > 0) {
     state.screenShakeTicks -= 1;
   }
+}
+
+/**
+ * Stable post-move push-out. The 32px spatial grid keeps the late swarm near
+ * O(n); actor ordering and coincident-pair normals are id-derived, never RNG.
+ */
+export function resolveActorOverlaps(state: MatchState): void {
+  const actors: CollisionActor[] = [
+    ...state.heroes
+      .filter((hero) => hero.alive)
+      .map((hero) => ({ kind: "hero" as const, sortKey: hero.id, body: hero })),
+    ...state.enemies
+      .filter((enemy) => enemy.hp > 0)
+      .map((enemy) => ({ kind: "enemy" as const, sortKey: 1_000_000 + enemy.id, body: enemy })),
+  ].sort((left, right) => left.sortKey - right.sortKey);
+
+  const passLimit = actors.length <= 8 ? SMALL_CLUSTER_COLLISION_PASSES : COLLISION_PASSES;
+  for (let pass = 0; pass < passLimit; pass += 1) {
+    const buckets = buildCollisionBuckets(actors);
+    let corrected = false;
+
+    for (const actor of actors) {
+      const cellX = Math.floor(actor.body.x / COLLISION_CELL_SIZE);
+      const cellY = Math.floor(actor.body.y / COLLISION_CELL_SIZE);
+      for (let offsetY = -COLLISION_NEIGHBOR_RANGE; offsetY <= COLLISION_NEIGHBOR_RANGE; offsetY += 1) {
+        for (let offsetX = -COLLISION_NEIGHBOR_RANGE; offsetX <= COLLISION_NEIGHBOR_RANGE; offsetX += 1) {
+          const candidates = buckets.get(bucketKey(cellX + offsetX, cellY + offsetY));
+          if (candidates === undefined) {
+            continue;
+          }
+          for (const other of candidates) {
+            if (other.sortKey <= actor.sortKey) {
+              continue;
+            }
+            corrected = separateActors(actor, other) || corrected;
+          }
+        }
+      }
+    }
+
+    if (!corrected) {
+      break;
+    }
+  }
+}
+
+function buildCollisionBuckets(actors: readonly CollisionActor[]): Map<number, CollisionActor[]> {
+  const buckets = new Map<number, CollisionActor[]>();
+  for (const actor of actors) {
+    const key = bucketKey(
+      Math.floor(actor.body.x / COLLISION_CELL_SIZE),
+      Math.floor(actor.body.y / COLLISION_CELL_SIZE),
+    );
+    const bucket = buckets.get(key);
+    if (bucket === undefined) {
+      buckets.set(key, [actor]);
+    } else {
+      bucket.push(actor);
+    }
+  }
+  return buckets;
+}
+
+function bucketKey(x: number, y: number): number {
+  return y * 64 + x;
+}
+
+function separateActors(left: CollisionActor, right: CollisionActor): boolean {
+  const minimumDistance = left.body.radius + right.body.radius;
+  let dx = right.body.x - left.body.x;
+  let dy = right.body.y - left.body.y;
+  let distance = Math.sqrt(dx * dx + dy * dy);
+  if (distance >= minimumDistance) {
+    return false;
+  }
+
+  if (distance <= 0.000001) {
+    const normal = coincidentPairNormal(left.sortKey, right.sortKey);
+    dx = normal.x;
+    dy = normal.y;
+    distance = 1;
+  }
+  const normalX = dx / distance;
+  const normalY = dy / distance;
+  const overlap =
+    (minimumDistance - Math.min(distance, minimumDistance) + COLLISION_EPSILON) *
+    COLLISION_RELAXATION;
+  const weights = separationWeights(left.kind, right.kind);
+
+  left.body.x -= normalX * overlap * weights.left;
+  left.body.y -= normalY * overlap * weights.left;
+  right.body.x += normalX * overlap * weights.right;
+  right.body.y += normalY * overlap * weights.right;
+  clampActor(left.body);
+  clampActor(right.body);
+
+  if (left.kind !== right.kind) {
+    if (left.kind === "hero") {
+      stopHeroIntoContact(left.body as HeroState, normalX, normalY);
+    } else {
+      stopHeroIntoContact(right.body as HeroState, -normalX, -normalY);
+    }
+  }
+  return true;
+}
+
+function separationWeights(
+  left: CollisionActor["kind"],
+  right: CollisionActor["kind"],
+): { readonly left: number; readonly right: number } {
+  if (left === "hero" && right === "enemy") {
+    return { left: 0.35, right: 0.65 };
+  }
+  if (left === "enemy" && right === "hero") {
+    return { left: 0.65, right: 0.35 };
+  }
+  return { left: 0.5, right: 0.5 };
+}
+
+function coincidentPairNormal(leftKey: number, rightKey: number): { readonly x: number; readonly y: number } {
+  const index = (leftKey * 17 + rightKey * 31) % 16;
+  const angle = index * Math.PI * 2 / 16;
+  return { x: Math.cos(angle), y: Math.sin(angle) };
+}
+
+function clampActor(actor: HeroState | EnemyState): void {
+  actor.x = clamp(actor.x, actor.radius, WORLD_WIDTH - actor.radius);
+  actor.y = clamp(actor.y, actor.radius, WORLD_HEIGHT - actor.radius);
+}
+
+function stopHeroIntoContact(hero: HeroState, normalX: number, normalY: number): void {
+  const intoContact = hero.vx * normalX + hero.vy * normalY;
+  if (intoContact <= 0) {
+    return;
+  }
+  hero.vx -= normalX * intoContact;
+  hero.vy -= normalY * intoContact;
 }
 
 export function livingHeroes(state: MatchState): number {

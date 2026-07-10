@@ -1,4 +1,10 @@
-/** PixelLab 8-direction character sprites with graceful fallback when not ready. */
+/** Production action atlases with legacy 8-direction sprite fallback. */
+
+import {
+  ACTOR_ATLAS_DIRECTIONS,
+  selectActorAtlasFrame,
+  type ActorAtlasDirection,
+} from "./actorAnimations";
 
 export type CharacterSpriteId =
   | "fighter"
@@ -16,6 +22,8 @@ export type CharacterSpriteId =
   | "bat"
   | "brute";
 
+export type CharacterAction = "idle" | "walk" | "attack" | "hit" | "death";
+
 export type DrawCharacterInput = {
   readonly id: string;
   readonly x: number;
@@ -23,6 +31,8 @@ export type DrawCharacterInput = {
   readonly headingX: number;
   readonly headingY: number;
   readonly sizePx: number;
+  readonly action: CharacterAction;
+  readonly actionElapsedMs: number;
   readonly flash?: boolean;
 };
 
@@ -31,18 +41,24 @@ type SpriteMeta = {
   readonly canvas: number;
 };
 
-const DIRECTIONS = [
-  "south",
-  "south-east",
-  "east",
-  "north-east",
-  "north",
-  "north-west",
-  "west",
-  "south-west",
-] as const;
+const DIRECTIONS = ACTOR_ATLAS_DIRECTIONS;
+const ACTIONS = ["idle", "walk", "attack", "hit", "death"] as const;
 
-type Direction = (typeof DIRECTIONS)[number];
+type Direction = ActorAtlasDirection;
+
+type ActionPlayback = {
+  readonly frameCount: number;
+  readonly frameDurationMs: number;
+  readonly loop: boolean;
+};
+
+const ACTION_PLAYBACK: Record<CharacterAction, ActionPlayback> = {
+  idle: { frameCount: 4, frameDurationMs: 150, loop: true },
+  walk: { frameCount: 4, frameDurationMs: 100, loop: true },
+  attack: { frameCount: 4, frameDurationMs: 80, loop: false },
+  hit: { frameCount: 4, frameDurationMs: 60, loop: false },
+  death: { frameCount: 6, frameDurationMs: 120, loop: false },
+};
 
 /** Content height used for scale: most characters ~32px, brute ~40px. */
 const CONTENT_PX: Record<string, number> = {
@@ -80,9 +96,13 @@ export const CHARACTER_SPRITES: Record<string, SpriteMeta> = {
 };
 
 type DirectionImages = Record<Direction, HTMLImageElement | undefined>;
+type ActionImages = Record<CharacterAction, HTMLImageElement | undefined>;
 
 const imagesByCharacter = new Map<string, DirectionImages>();
-const readyCharacters = new Set<string>();
+const atlasImagesByCharacter = new Map<string, ActionImages>();
+const readyLegacyCharacters = new Set<string>();
+const readyAtlasCharacters = new Set<string>();
+const legacyLoadStartedCharacters = new Set<string>();
 const flashCache = new Map<string, HTMLCanvasElement | OffscreenCanvas>();
 let loadStarted = false;
 
@@ -93,6 +113,10 @@ function assetBaseUrl(): string {
 
 function spriteUrl(meta: SpriteMeta, direction: Direction): string {
   return `${assetBaseUrl()}${meta.dir}/${direction}.png`;
+}
+
+function atlasUrl(id: string, action: CharacterAction): string {
+  return `${assetBaseUrl()}assets/art/actors/${id}/${action}.png`;
 }
 
 function emptyDirectionImages(): DirectionImages {
@@ -108,7 +132,17 @@ function emptyDirectionImages(): DirectionImages {
   };
 }
 
-function markReadyIfComplete(id: string): void {
+function emptyActionImages(): ActionImages {
+  return {
+    idle: undefined,
+    walk: undefined,
+    attack: undefined,
+    hit: undefined,
+    death: undefined,
+  };
+}
+
+function markLegacyReadyIfComplete(id: string): void {
   const images = imagesByCharacter.get(id);
   if (images === undefined) {
     return;
@@ -119,12 +153,71 @@ function markReadyIfComplete(id: string): void {
       return;
     }
   }
-  readyCharacters.add(id);
+  readyLegacyCharacters.add(id);
+}
+
+function atlasCellPx(id: string): number {
+  return id === "brute" ? 80 : 64;
+}
+
+function isValidAtlasImage(
+  id: string,
+  action: CharacterAction,
+  image: HTMLImageElement | undefined,
+): image is HTMLImageElement {
+  if (image === undefined || !image.complete || image.naturalWidth === 0) {
+    return false;
+  }
+  const cellPx = atlasCellPx(id);
+  return (
+    image.naturalWidth === cellPx * ACTION_PLAYBACK[action].frameCount &&
+    image.naturalHeight === cellPx * DIRECTIONS.length
+  );
+}
+
+function markAtlasReadyIfComplete(id: string): void {
+  const images = atlasImagesByCharacter.get(id);
+  if (images === undefined) {
+    return;
+  }
+  for (const action of ACTIONS) {
+    if (!isValidAtlasImage(id, action, images[action])) {
+      return;
+    }
+  }
+  readyAtlasCharacters.add(id);
+}
+
+function startLegacySpriteLoad(id: string, meta: SpriteMeta): void {
+  if (legacyLoadStartedCharacters.has(id)) {
+    return;
+  }
+  legacyLoadStartedCharacters.add(id);
+
+  const images = emptyDirectionImages();
+  imagesByCharacter.set(id, images);
+  for (const direction of DIRECTIONS) {
+    try {
+      const image = new Image();
+      image.decoding = "async";
+      image.onload = () => {
+        images[direction] = image;
+        markLegacyReadyIfComplete(id);
+      };
+      image.onerror = () => {
+        // Leave undefined; caller falls through to the code-drawn sprite.
+      };
+      image.src = spriteUrl(meta, direction);
+    } catch {
+      // Image may be unavailable in non-browser contexts.
+    }
+  }
 }
 
 /**
- * Fire-and-forget preload of all 8 rotations per character.
- * Never throws — a 404 simply leaves that character un-ready.
+ * Fire-and-forget preload of production atlases. Legacy directions are fetched
+ * only after an atlas actually fails, avoiding 112 duplicate startup requests.
+ * Never throws; missing art falls through to the code-drawn sprite.
  */
 export function startPixelSpriteLoad(): void {
   if (loadStarted) {
@@ -133,30 +226,34 @@ export function startPixelSpriteLoad(): void {
   loadStarted = true;
 
   for (const [id, meta] of Object.entries(CHARACTER_SPRITES)) {
-    const images = emptyDirectionImages();
-    imagesByCharacter.set(id, images);
+    const atlasImages = emptyActionImages();
+    atlasImagesByCharacter.set(id, atlasImages);
 
-    for (const direction of DIRECTIONS) {
+    for (const action of ACTIONS) {
       try {
         const image = new Image();
         image.decoding = "async";
         image.onload = () => {
-          images[direction] = image;
-          markReadyIfComplete(id);
+          atlasImages[action] = image;
+          if (!isValidAtlasImage(id, action, image)) {
+            startLegacySpriteLoad(id, meta);
+            return;
+          }
+          markAtlasReadyIfComplete(id);
         };
         image.onerror = () => {
-          // Leave undefined; character stays un-ready.
+          startLegacySpriteLoad(id, meta);
         };
-        image.src = spriteUrl(meta, direction);
+        image.src = atlasUrl(id, action);
       } catch {
-        // Swallow — missing assets are expected for classes not yet shipped.
+        startLegacySpriteLoad(id, meta);
       }
     }
   }
 }
 
 export function isCharacterReady(id: string): boolean {
-  return readyCharacters.has(id);
+  return readyAtlasCharacters.has(id) || readyLegacyCharacters.has(id);
 }
 
 /**
@@ -238,32 +335,68 @@ function getFlashSurface(
  */
 export function drawCharacter(ctx: CanvasRenderingContext2D, input: DrawCharacterInput): boolean {
   const id = input.id;
-  if (!readyCharacters.has(id)) {
-    return false;
+  const direction = directionFromHeading(input.headingX, input.headingY);
+  const contentPx = contentPxFor(id);
+  const scale = input.sizePx / contentPx;
+  const destCenterX = input.x;
+  const destCenterY = input.y + input.sizePx * 0.35 - input.sizePx / 2;
+
+  const atlasImages = atlasImagesByCharacter.get(id);
+  const atlasImage = atlasImages?.[input.action];
+  if (readyAtlasCharacters.has(id) && isValidAtlasImage(id, input.action, atlasImage)) {
+    const cellPx = atlasCellPx(id);
+    const frame = selectActorAtlasFrame({
+      direction,
+      cellWidth: cellPx,
+      cellHeight: cellPx,
+      ...ACTION_PLAYBACK[input.action],
+      elapsedMs: input.actionElapsedMs,
+    });
+    const destW = cellPx * scale;
+    const destH = cellPx * scale;
+    const destX = Math.round(destCenterX - destW / 2);
+    const destY = Math.round(destCenterY - destH / 2);
+
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    if (input.flash === true) {
+      // Canvas filter preserves the selected atlas source rectangle while
+      // producing the same white hit silhouette as the legacy flash surface.
+      ctx.filter = "brightness(0) invert(1)";
+    }
+    ctx.drawImage(
+      atlasImage,
+      frame.sourceRect.x,
+      frame.sourceRect.y,
+      frame.sourceRect.width,
+      frame.sourceRect.height,
+      destX,
+      destY,
+      Math.round(destW),
+      Math.round(destH),
+    );
+    ctx.restore();
+    return true;
   }
 
   const images = imagesByCharacter.get(id);
-  if (images === undefined) {
-    return false;
-  }
-
-  const direction = directionFromHeading(input.headingX, input.headingY);
-  const image = images[direction];
-  if (image === undefined || !image.complete || image.naturalWidth === 0) {
+  const image = images?.[direction];
+  if (
+    !readyLegacyCharacters.has(id) ||
+    image === undefined ||
+    !image.complete ||
+    image.naturalWidth === 0
+  ) {
     return false;
   }
 
   // PixelLab canvas sizes vary per character (56–80px) — trust the decoded image.
   const meta = CHARACTER_SPRITES[id];
   const canvasPx = image.naturalWidth || meta?.canvas || 64;
-  const contentPx = contentPxFor(id);
-  const scale = input.sizePx / contentPx;
   const destW = canvasPx * scale;
   const destH = canvasPx * scale;
 
   // Feet sit near y + sizePx * 0.35 → visual center slightly above entity y.
-  const destCenterX = input.x;
-  const destCenterY = input.y + input.sizePx * 0.35 - input.sizePx / 2;
   const destX = Math.round(destCenterX - destW / 2);
   const destY = Math.round(destCenterY - destH / 2);
 

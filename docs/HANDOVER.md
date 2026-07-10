@@ -5,7 +5,7 @@
 ## 0. 미션
 
 - **TestSprite Hackathon S3** 출품작. **마감 2026-07-11 08:59 KST** — 제출(폼+Discord 포럼)은 이미 접수 완료, 마감까지 리포·라이브 개선 반영.
-- 리포: `/Users/ahndohun/projects/ghost-guild` · 라이브: https://ghost-guild.vercel.app (main 푸시 = Vercel 자동배포)
+- 리포: 이 문서가 있는 저장소 루트 · 라이브: https://ghost-guild.vercel.app (main 푸시 = Vercel 자동배포)
 - **루브릭 40%가 "TestSprite 검증 루프 기록"** — 매 사이클 LOOP.md에 남는다. 코드 개선만큼 루프 기록이 점수다.
 
 ## 1. 게임 정체성 (설계 불변)

@@ -75,7 +75,7 @@ class MemoryStorage implements Storage {
   }
 }
 
-describe("Ghost Guild UI data boundaries", () => {
+describe("Colosseum Survivors UI data boundaries", () => {
   it("starts a fresh save at coach step one and persists it", () => {
     const storage = new MemoryStorage();
 
@@ -84,6 +84,7 @@ describe("Ghost Guild UI data boundaries", () => {
 
     expect(save.coachCompleted).toBe(false);
     expect(save.coachStep).toBe(1);
+    expect(save.playerName).toBe("");
     expect(stored.coachCompleted).toBe(false);
     expect(stored.coachStep).toBe(1);
   });
@@ -139,7 +140,7 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(save.perksByClass).toEqual(emptyPerksByClass);
     expect(save).not.toHaveProperty("temperament");
     expect(save).not.toHaveProperty("perksByTemperament");
-    expect(save.playerName).toMatch(/^Gladiator-[0-9]{4}$/);
+    expect(save.playerName).toBe("");
     expect(stored).not.toBeNull();
     expect(stored).not.toContain("\"temperament\"");
     expect(stored).not.toContain("\"traits\"");
@@ -395,15 +396,29 @@ describe("Ghost Guild UI data boundaries", () => {
     );
   });
 
-  it("renders class specialization surface without temperament cards, keeps perk testids", () => {
+  it("renders the three-destination lobby IA while keeping cloud-facing combat testids", () => {
     const markup = screenMarkup();
 
     expect(markup).toContain("data-testid=\"player-name\"");
+    expect(markup.match(/data-testid=\"player-name\"/g)).toHaveLength(1);
     expect(markup).toContain("maxlength=\"20\"");
-    expect(markup).toContain("Your gladiator fights on its own");
-    expect(markup).toContain("Class Specialization");
+    expect(markup).toContain("data-testid=\"name-modal\"");
+    expect(markup).toContain("data-testid=\"confirm-player-name\"");
+    expect(markup).toContain("Specialization Tree");
     expect(markup).toContain("data-testid=\"best-survival\"");
-    expect(markup).toContain("data-testid=\"best-survival-guild\"");
+    expect(markup).toContain("data-testid=\"nameplate-best\"");
+    expect(markup).not.toContain("data-testid=\"best-survival-guild\"");
+    expect(markup).not.toContain("data-testid=\"guild-tab-overview\"");
+    expect(markup).toContain("CLASS &amp; TREE");
+    expect(markup).toContain(">TRAINING<");
+    expect(markup).toContain(">INVENTORY<");
+    expect(markup).toContain("data-testid=\"battle-open\"");
+    expect(markup).toContain("data-testid=\"battle-modal\"");
+    expect(markup).toContain("data-testid=\"deploy-solo\"");
+    expect(markup).toContain("data-testid=\"deploy-arena\"");
+    expect(markup).toContain("data-testid=\"toggle-autorun\"");
+    expect(markup).toContain("data-testid=\"settings-popover\"");
+    expect(markup).toContain("data-testid=\"coach-replay\"");
 
     // Temperament selection removed (Traits v3)
     expect(markup).not.toContain("data-testid=\"temperament-berserker\"");
@@ -438,6 +453,16 @@ describe("Ghost Guild UI data boundaries", () => {
       "hud-time": { textContent: "", style: { height: "", width: "" } },
       "hud-hp-fill": { textContent: "", style: { height: "", width: "" } },
       "hud-xp-fill": { textContent: "", style: { height: "", width: "" } },
+      "run-mode": { textContent: "", style: { height: "", width: "" } },
+      "run-progress": { textContent: "", style: { height: "", width: "" } },
+      "run-progress-fill": { textContent: "", style: { height: "", width: "" } },
+      "run-remaining": { textContent: "", style: { height: "", width: "" } },
+      "run-kills": { textContent: "", style: { height: "", width: "" } },
+      "run-gold": { textContent: "", style: { height: "", width: "" } },
+      "run-score": { textContent: "", style: { height: "", width: "" } },
+      "run-class": { textContent: "", style: { height: "", width: "" } },
+      "run-behavior": { textContent: "", style: { height: "", width: "" } },
+      "run-behavior-reason": { textContent: "", style: { height: "", width: "" } },
     };
     const documentRef = {
       getElementById: (id: string) => hudNodes[id] ?? null,
@@ -466,6 +491,67 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(element.dataset.temperament).toBe("berserker");
     expect(element.dataset.seed).toBe("42");
     expect(element.dataset.time).toBe("1");
+  });
+
+  it("renders a compact state-derived spectator report without mutating the match", () => {
+    const hudNodes: Record<string, { textContent: string; style: { height: string; width: string } }> = {
+      "hud-hp": { textContent: "", style: { height: "", width: "" } },
+      "hud-level": { textContent: "", style: { height: "", width: "" } },
+      "hud-time": { textContent: "", style: { height: "", width: "" } },
+      "hud-hp-fill": { textContent: "", style: { height: "", width: "" } },
+      "hud-xp-fill": { textContent: "", style: { height: "", width: "" } },
+      "run-mode": { textContent: "", style: { height: "", width: "" } },
+      "run-progress": { textContent: "", style: { height: "", width: "" } },
+      "run-progress-fill": { textContent: "", style: { height: "", width: "" } },
+      "run-remaining": { textContent: "", style: { height: "", width: "" } },
+      "run-kills": { textContent: "", style: { height: "", width: "" } },
+      "run-gold": { textContent: "", style: { height: "", width: "" } },
+      "run-score": { textContent: "", style: { height: "", width: "" } },
+      "run-class": { textContent: "", style: { height: "", width: "" } },
+      "run-behavior": { textContent: "", style: { height: "", width: "" } },
+      "run-behavior-reason": { textContent: "", style: { height: "", width: "" } },
+    };
+    const documentRef = {
+      getElementById: (id: string) => hudNodes[id] ?? null,
+    } as unknown as Document;
+    const element = { dataset: {} as Record<string, string> } as unknown as HTMLElement;
+    const match = createMatch({
+      seed: 42,
+      heroes: [
+        {
+          name: "Test",
+          classId: "knight",
+          temperament: "guardian",
+          perks: [],
+          permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        },
+      ],
+    });
+    const hero = match.state.heroes[0];
+    if (hero === undefined) {
+      throw new Error("Expected a hero");
+    }
+    match.state.tick = 30;
+    hero.kills = 3;
+    hero.gold = 17;
+    hero.currentIntent = "hold-ground";
+    hero.currentIntentReason = "Holding the arena center.";
+    const before = JSON.stringify(match.state);
+
+    updateMirror(documentRef, element, match.state, "arena");
+
+    expect(JSON.stringify(match.state)).toBe(before);
+    expect(hudNodes["run-mode"]?.textContent).toBe("ARENA");
+    expect(hudNodes["run-progress"]?.textContent).toBe("1 / 180s");
+    expect(hudNodes["run-progress-fill"]?.style.width).toBe(`${100 / 180}%`);
+    expect(hudNodes["run-remaining"]?.textContent).toBe("179s LEFT");
+    expect(hudNodes["run-kills"]?.textContent).toBe("3");
+    expect(hudNodes["run-gold"]?.textContent).toBe("17");
+    expect(hudNodes["run-score"]?.textContent).toBe("52");
+    expect(hudNodes["run-class"]?.textContent).toBe("Knight");
+    expect(hudNodes["run-behavior"]?.textContent).toBe("HOLD GROUND");
+    expect(hudNodes["run-behavior-reason"]?.textContent).toBe("Holding the arena center.");
+    expect(element.dataset.mode).toBe("arena");
   });
 
   it("builds an offline arena plan with class-derived bot temperaments", async () => {
