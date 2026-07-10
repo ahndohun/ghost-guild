@@ -2,7 +2,7 @@ import { heroClassIds, perkCosts, perkDefinitions, temperamentIds } from "../sim
 import type { PerkId, PerkTier } from "../sim";
 import { requiredButton, requiredInput } from "./dom";
 import { perkSlots } from "./guildView";
-import { classUnlockCosts, nextUpgradeCost, permStatUpgrades } from "./meta";
+import { nextUpgradeCost, permStatUpgrades } from "./meta";
 import { normalizePlayerNameInput } from "./save";
 import type { GuildSave } from "./save";
 import { persist } from "./screenUtils";
@@ -48,21 +48,7 @@ export function wireGuildInteractions(context: GuildInteractionContext): {
 
   for (const classId of heroClassIds) {
     requiredButton(context.documentRef, `class-${classId}`).addEventListener("click", () => {
-      const save = context.getSave();
-      if (save.unlockedClasses[classId]) {
-        updateSave(context, (current) => ({ ...current, classId }));
-        return;
-      }
-
-      const cost = classUnlockCosts[classId];
-      if (save.gold >= cost) {
-        updateSave(context, (current) => ({
-          ...current,
-          gold: current.gold - cost,
-          classId,
-          unlockedClasses: { ...current.unlockedClasses, [classId]: true },
-        }));
-      }
+      updateSave(context, (current) => ({ ...current, classId }));
     });
   }
 

@@ -2,7 +2,7 @@ import { heroClassIds, perkCosts, perkDefinitions, temperamentDefinitions, tempe
 import type { PerkChoice, PerkId, PerkTier, TemperamentId } from "../sim";
 import { requiredButton, requiredElement, requiredInput } from "./dom";
 import type { LobbyStageController } from "./lobbyStage";
-import { classUnlockCosts, formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
+import { formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
 import type { GuildSave } from "./save";
 
 export type PerkSlot = {
@@ -49,19 +49,12 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
 
   for (const classId of heroClassIds) {
     const button = requiredButton(documentRef, `class-${classId}`);
-    const locked = !save.unlockedClasses[classId];
-    const cost = classUnlockCosts[classId];
-    button.disabled = locked && save.gold < cost;
-    button.classList.toggle("selected", save.classId === classId);
-    button.classList.toggle("locked", locked);
-    requiredElement(documentRef, `class-${classId}-status`).textContent = locked
-      ? `Unlock ${formatGold(cost)}g`
-      : classStatus(save.classId === classId);
+    const selected = save.classId === classId;
+    button.disabled = false;
+    button.classList.toggle("selected", selected);
+    button.classList.remove("locked");
+    requiredElement(documentRef, `class-${classId}-status`).textContent = selected ? "Selected" : "Ready";
   }
-}
-
-function classStatus(selected: boolean): string {
-  return selected ? "Selected" : "Unlocked";
 }
 
 function renderGuildBestSurvival(documentRef: Document, bestSurvivalSeconds: number | undefined): void {

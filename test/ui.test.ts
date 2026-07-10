@@ -54,10 +54,10 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(save.permStats).toEqual({ atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 });
     expect(save.unlockedClasses).toEqual({
       knight: true,
-      mage: false,
-      priest: false,
-      monk: false,
-      gambler: false,
+      mage: true,
+      priest: true,
+      monk: true,
+      gambler: true,
     });
     expect(save.temperament).toBe("duelist");
     expect(save.perksByTemperament).toEqual({ berserker: [], hoarder: [], duelist: [], survivor: [] });
@@ -94,6 +94,49 @@ describe("Ghost Guild UI data boundaries", () => {
 
     expect(save.bestSurvivalSeconds).toBeUndefined();
     expect(save.playerName).toBe("Legacy Hero");
+  });
+
+  it("force-migrates legacy unlockedClasses to all-true and preserves classId", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      saveKey,
+      JSON.stringify({
+        gold: 50,
+        classId: "mage",
+        temperament: "hoarder",
+        autorun: false,
+        nextSeed: 3,
+        playerName: "Locked Mage",
+        permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        unlockedClasses: {
+          knight: true,
+          mage: false,
+          priest: false,
+          monk: false,
+          gambler: false,
+        },
+      }),
+    );
+
+    const save = loadSave(storage);
+    const stored = JSON.parse(storage.getItem(saveKey) ?? "{}") as GuildSave;
+
+    expect(save.classId).toBe("mage");
+    expect(save.unlockedClasses).toEqual({
+      knight: true,
+      mage: true,
+      priest: true,
+      monk: true,
+      gambler: true,
+    });
+    expect(stored.classId).toBe("mage");
+    expect(stored.unlockedClasses).toEqual({
+      knight: true,
+      mage: true,
+      priest: true,
+      monk: true,
+      gambler: true,
+    });
   });
 
   it("treats non-numeric bestSurvivalSeconds as undefined (tolerant parse)", () => {
@@ -185,6 +228,6 @@ function testSave(): GuildSave {
     nextSeed: 1,
     playerName: "Gladiator-0001",
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
-    unlockedClasses: { knight: true, mage: false, priest: false, monk: false, gambler: false },
+    unlockedClasses: { knight: true, mage: true, priest: true, monk: true, gambler: true },
   };
 }

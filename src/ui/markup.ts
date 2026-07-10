@@ -58,7 +58,7 @@ export function screenMarkup(): string {
               <p class="eyebrow">BARRACKS</p>
               <h1>Ghost Colosseum</h1>
               <p class="tagline">Coach your gladiator. The crowd remembers.</p>
-              <p class="onboarding-line">Your gladiator fights on its own - pick a temperament, hit DEPLOY, and watch. Win gold to unlock perks, classes, and upgrades.</p>
+              <p class="onboarding-line">Your gladiator fights on its own - pick a class and temperament, hit DEPLOY, and watch. Win gold to unlock perks and permanent upgrades.</p>
             </div>
           </div>
           <div class="lobby-nameplate" aria-live="polite">
@@ -200,7 +200,7 @@ function classMarkup(classId: HeroClassId): string {
       <small>${definition.startingWeapon}</small>
       <span class="class-strength">${definition.strength}</span>
       <span class="class-weakness">${definition.weakness}</span>
-      <small id="class-${classId}-status" class="class-status">Unlocked</small>
+      <small id="class-${classId}-status" class="class-status">Ready</small>
     </button>
   `;
 }

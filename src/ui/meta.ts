@@ -1,4 +1,4 @@
-import type { HeroClassId, HeroLoadout, PermStats } from "../sim";
+import type { HeroLoadout, PermStats } from "../sim";
 import type { GuildSave } from "./save";
 
 export type PermStatId = keyof PermStats;
@@ -16,14 +16,6 @@ export const permStatUpgrades: readonly UpgradeConfig[] = [
   { id: "luck", label: "LUCK", baseCost: 100 },
   { id: "lvl", label: "LVL", baseCost: 200 },
 ];
-
-export const classUnlockCosts: Record<HeroClassId, number> = {
-  knight: 0,
-  mage: 400,
-  priest: 1200,
-  monk: 800,
-  gambler: 2000,
-};
 
 export function nextUpgradeCost(statId: PermStatId, owned: number): number {
   const config = permStatUpgrades.find((entry) => entry.id === statId);

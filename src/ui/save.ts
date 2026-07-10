@@ -62,7 +62,7 @@ export function defaultSave(): GuildSave {
     nextSeed: 1,
     playerName: randomGladiatorName(),
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
-    unlockedClasses: { knight: true, mage: false, priest: false, monk: false, gambler: false },
+    unlockedClasses: allClassesUnlocked(),
   };
 }
 
@@ -103,15 +103,16 @@ function parseSave(value: unknown): GuildSave {
   }
 
   const fallback = defaultSave();
+  // Board 2026-07-10: class unlock gating removed — always keep classId, force all classes unlocked.
   const classId = parseClassId(value["classId"], fallback.classId);
-  const unlockedClasses = parseUnlockedClasses(value["unlockedClasses"], fallback.unlockedClasses);
+  const unlockedClasses = allClassesUnlocked();
   const temperament = parseTemperament(value["temperament"], value["traits"], fallback.temperament);
 
   const bestSurvivalSeconds = parseBestSurvivalSeconds(value["bestSurvivalSeconds"]);
 
   return {
     gold: parseNonNegativeNumber(value["gold"], fallback.gold),
-    classId: unlockedClasses[classId] ? classId : "knight",
+    classId,
     temperament,
     perksByTemperament: parsePerksByTemperament(value["perksByTemperament"], fallback.perksByTemperament),
     autorun: typeof value["autorun"] === "boolean" ? value["autorun"] : fallback.autorun,
@@ -203,20 +204,14 @@ function parsePermStats(value: unknown, fallback: PermStats): PermStats {
   };
 }
 
-function parseUnlockedClasses(
-  value: unknown,
-  fallback: Record<HeroClassId, boolean>,
-): Record<HeroClassId, boolean> {
-  if (!isRecord(value)) {
-    return fallback;
-  }
-
+/** Save-format field kept for compatibility; always all-true (unlock gating removed). */
+function allClassesUnlocked(): Record<HeroClassId, boolean> {
   return {
     knight: true,
-    mage: value["mage"] === true,
-    priest: value["priest"] === true,
-    monk: value["monk"] === true,
-    gambler: value["gambler"] === true,
+    mage: true,
+    priest: true,
+    monk: true,
+    gambler: true,
   };
 }
 
