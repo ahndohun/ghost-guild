@@ -30,6 +30,8 @@
   --bronze-slice: 12;
   --bronze-border: 6px;
   --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Decision body copy — system stack (no extra font files). */
+  --body-font: "Avenir Next", Avenir, "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 * {
@@ -80,7 +82,6 @@ button,
 .offline-badge,
 .hud-chip,
 .class-card strong,
-.class-card small,
 .result-grid dt,
 .result-grid dd,
 #result-ranking,
@@ -88,8 +89,7 @@ button,
 .title-logo,
 .title-logo-big,
 .title-tagline,
-.lobby-nameplate-title,
-.lobby-nameplate-rule {
+.lobby-nameplate-title {
   font-family: var(--pixel-font);
 }
 
@@ -174,28 +174,58 @@ button:active:not(:disabled) {
 }
 
 button:disabled,
-button.locked {
+button.locked,
+button.unaffordable {
   cursor: not-allowed;
   filter: grayscale(0.45) brightness(0.72);
   opacity: 0.72;
   box-shadow: 2px 2px 0 var(--shadow);
 }
 
+/* Selected: thick cyan ring + inset edge (not color-only). */
 button.selected,
 .class-card.selected,
 .perk-card.selected {
   filter: brightness(1.18) saturate(1.15);
   box-shadow:
-    0 0 0 2px var(--cyan),
+    0 0 0 3px var(--cyan),
+    inset 0 0 0 1px rgba(88, 214, 201, 0.55),
     3px 3px 0 var(--shadow);
   color: #ffffff;
 }
 
+/* Path-locked: dashed outline + dim (form signal distinct from unaffordable). */
 button.locked,
 .class-card.locked,
 .perk-card.locked {
-  filter: grayscale(0.35) brightness(0.78);
-  opacity: 0.78;
+  filter: grayscale(0.4) brightness(0.75);
+  opacity: 0.76;
+  outline: 2px dashed rgba(232, 227, 213, 0.38);
+  outline-offset: -3px;
+}
+
+/* Unaffordable: solid dim + struck cost text (distinct from locked dash). */
+button.unaffordable {
+  filter: grayscale(0.25) brightness(0.78);
+  opacity: 0.7;
+  outline: none;
+}
+
+button.unaffordable em,
+.perk-card.unaffordable em,
+.upgrade-grid button.unaffordable {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+/* Affordable: full contrast + solid left accent bar. */
+button.affordable:not(.selected):not(:disabled),
+.perk-card.affordable:not(.selected) {
+  filter: none;
+  opacity: 1;
+  box-shadow:
+    inset 3px 0 0 0 var(--green),
+    3px 3px 0 var(--shadow);
 }
 
 .primary {
@@ -624,15 +654,48 @@ button.locked,
 .guild-topstrip {
   display: flex;
   flex: 0 0 auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
   padding: 8px 8px 0;
+  min-height: 52px;
 }
 
 .guild-topstrip .player-name-field {
   flex: 1 1 160px;
   min-width: 0;
+}
+
+/* D2: Gold label + amount stay on one unclipped row. */
+.guild-topstrip .gold {
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 148px;
+  max-width: none;
+  padding: 10px 12px;
+  white-space: nowrap;
+  overflow: visible;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.guild-topstrip .gold .gold-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.guild-topstrip .gold #gold-amount,
+.guild-topstrip .gold [data-testid="gold-amount"] {
+  display: inline-block;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--gold-soft);
 }
 
 .guild-body {
@@ -648,13 +711,15 @@ button.locked,
   flex: 0 0 auto;
   flex-direction: column;
   gap: 6px;
-  width: 84px;
+  width: 96px;
 }
 
 .guild-nav .guild-tab {
-  min-height: 40px;
-  padding: 8px 4px;
-  font-size: 8px;
+  min-width: 44px;
+  min-height: 48px;
+  padding: 10px 4px;
+  font-size: 9px;
+  line-height: 1.25;
   text-align: center;
 }
 
@@ -701,10 +766,34 @@ button.locked,
   gap: 8px;
 }
 
+/* Guild interactive floor: ≥44 logical px on both axes. */
+.guild-shell button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.guild-actions button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 12px;
+  font-size: 11px;
+}
+
+.guild-actions .primary,
+.guild-actions [data-testid="deploy-solo"],
+.guild-actions [data-testid="deploy-arena"] {
+  font-size: 14px;
+  line-height: 1.3;
+  min-height: 48px;
+  padding: 12px 14px;
+}
+
 .guild-actions-settings .settings-toggle {
-  min-height: 32px;
-  padding: 6px 8px;
-  font-size: 7px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 10px;
+  font-size: 9px;
+  line-height: 1.3;
 }
 
 .overview-grid {
@@ -725,14 +814,17 @@ button.locked,
 .overview-cell dt {
   margin-bottom: 6px;
   color: var(--cyan);
-  font-size: 8px;
+  font-family: var(--pixel-font);
+  font-size: 9px;
 }
 
 .overview-cell dd {
   margin: 0;
   color: var(--gold-soft);
-  font-size: 9px;
-  line-height: 1.5;
+  font-family: var(--body-font);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 500;
 }
 
 .item-compare-panel {
@@ -745,9 +837,11 @@ button.locked,
 .item-compare-placeholder {
   margin: 0;
   color: var(--ink-dim);
-  font-size: 8px;
+  font-family: var(--body-font);
+  font-size: 12px;
   line-height: 1.5;
   text-align: center;
+  font-weight: 500;
 }
 
 .lobby-stage {
@@ -809,16 +903,20 @@ button.locked,
   max-width: 42rem;
   margin: 6px 0 0;
   color: var(--ink-dim);
-  font-size: 9px;
+  font-family: var(--body-font);
+  font-size: 12px;
   line-height: 1.45;
+  font-weight: 500;
 }
 
 .lobby-title-overlay .onboarding-line {
   max-width: 48rem;
   margin: 4px 0 0;
-  color: rgba(232, 227, 213, 0.52);
-  font-size: 8px;
+  color: rgba(232, 227, 213, 0.72);
+  font-family: var(--body-font);
+  font-size: 12px;
   line-height: 1.45;
+  font-weight: 500;
 }
 
 .lobby-nameplate {
@@ -845,8 +943,10 @@ button.locked,
   margin: 0;
   max-width: 52rem;
   color: var(--ink-dim);
-  font-size: 8px;
-  line-height: 1.6;
+  font-family: var(--body-font);
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .eyebrow {
@@ -896,12 +996,17 @@ h2,
 }
 
 .gold {
-  display: grid;
-  align-content: center;
-  min-width: 0;
-  padding: 8px 10px;
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 148px;
+  padding: 10px 12px;
   white-space: nowrap;
-  font-size: 10px;
+  overflow: visible;
+  font-size: 14px;
+  line-height: 1.2;
   color: var(--gold-soft);
   border-width: 8px;
   border-image-width: 8px;
@@ -1015,23 +1120,26 @@ h2,
 .item-slot,
 .stash-item {
   display: grid;
+  min-width: 44px;
   min-height: 88px;
   align-content: start;
   gap: 6px;
-  padding: 8px;
+  padding: 10px;
   text-align: left;
 }
 
 .item-slot span,
 .stash-item span {
   color: var(--ink-dim);
-  font-size: 7px;
+  font-family: var(--pixel-font);
+  font-size: 9px;
 }
 
 .item-slot strong,
 .stash-item strong {
   color: var(--gold-soft);
-  font-size: 8px;
+  font-family: var(--pixel-font);
+  font-size: 11px;
   line-height: 1.4;
 }
 
@@ -1039,8 +1147,10 @@ h2,
 .stash-item small,
 .stash-empty {
   color: var(--ink-dim);
-  font-size: 7px;
-  line-height: 1.5;
+  font-family: var(--body-font);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 500;
 }
 
 .stash-empty {
@@ -1053,66 +1163,96 @@ h2,
 .perk-card {
   display: grid;
   place-items: center;
-  gap: 5px;
-  padding: 8px 6px;
+  gap: 6px;
+  min-width: 44px;
+  padding: 10px 8px;
   color: var(--ink);
   text-shadow: 1px 1px 0 var(--shadow);
 }
 
 .class-card {
-  min-height: 140px;
+  min-height: 148px;
   align-content: start;
 }
 
 .perk-card {
-  min-height: 100px;
+  min-height: 112px;
   align-content: start;
 }
 
 .upgrade-grid button {
-  min-height: 36px;
-  padding: 6px 8px;
-  font-size: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px 8px;
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 .class-glyph {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border: 5px solid transparent;
   border-image: url("/assets/ui/button-bronze.png") var(--bronze-slice) fill;
   border-image-width: 5px;
   background-color: #e8e3d5;
   color: #0e0c15;
-  font-size: 11px;
+  font-family: var(--pixel-font);
+  font-size: 12px;
   box-shadow: 2px 2px 0 var(--shadow);
   image-rendering: pixelated;
   text-shadow: none;
 }
 
-.class-card small,
-.perk-card small,
-.perk-card em,
+/* Labels / compact numbers stay pixel; decision body uses --body-font. */
+.class-card > small,
 .perk-tier {
   max-width: 100%;
   color: var(--ink-dim);
-  font-size: 8px;
+  font-family: var(--pixel-font);
+  font-size: 9px;
   line-height: 1.35;
   overflow-wrap: anywhere;
   text-align: center;
 }
 
+.perk-card em {
+  max-width: 100%;
+  color: var(--gold);
+  font-family: var(--pixel-font);
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.perk-card small,
+.class-card .class-strength,
+.class-card .class-weakness {
+  max-width: 100%;
+  font-family: var(--body-font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-shadow: none;
+}
+
+.perk-card small {
+  color: var(--ink-dim);
+}
+
 .perk-card strong,
 .class-card strong {
   font-family: var(--pixel-font);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.4;
   text-align: center;
   color: var(--gold-soft);
 }
 
-.perk-card em,
 .perk-tier {
   color: var(--gold);
   font-style: normal;
@@ -1120,15 +1260,8 @@ h2,
 
 .class-status {
   color: var(--gold);
-}
-
-.class-strength,
-.class-weakness {
-  max-width: 100%;
-  font-size: 7px;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-  text-align: center;
+  font-family: var(--pixel-font);
+  font-size: 9px;
 }
 
 .class-strength {
@@ -1139,9 +1272,33 @@ h2,
   color: var(--red);
 }
 
-.guild-actions button,
 .results-panel button {
   padding: 10px 12px;
+}
+
+/* Locked perk cost still readable; unaffordable strikes the cost. */
+.perk-card.locked em {
+  opacity: 0.85;
+}
+
+.perk-card.locked::after {
+  content: "LOCKED";
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-dim);
+  font-family: var(--pixel-font);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+}
+
+.perk-card.selected::after {
+  content: "OWNED";
+  display: block;
+  margin-top: 2px;
+  color: var(--cyan);
+  font-family: var(--pixel-font);
+  font-size: 8px;
+  letter-spacing: 0.04em;
 }
 
 /* Run — fixed world scaled in framed window */

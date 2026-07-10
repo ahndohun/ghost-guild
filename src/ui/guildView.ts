@@ -52,8 +52,12 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
     const button = requiredButton(documentRef, `buy-${upgrade.id}`);
     const owned = save.permStats[upgrade.id];
     const cost = nextUpgradeCost(upgrade.id, owned);
+    const canAfford = save.gold >= cost;
     button.textContent = `${upgrade.label} Lv.${owned} ${formatGold(cost)}g`;
-    button.disabled = save.gold < cost;
+    button.disabled = !canAfford;
+    button.classList.toggle("affordable", canAfford);
+    button.classList.toggle("unaffordable", !canAfford);
+    button.classList.remove("locked");
   }
 
   for (const classId of heroClassIds) {
@@ -115,7 +119,10 @@ function renderPerks(documentRef: Document, save: GuildSave): void {
       slot.tier === 1 || hasTierPerk(save.classId, selectedPerks, previousTier(slot.tier), defs);
     const selected = selectedPerks.includes(perk.id);
     const cost = perkCosts[slot.tier] ?? 0;
-    const locked = !selected && (tierChosen || !previousTierChosen || save.gold < cost);
+    // Path-lock (tier gate / sibling chosen) vs gold-only unaffordable — distinct visuals.
+    const pathLocked = !selected && (tierChosen || !previousTierChosen);
+    const unaffordable = !selected && !pathLocked && save.gold < cost;
+    const affordable = !selected && !pathLocked && save.gold >= cost;
     const nameEl = documentRef.getElementById(`perk-t${slot.tier}-${slot.choice}-name`);
     const effectEl = documentRef.getElementById(`perk-t${slot.tier}-${slot.choice}-effect`);
     const costEl = documentRef.getElementById(`perk-t${slot.tier}-${slot.choice}-cost`);
@@ -128,9 +135,11 @@ function renderPerks(documentRef: Document, save: GuildSave): void {
     if (costEl !== null) {
       costEl.textContent = `${formatGold(cost)}g`;
     }
-    button.disabled = locked;
+    button.disabled = pathLocked || unaffordable;
     button.classList.toggle("selected", selected);
-    button.classList.toggle("locked", locked);
+    button.classList.toggle("locked", pathLocked);
+    button.classList.toggle("unaffordable", unaffordable);
+    button.classList.toggle("affordable", affordable);
     button.setAttribute("aria-pressed", selected ? "true" : "false");
   }
 }

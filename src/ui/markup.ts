@@ -56,7 +56,7 @@ export function screenMarkup(): string {
             <span>Gladiator</span>
             <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" />
           </label>
-          <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
+          <div class="gold"><span class="gold-label">Gold</span><span id="gold-amount" data-testid="gold-amount">0</span></div>
           <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
         </header>
 
