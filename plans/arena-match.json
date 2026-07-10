@@ -6,7 +6,7 @@
   "planSteps": [
     {
       "type": "action",
-      "description": "Navigate to https://ghost-guild.vercel.app/?seed=11&fast=1"
+      "description": "Navigate to https://colosseum-survivors.pages.dev/?seed=11&fast=1"
     },
     {
       "type": "action",

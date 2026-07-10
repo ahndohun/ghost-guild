@@ -15,8 +15,7 @@ describe("Colosseum Survivors public product identity", () => {
     expect(indexHtml).toContain(`<title>${productName}</title>`);
     expect(indexHtml).toContain(`<meta name="application-name" content="${productName}" />`);
     expect(indexHtml).toMatch(/<meta\s+name="description"/);
-    const productCopy = indexHtml.replaceAll("https://ghost-guild.vercel.app", "");
-    expect(productCopy).not.toMatch(/ghost/i);
+    expect(indexHtml).not.toMatch(/ghost/i);
   });
 
   it("renders the new title, arena introduction, and accessible run name", () => {

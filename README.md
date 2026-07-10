@@ -6,7 +6,7 @@
 
 **Colosseum Survivors** is an autonomous arena-survival game (Vampire Survivors × a 2% pinch of Dragon Quest) where your gladiator fights **entirely on its own judgment**. Between bouts you choose a class, forge its specialization tree, equip recovered items, and buy permanent upgrades. Then you press **ENTER THE ARENA** and watch your coaching pay off—or backfire—against the arena and asynchronous rival builds.
 
-**🎮 Play it now: https://ghost-guild.vercel.app**
+**🎮 Play it now: https://colosseum-survivors.pages.dev**
 
 | Barracks & build | Autonomous Elf Archer run |
 |---|---|
