@@ -79,6 +79,7 @@ button,
 #result-ranking,
 #leaderboard-list,
 .title-logo,
+.title-logo-big,
 .title-tagline,
 .lobby-nameplate-title,
 .lobby-nameplate-rule {
@@ -254,27 +255,269 @@ button.locked,
   }
 }
 
-/* Title */
+/* Title — ghostly colosseum scene */
 .title-screen {
   display: grid;
-  place-items: center;
-  padding: 16px;
+  place-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  background: #0e0c15;
+}
+
+.title-scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2.5vh, 28px);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 16px 12px 24px;
+}
+
+.title-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, #1d1430 0%, #17111f 42%, #0e0c15 78%, #0a0810 100%);
+  pointer-events: none;
+}
+
+/* Tiny star field via multi-layered box-shadow dots on a 1px seed */
+.title-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.title-stars::before,
+.title-stars::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.title-stars::before {
+  top: 0;
+  left: 0;
+  box-shadow:
+    28px 36px 0 0.5px rgba(232, 227, 213, 0.55),
+    72px 58px 0 0.5px rgba(232, 227, 213, 0.35),
+    118px 22px 0 0.5px rgba(232, 227, 213, 0.45),
+    164px 88px 0 0.5px rgba(232, 227, 213, 0.3),
+    210px 44px 0 0.5px rgba(232, 227, 213, 0.5),
+    256px 112px 0 0.5px rgba(232, 227, 213, 0.28),
+    310px 28px 0 0.5px rgba(232, 227, 213, 0.4),
+    360px 76px 0 0.5px rgba(232, 227, 213, 0.32),
+    420px 18px 0 0.5px rgba(232, 227, 213, 0.48),
+    470px 96px 0 0.5px rgba(232, 227, 213, 0.26),
+    520px 48px 0 0.5px rgba(232, 227, 213, 0.42),
+    580px 70px 0 0.5px rgba(232, 227, 213, 0.34),
+    640px 32px 0 0.5px rgba(232, 227, 213, 0.5),
+    700px 104px 0 0.5px rgba(232, 227, 213, 0.28),
+    760px 54px 0 0.5px rgba(232, 227, 213, 0.38),
+    820px 20px 0 0.5px rgba(232, 227, 213, 0.44),
+    880px 86px 0 0.5px rgba(232, 227, 213, 0.3),
+    940px 40px 0 0.5px rgba(232, 227, 213, 0.46),
+    100px 130px 0 0.5px rgba(232, 227, 213, 0.22),
+    400px 140px 0 0.5px rgba(232, 227, 213, 0.25),
+    680px 150px 0 0.5px rgba(232, 227, 213, 0.2);
+}
+
+.title-stars::after {
+  top: 0;
+  left: 0;
+  opacity: 0.7;
+  box-shadow:
+    48px 90px 0 0.5px rgba(88, 214, 201, 0.35),
+    190px 16px 0 0.5px rgba(232, 227, 213, 0.4),
+    340px 120px 0 0.5px rgba(232, 227, 213, 0.28),
+    500px 14px 0 0.5px rgba(88, 214, 201, 0.3),
+    650px 64px 0 0.5px rgba(232, 227, 213, 0.36),
+    790px 128px 0 0.5px rgba(232, 227, 213, 0.24),
+    900px 72px 0 0.5px rgba(88, 214, 201, 0.28);
+}
+
+/* Subtle colosseum-arch silhouette across upper-middle */
+.title-colosseum {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  top: 18%;
+  height: 28%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.38;
   background:
-    radial-gradient(circle at 50% 35%, rgba(217, 164, 65, 0.12), transparent 42%),
-    linear-gradient(180deg, #17111c 0%, #0e0c15 60%, #08070d 100%);
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 18px,
+      rgba(8, 6, 12, 0.55) 18px 22px,
+      transparent 22px 40px
+    ),
+    radial-gradient(ellipse 14% 70% at 8% 100%, transparent 48%, rgba(6, 5, 10, 0.85) 52%, transparent 56%),
+    radial-gradient(ellipse 14% 70% at 22% 100%, transparent 48%, rgba(6, 5, 10, 0.85) 52%, transparent 56%),
+    radial-gradient(ellipse 14% 70% at 36% 100%, transparent 48%, rgba(6, 5, 10, 0.85) 52%, transparent 56%),
+    radial-gradient(ellipse 14% 70% at 50% 100%, transparent 48%, rgba(6, 5, 10, 0.9) 52%, transparent 56%),
+    radial-gradient(ellipse 14% 70% at 64% 100%, transparent 48%, rgba(6, 5, 10, 0.85) 52%, transparent 56%),
+    radial-gradient(ellipse 14% 70% at 78% 100%, transparent 48%, rgba(6, 5, 10, 0.85) 52%, transparent 56%),
+    radial-gradient(ellipse 14% 70% at 92% 100%, transparent 48%, rgba(6, 5, 10, 0.85) 52%, transparent 56%),
+    linear-gradient(180deg, transparent 0%, rgba(10, 8, 16, 0.55) 40%, rgba(6, 5, 10, 0.75) 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 78%, transparent 100%);
+}
+
+.title-flames {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.title-flame {
+  position: absolute;
+  bottom: 8%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(160, 255, 240, 0.95) 0%, rgba(88, 214, 201, 0.55) 42%, transparent 72%);
+  filter: blur(2px);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: title-flame-drift 7s ease-in-out infinite;
+}
+
+.title-flame-1 { left: 12%; width: 8px; height: 8px; animation-duration: 6.2s; animation-delay: 0s; }
+.title-flame-2 { left: 28%; width: 12px; height: 12px; animation-duration: 8.1s; animation-delay: 1.1s; }
+.title-flame-3 { left: 44%; width: 9px; height: 9px; animation-duration: 7s; animation-delay: 2.4s; }
+.title-flame-4 { left: 58%; width: 11px; height: 11px; animation-duration: 6.6s; animation-delay: 0.6s; }
+.title-flame-5 { left: 72%; width: 8px; height: 8px; animation-duration: 7.8s; animation-delay: 3.2s; }
+.title-flame-6 { left: 84%; width: 13px; height: 13px; animation-duration: 9s; animation-delay: 1.8s; }
+.title-flame-7 { left: 36%; width: 7px; height: 7px; animation-duration: 5.8s; animation-delay: 4s; bottom: 14%; }
+
+@keyframes title-flame-drift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.7);
+  }
+  12% {
+    opacity: 0.75;
+  }
+  55% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(6px, -220px, 0) scale(1.15);
+  }
+}
+
+.title-fog {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(88, 214, 201, 0.04) 35%,
+    rgba(40, 70, 72, 0.18) 70%,
+    rgba(14, 18, 22, 0.55) 100%
+  );
+  filter: blur(10px);
+}
+
+.title-statue {
+  position: absolute;
+  bottom: 0;
+  z-index: 5;
+  width: auto;
+  height: clamp(200px, 38vh, 320px);
+  max-height: 42%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px rgba(88, 214, 201, 0.45)) drop-shadow(0 0 28px rgba(88, 214, 201, 0.2));
+  user-select: none;
+}
+
+.title-statue-left {
+  left: clamp(0px, 2vw, 24px);
+}
+
+.title-statue-right {
+  right: clamp(0px, 2vw, 24px);
+}
+
+.title-brand {
+  position: relative;
+  z-index: 6;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0 12px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.title-logo-big {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  margin: 0;
+  color: #f0ebe0;
+  font-size: clamp(28px, 6.5vw, 52px);
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  text-shadow:
+    0 -2px 0 rgba(255, 248, 230, 0.55),
+    0 -1px 0 rgba(255, 244, 220, 0.75),
+    0 1px 0 #2a2418,
+    0 2px 0 #1a1510,
+    0 3px 0 #0e0c15,
+    2px 2px 0 #05040a,
+    0 0 18px rgba(88, 214, 201, 0.35),
+    0 0 36px rgba(88, 214, 201, 0.15);
+}
+
+.title-logo-line {
+  display: block;
 }
 
 .title-shell {
-  width: min(520px, 100%);
+  position: relative;
+  z-index: 7;
+  flex: 0 0 auto;
+  width: min(480px, calc(100% - 24px));
+  margin: 0;
 }
 
 .title-window {
   display: grid;
   justify-items: center;
-  gap: 12px;
-  padding: 28px 22px 24px;
+  gap: 10px;
+  padding: 22px 18px 20px;
   text-align: center;
   box-shadow: 6px 6px 0 var(--shadow);
+}
+
+.title-window .eyebrow {
+  margin: 0;
+  color: var(--gold);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-shadow: 1px 1px 0 var(--shadow);
 }
 
 .title-logo {
@@ -297,7 +540,7 @@ button.locked,
 }
 
 .title-subline {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   max-width: 26rem;
   color: var(--ink-dim);
   font-family: var(--pixel-font);
@@ -308,9 +551,27 @@ button.locked,
 .title-start {
   min-width: min(240px, 100%);
   min-height: 48px;
-  margin-top: 6px;
+  margin-top: 4px;
   font-size: 11px;
   letter-spacing: 0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-flame {
+    animation: none;
+    opacity: 0.4;
+    transform: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .title-statue {
+    display: none;
+  }
+
+  .title-shell {
+    width: min(420px, calc(100% - 20px));
+  }
 }
 
 /* Guild — scroll only inside panel region */
@@ -1012,7 +1273,11 @@ canvas {
   }
 
   .title-window {
-    padding: 20px 14px 18px;
+    padding: 18px 14px 16px;
+  }
+
+  .title-logo-big {
+    font-size: clamp(24px, 7vw, 40px);
   }
 }
 
@@ -1074,9 +1339,24 @@ canvas {
     font-size: 16px;
   }
 
+  .title-logo-big {
+    font-size: clamp(20px, 7.5vw, 32px);
+    gap: 0.3em;
+  }
+
   .title-tagline,
   .title-subline {
     font-size: 7px;
+  }
+
+  .title-window {
+    gap: 8px;
+    padding: 16px 12px 14px;
+  }
+
+  .title-start {
+    min-height: 44px;
+    font-size: 10px;
   }
 }
 

@@ -1,4 +1,6 @@
 const masterVolume = 0.25;
+const bgmVolume = 0.35;
+const bgmSrc = "/assets/audio/bgm-spooky-dungeon.mp3";
 
 export type SoundName =
   | "hit"
@@ -58,6 +60,8 @@ export function createAudioEngine(
   let runtime: AudioRuntime | undefined;
   let hitVariation = 0;
   let lastGemTime = Number.NEGATIVE_INFINITY;
+  let bgmStarted = false;
+  const bgm = options.enabled ? createBgmElement(documentRef) : undefined;
 
   const soundButtons = documentRef.querySelectorAll<HTMLButtonElement>("[data-testid=\"sound-toggle\"]");
   syncSoundButtons(soundButtons, muted);
@@ -72,17 +76,23 @@ export function createAudioEngine(
           runtime = undefined;
         }
       }
+      applyBgmMuteState(bgm, muted, bgmStarted);
       syncSoundButtons(soundButtons, muted);
       options.onMutedChange(muted);
     });
   }
 
   if (options.enabled) {
-    documentRef.addEventListener("pointerdown", initializeAfterGesture, { once: true, passive: true });
+    const startAfterGesture = (): void => {
+      initializeSfxAfterGesture();
+      startBgmAfterGesture();
+    };
+    documentRef.addEventListener("pointerdown", startAfterGesture, { once: true, passive: true });
+    documentRef.addEventListener("keydown", startAfterGesture, { once: true });
     documentRef.addEventListener("click", playButtonClick);
   }
 
-  function initializeAfterGesture(): void {
+  function initializeSfxAfterGesture(): void {
     if (failed || runtime !== undefined || typeof AudioContext !== "function") {
       return;
     }
@@ -98,6 +108,22 @@ export function createAudioEngine(
       failed = true;
       runtime = undefined;
     }
+  }
+
+  function startBgmAfterGesture(): void {
+    if (bgm === undefined || bgmStarted) {
+      return;
+    }
+    bgmStarted = true;
+    if (muted) {
+      bgm.pause();
+      return;
+    }
+    void bgm.play().catch(() => {
+      // Autoplay / decode failures are non-fatal; user can retry via later gestures only if we re-wire.
+      // Keep the element so unmute can attempt play again.
+      bgmStarted = true;
+    });
   }
 
   function playButtonClick(event: MouseEvent): void {
@@ -166,6 +192,34 @@ export function createAudioEngine(
   }
 
   return { play };
+}
+
+function createBgmElement(documentRef: Document): HTMLAudioElement {
+  const audio = documentRef.createElement("audio");
+  audio.src = bgmSrc;
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.volume = bgmVolume;
+  audio.setAttribute("aria-hidden", "true");
+  // Keep the element out of the accessibility tree / layout; not appended is fine for play().
+  return audio;
+}
+
+function applyBgmMuteState(
+  bgm: HTMLAudioElement | undefined,
+  muted: boolean,
+  bgmStarted: boolean,
+): void {
+  if (bgm === undefined || !bgmStarted) {
+    return;
+  }
+  if (muted) {
+    bgm.pause();
+    return;
+  }
+  void bgm.play().catch(() => {
+    // Ignore play() rejection (gesture / decode / autoplay policy).
+  });
 }
 
 function createAudioRuntime(muted: boolean): AudioRuntime {

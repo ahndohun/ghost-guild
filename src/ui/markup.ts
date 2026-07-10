@@ -4,13 +4,48 @@ import type { HeroClassId, PerkChoice, PerkTier, TemperamentId } from "../sim";
 export function screenMarkup(): string {
   return `
     <section id="screen-title" class="screen title-screen hidden">
-      <div class="title-shell">
-        <div class="title-window">
-          <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
-          <h1 class="title-logo">Ghost Colosseum</h1>
-          <p class="title-tagline">You don't play the gladiator. You coach them.</p>
-          <p class="title-subline">Tune temperament, class, and perks — then watch judgment decide the sand.</p>
-          <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
+      <div class="title-scene">
+        <div class="title-sky" aria-hidden="true"></div>
+        <div class="title-stars" aria-hidden="true"></div>
+        <div class="title-colosseum" aria-hidden="true"></div>
+        <div class="title-flames" aria-hidden="true">
+          <span class="title-flame title-flame-1"></span>
+          <span class="title-flame title-flame-2"></span>
+          <span class="title-flame title-flame-3"></span>
+          <span class="title-flame title-flame-4"></span>
+          <span class="title-flame title-flame-5"></span>
+          <span class="title-flame title-flame-6"></span>
+          <span class="title-flame title-flame-7"></span>
+        </div>
+        <div class="title-fog" aria-hidden="true"></div>
+        <img
+          class="title-statue title-statue-left"
+          src="/assets/props/statue-sword.png"
+          alt=""
+          width="160"
+          height="320"
+          decoding="async"
+          aria-hidden="true"
+        />
+        <img
+          class="title-statue title-statue-right"
+          src="/assets/props/statue-spear.png"
+          alt=""
+          width="160"
+          height="320"
+          decoding="async"
+          aria-hidden="true"
+        />
+        <div class="title-brand">
+          <h1 class="title-logo-big"><span class="title-logo-line">GHOST</span><span class="title-logo-line">COLOSSEUM</span></h1>
+        </div>
+        <div class="title-shell">
+          <div class="title-window">
+            <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
+            <p class="title-tagline">You don't play the gladiator. You coach them.</p>
+            <p class="title-subline">Tune temperament, class, and perks — then watch judgment decide the sand.</p>
+            <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
+          </div>
         </div>
       </div>
     </section>
