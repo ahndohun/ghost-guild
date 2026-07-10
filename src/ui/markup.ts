@@ -128,13 +128,26 @@ export function screenMarkup(): string {
         <div class="run-canvas-frame">
           <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
           <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
-        </div>
-        <div class="hud">
-          <span class="hud-chip">HP <strong id="hud-hp">0</strong></span>
-          <span class="hud-chip">LV <strong id="hud-level">1</strong></span>
-          <span class="hud-chip">KILLS <strong id="hud-kills">0</strong></span>
-          <span class="hud-chip">TIME <strong id="hud-time">0s</strong></span>
-          <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false">SOUND ON</button>
+          <div class="hud" aria-hidden="false">
+            <span class="hud-chip hud-time">TIME <strong id="hud-time">0s</strong></span>
+            <div class="hud-hp-orb">
+              <div class="hud-hp-well" aria-hidden="true">
+                <div class="hud-hp-fill" id="hud-hp-fill"></div>
+              </div>
+              <img class="hud-hp-frame" src="/assets/ui/hp-orb-frame.png" alt="" draggable="false" />
+              <span class="hud-hp-label">HP <strong id="hud-hp">0</strong></span>
+            </div>
+            <div class="hud-xp">
+              <span class="hud-xp-level">LV <strong id="hud-level">1</strong></span>
+              <div class="hud-xp-bar">
+                <div class="hud-xp-track" aria-hidden="true">
+                  <div class="hud-xp-fill" id="hud-xp-fill"></div>
+                </div>
+                <img class="hud-xp-frame" src="/assets/ui/xp-bar-frame.png" alt="" draggable="false" />
+              </div>
+            </div>
+            <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false">SOUND ON</button>
+          </div>
         </div>
         <div id="game-state" class="mirror" hidden></div>
       </div>

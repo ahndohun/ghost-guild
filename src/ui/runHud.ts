@@ -3,6 +3,11 @@ import type { MatchResult, MatchState } from "../sim";
 import type { LeaderboardEntry } from "./arenaApi";
 import { requiredElement } from "./dom";
 
+/** Renderer-side XP curve (mirrors sim/levelup xpNeededForLevel). Do not import from levelup. */
+function xpNeededForLevel(level: number): number {
+  return 5 + 3 * level;
+}
+
 export function updateMirror(documentRef: Document, element: HTMLElement, state: MatchState): void {
   const hero = state.heroes[0];
   if (hero === undefined) {
@@ -17,10 +22,18 @@ export function updateMirror(documentRef: Document, element: HTMLElement, state:
   element.dataset.kills = String(hero.kills);
   element.dataset.gold = String(Math.floor(hero.gold));
   element.dataset.seed = String(state.seed);
+
   requiredElement(documentRef, "hud-hp").textContent = String(Math.ceil(hero.hp));
   requiredElement(documentRef, "hud-level").textContent = String(hero.level);
-  requiredElement(documentRef, "hud-kills").textContent = String(hero.kills);
   requiredElement(documentRef, "hud-time").textContent = `${time}s`;
+
+  const hpRatio = hero.maxHp > 0 ? Math.max(0, Math.min(1, hero.hp / hero.maxHp)) : 0;
+  requiredElement(documentRef, "hud-hp-fill").style.height = `${hpRatio * 100}%`;
+
+  // Prefer live xpToNext when present; fall back to curve for safety.
+  const xpNeeded = hero.xpToNext > 0 ? hero.xpToNext : xpNeededForLevel(hero.level);
+  const xpRatio = xpNeeded > 0 ? Math.max(0, Math.min(1, hero.xp / xpNeeded)) : 0;
+  requiredElement(documentRef, "hud-xp-fill").style.width = `${xpRatio * 100}%`;
 }
 
 export function renderRanking(documentRef: Document, result: MatchResult, localHeroId: number): void {

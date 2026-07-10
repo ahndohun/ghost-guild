@@ -1067,13 +1067,12 @@ canvas {
   background-color: rgba(20, 14, 18, 0.92);
 }
 
+/* In-run HUD — absolute overlays on the canvas frame */
 .hud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 2px 2px;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
   font-size: 8px;
 }
 
@@ -1082,7 +1081,7 @@ canvas {
   align-items: center;
   gap: 4px;
   min-height: 28px;
-  padding: 4px 6px;
+  padding: 4px 8px;
   border-width: 8px;
   border-image-width: 8px;
   color: var(--ink);
@@ -1098,7 +1097,172 @@ canvas {
   font-weight: 400;
 }
 
+.hud-time {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  white-space: nowrap;
+}
+
+/* HP life orb — bottom-left */
+.hud-hp-orb {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: 120px;
+  height: 120px;
+  z-index: 4;
+}
+
+.hud-hp-well {
+  position: absolute;
+  left: 28%;
+  top: 28.5%;
+  width: 44%;
+  height: 43%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #2a1014 0%, #12080a 100%);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.65);
+}
+
+.hud-hp-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255, 140, 120, 0.55), transparent 55%),
+    linear-gradient(180deg, #ff5a5a 0%, #c62828 45%, #7a1018 100%);
+  transition: height 80ms steps(2, end);
+}
+
+.hud-hp-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hud-hp-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  padding-top: 4px;
+  font-family: var(--pixel-font);
+  font-size: 9px;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow:
+    1px 1px 0 #05040a,
+    -1px 0 0 #05040a,
+    0 -1px 0 #05040a,
+    1px 0 0 #05040a,
+    0 1px 0 #05040a;
+}
+
+.hud-hp-label strong {
+  font-weight: 400;
+  color: #fff;
+}
+
+/* LEVEL + XP bar — bottom-center */
+.hud-xp {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: min(360px, 62%);
+  pointer-events: none;
+}
+
+.hud-xp-level {
+  font-family: var(--pixel-font);
+  font-size: 9px;
+  line-height: 1.2;
+  color: var(--gold-soft);
+  text-shadow: 1px 1px 0 var(--shadow), 0 0 6px rgba(217, 164, 65, 0.25);
+  white-space: nowrap;
+}
+
+.hud-xp-level strong {
+  font-weight: 400;
+  color: var(--gold-soft);
+}
+
+.hud-xp-bar {
+  /* Crop to the visible track band of the 512×192 frame (~56px tall). */
+  --xp-band: 56;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 512 / 56;
+  max-height: 48px;
+  overflow: visible;
+}
+
+.hud-xp-track {
+  position: absolute;
+  left: 5.5%;
+  right: 5.5%;
+  top: 18%;
+  bottom: 18%;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(12, 8, 14, 0.55);
+}
+
+.hud-xp-fill {
+  height: 100%;
+  width: 0%;
+  background:
+    linear-gradient(180deg, rgba(255, 240, 180, 0.45) 0%, transparent 40%, rgba(80, 40, 0, 0.35) 100%),
+    repeating-linear-gradient(
+      90deg,
+      #f0d060 0 9px,
+      #d4a82a 9px 11px,
+      #c49218 11px 12px
+    );
+  box-shadow: inset 0 1px 0 rgba(255, 250, 200, 0.45);
+  transition: width 80ms steps(2, end);
+}
+
+.hud-xp-frame {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: calc(100% * 192 / var(--xp-band));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  object-fit: fill;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  pointer-events: none;
+  user-select: none;
+}
+
 .hud-sound {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 5;
+  pointer-events: auto;
   min-height: 28px;
   padding: 4px 8px;
   font-size: 8px;
@@ -1307,11 +1471,6 @@ canvas {
     line-height: 1.7;
   }
 
-  .hud {
-    gap: 4px;
-    padding: 6px 0 0;
-  }
-
   .hud-chip,
   .hud-sound {
     min-height: 24px;
@@ -1319,6 +1478,41 @@ canvas {
     font-size: 7px;
     border-width: 6px;
     border-image-width: 6px;
+  }
+
+  .hud-time {
+    top: 6px;
+  }
+
+  .hud-hp-orb {
+    left: 4px;
+    bottom: 4px;
+    width: 88px;
+    height: 88px;
+  }
+
+  .hud-hp-label {
+    font-size: 7px;
+    padding-top: 2px;
+  }
+
+  .hud-xp {
+    bottom: 6px;
+    width: min(240px, 58%);
+    gap: 3px;
+  }
+
+  .hud-xp-level {
+    font-size: 7px;
+  }
+
+  .hud-xp-bar {
+    max-height: 36px;
+  }
+
+  .hud-sound {
+    right: 4px;
+    bottom: 4px;
   }
 
   .run-shell,
@@ -1376,13 +1570,43 @@ canvas {
     width: 100%;
   }
 
-  .hud {
-    gap: 3px;
+  .hud-hp-orb {
+    width: 72px;
+    height: 72px;
+    left: 2px;
+    bottom: 2px;
   }
 
-  .hud-chip {
-    flex: 1 1 auto;
-    justify-content: center;
+  .hud-hp-label {
+    font-size: 6px;
+  }
+
+  .hud-xp {
+    bottom: 4px;
+    width: min(200px, 56%);
+  }
+
+  .hud-xp-level {
+    font-size: 6px;
+  }
+
+  .hud-xp-bar {
+    max-height: 30px;
+  }
+
+  .hud-time {
+    top: 4px;
+    min-height: 22px;
+    padding: 2px 5px;
+    font-size: 6px;
+  }
+
+  .hud-sound {
+    right: 2px;
+    bottom: 2px;
+    min-height: 22px;
+    padding: 2px 5px;
+    font-size: 6px;
   }
 
   .lobby-stage-frame {
