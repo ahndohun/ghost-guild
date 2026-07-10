@@ -1,4 +1,5 @@
 import { renderMatch } from "../render/canvas";
+import { startPixelSpriteLoad } from "../render/pixelSprites";
 import { TICKS_PER_SECOND } from "../sim/constants";
 import { createMatch, resultFromState } from "../sim";
 import type { MatchResult } from "../sim";
@@ -42,6 +43,7 @@ const tickMs = 1000 / TICKS_PER_SECOND;
 export function bootGhostGuild(documentRef: Document, windowRef: Window): void {
   const app = requiredElement(documentRef, "app");
   app.innerHTML = screenMarkup();
+  startPixelSpriteLoad();
 
   const params = new URLSearchParams(windowRef.location.search);
   const fixedSeed = parseSeed(params.get("seed"));

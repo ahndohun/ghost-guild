@@ -45,6 +45,9 @@ export type RenderEffects = {
   enemyKinds: Map<number, EnemyKind>;
   enemyFacings: Map<number, Facing>;
   heroFacings: Map<number, Facing>;
+  /** Last non-zero movement heading (screen space; +y down) for 8-dir sprites. */
+  enemyHeadings: Map<number, Position>;
+  heroHeadings: Map<number, Position>;
   eliteIds: Set<number>;
   poofs: DeathPoof[];
   sparks: ImpactSpark[];

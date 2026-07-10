@@ -4,6 +4,7 @@ import { drawBackground } from "./background";
 import {
   facingFor,
   hasHitFlash,
+  headingFor,
   hitOffset,
   isDuelistInRangeBand,
   longestWeaponRange,
@@ -15,6 +16,7 @@ import {
 import type { Facing, RenderEffects, TemperamentFxState } from "./effects";
 import { drawDamageNumbers, drawDeathPoofs, drawImpactSparks, drawScreenFlash } from "./feedback";
 import { drawDrop } from "./items";
+import { drawCharacter } from "./pixelSprites";
 import { drawSprite, spriteScale } from "./sprites";
 import type { SpriteId } from "./sprites";
 import { drawProjectile, drawWeaponBursts, drawWeaponFields } from "./weapons";
@@ -127,7 +129,7 @@ export function renderMatch(canvas: HTMLCanvasElement, state: MatchState): void 
   }
 
   for (const hero of state.heroes) {
-    drawHero(context, hero, facingFor(effects.heroFacings, hero.id));
+    drawHero(context, hero, effects, facingFor(effects.heroFacings, hero.id));
   }
 
   for (const hero of state.heroes) {
@@ -165,29 +167,105 @@ function drawShadow(context: CanvasRenderingContext2D, input: ShadowInput): void
   context.fill();
 }
 
-function drawEnemy(context: CanvasRenderingContext2D, input: EnemyDrawInput): void {
-  const offset = hitOffset(input.effects, input.enemy, input.tick);
-  drawSprite(context, {
-    id: enemySprites[input.enemy.kind],
-    x: input.enemy.x + offset.x,
-    y: input.enemy.y + offset.y,
-    scale: spriteScale,
-    flip: input.facing === "left",
-    flash: hasHitFlash(input.effects, input.enemy, input.tick),
-  });
+function enemyPixelId(kind: EnemyKind): string {
+  return kind === "eliteBrute" ? "brute" : kind;
 }
 
-function drawHero(context: CanvasRenderingContext2D, hero: HeroState, facing: Facing): void {
+function enemyPixelSize(enemy: EnemyState): number {
+  const raw = enemy.radius * 2.2;
+  if (enemy.kind === "brute" || enemy.kind === "eliteBrute") {
+    return Math.min(raw, 52);
+  }
+  return Math.min(raw, 44);
+}
+
+function drawEnemy(context: CanvasRenderingContext2D, input: EnemyDrawInput): void {
+  const offset = hitOffset(input.effects, input.enemy, input.tick);
+  const x = input.enemy.x + offset.x;
+  const y = input.enemy.y + offset.y;
+  const flash = hasHitFlash(input.effects, input.enemy, input.tick);
+  const heading = headingFor(input.effects.enemyHeadings, input.enemy.id);
+  const sizePx = enemyPixelSize(input.enemy);
+  const pixelId = enemyPixelId(input.enemy.kind);
+
+  const drew = drawCharacter(context, {
+    id: pixelId,
+    x,
+    y,
+    headingX: heading.x,
+    headingY: heading.y,
+    sizePx,
+    flash,
+  });
+
+  if (!drew) {
+    drawSprite(context, {
+      id: enemySprites[input.enemy.kind],
+      x,
+      y,
+      scale: spriteScale,
+      flip: input.facing === "left",
+      flash,
+    });
+    return;
+  }
+
+  // Elite marker: gold crown ring so eliteBrute still reads as elite on brute sprite.
+  if (input.enemy.kind === "eliteBrute") {
+    drawEliteMarker(context, x, y, sizePx);
+  }
+}
+
+function drawEliteMarker(context: CanvasRenderingContext2D, x: number, y: number, sizePx: number): void {
+  const radius = sizePx * 0.42;
+  context.save();
+  context.strokeStyle = "#e8c34a";
+  context.lineWidth = 2;
+  context.beginPath();
+  context.arc(Math.round(x), Math.round(y - sizePx * 0.08), radius, 0, Math.PI * 2);
+  context.stroke();
+  // Crown dots
+  context.fillStyle = "#e8c34a";
+  for (let i = 0; i < 3; i += 1) {
+    const angle = -Math.PI / 2 + (i - 1) * 0.45;
+    const px = x + Math.cos(angle) * (radius + 2);
+    const py = y - sizePx * 0.08 + Math.sin(angle) * (radius + 2);
+    context.fillRect(Math.round(px) - 1, Math.round(py) - 1, 3, 3);
+  }
+  context.restore();
+}
+
+function drawHero(
+  context: CanvasRenderingContext2D,
+  hero: HeroState,
+  effects: RenderEffects,
+  facing: Facing,
+): void {
   const accent = classColors[hero.classId];
   drawHeroName(context, hero, accent);
-  drawSprite(context, {
-    id: heroSprites[hero.classId],
+
+  const heading = headingFor(effects.heroHeadings, hero.id);
+  const flash = hero.hitFlashTicks > 0;
+  const drew = drawCharacter(context, {
+    id: hero.classId,
     x: hero.x,
     y: hero.y,
-    scale: spriteScale,
-    flip: facing === "left",
-    flash: hero.hitFlashTicks > 0,
+    headingX: heading.x,
+    headingY: heading.y,
+    sizePx: 32,
+    flash,
   });
+
+  if (!drew) {
+    drawSprite(context, {
+      id: heroSprites[hero.classId],
+      x: hero.x,
+      y: hero.y,
+      scale: spriteScale,
+      flip: facing === "left",
+      flash,
+    });
+  }
 
   context.fillStyle = "#1b1520";
   context.fillRect(hero.x - 18, hero.y - 26, 36, 4);

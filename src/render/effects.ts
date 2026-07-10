@@ -53,6 +53,8 @@ export function renderEffectsFor(canvas: HTMLCanvasElement): RenderEffects {
     enemyKinds: new Map(),
     enemyFacings: new Map(),
     heroFacings: new Map(),
+    enemyHeadings: new Map(),
+    heroHeadings: new Map(),
     eliteIds: new Set(),
     poofs: [],
     sparks: [],
@@ -93,8 +95,12 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
   for (const enemy of state.enemies) {
     const previous = effects.enemyPositions.get(enemy.id);
     const previousHp = effects.enemyHealth.get(enemy.id);
-    const facingDelta = previous === undefined ? nearestHeroDeltaX(enemy, state.heroes) : enemy.x - previous.x;
-    updateFacing(effects.enemyFacings, enemy.id, facingDelta);
+    const heading =
+      previous === undefined
+        ? nearestHeroDelta(enemy, state.heroes)
+        : { x: enemy.x - previous.x, y: enemy.y - previous.y };
+    updateFacing(effects.enemyFacings, enemy.id, heading.x);
+    updateHeading(effects.enemyHeadings, enemy.id, heading.x, heading.y);
     if (previousHp !== undefined && enemy.hp < previousHp) {
       addImpactSparks(effects, enemy, state.tick);
       effects.hitReactions.set(enemy.id, hitReactionFor(enemy, state.heroes, state.tick));
@@ -123,7 +129,11 @@ export function prepareRenderEffects(effects: RenderEffects, state: MatchState):
   }
 
   for (const hero of state.heroes) {
-    updateFacing(effects.heroFacings, hero.id, Math.abs(hero.vx) > 0.01 ? hero.vx : hero.moveDirX);
+    const moving = Math.abs(hero.vx) > 0.01 || Math.abs(hero.vy) > 0.01;
+    const headingX = moving ? hero.vx : hero.moveDirX;
+    const headingY = moving ? hero.vy : hero.moveDirY;
+    updateFacing(effects.heroFacings, hero.id, headingX);
+    updateHeading(effects.heroHeadings, hero.id, headingX, headingY);
     for (const weapon of hero.weapons) {
       const key = weaponCooldownKey(hero.id, weapon.id);
       const previousCooldown = effects.weaponCooldowns.get(key);
@@ -263,6 +273,11 @@ export function facingFor(facings: Map<number, Facing>, id: number): Facing {
   return facings.get(id) ?? "right";
 }
 
+/** Last non-zero heading for 8-dir sprites; default faces south (+y). */
+export function headingFor(headings: Map<number, Position>, id: number): Position {
+  return headings.get(id) ?? { x: 0, y: 1 };
+}
+
 export function shakeOffset(effects: RenderEffects, tick: number): Position {
   const remainingTicks = effects.shakeUntilTick - tick;
   if (remainingTicks <= 0) {
@@ -298,6 +313,8 @@ function resetRenderEffects(effects: RenderEffects): void {
   effects.enemyKinds = new Map();
   effects.enemyFacings = new Map();
   effects.heroFacings = new Map();
+  effects.enemyHeadings = new Map();
+  effects.heroHeadings = new Map();
   effects.eliteIds = new Set();
   effects.poofs = [];
   effects.sparks = [];
@@ -402,9 +419,9 @@ function distanceSquared(a: Position, b: Position): number {
   return dx * dx + dy * dy;
 }
 
-function nearestHeroDeltaX(enemy: EnemyState, heroes: readonly HeroState[]): number {
+function nearestHeroDelta(enemy: EnemyState, heroes: readonly HeroState[]): Position {
   let bestDistance = Number.POSITIVE_INFINITY;
-  let deltaX = 1;
+  let delta: Position = { x: 1, y: 0 };
 
   for (const hero of heroes) {
     if (!hero.alive) {
@@ -416,11 +433,11 @@ function nearestHeroDeltaX(enemy: EnemyState, heroes: readonly HeroState[]): num
     const distance = currentDeltaX * currentDeltaX + currentDeltaY * currentDeltaY;
     if (distance < bestDistance) {
       bestDistance = distance;
-      deltaX = currentDeltaX;
+      delta = { x: currentDeltaX, y: currentDeltaY };
     }
   }
 
-  return deltaX;
+  return delta;
 }
 
 function updateFacing(facings: Map<number, Facing>, id: number, deltaX: number): void {
@@ -428,4 +445,11 @@ function updateFacing(facings: Map<number, Facing>, id: number, deltaX: number):
     return;
   }
   facings.set(id, deltaX < 0 ? "left" : "right");
+}
+
+function updateHeading(headings: Map<number, Position>, id: number, deltaX: number, deltaY: number): void {
+  if (Math.hypot(deltaX, deltaY) < 0.01) {
+    return;
+  }
+  headings.set(id, { x: deltaX, y: deltaY });
 }
