@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 21,
+    "summary": "Step 21 'Click the 'BACK TO GUILD' button after verifying the results screen shows 'Match Ranking', at least two ranking rows (e.g., '#1 Gladiator-9850' and '#2 Gladiator-3830'), and 'World Leaderboard'' passed.",
+    "path": "steps/21-snapshot.html"
+  }
+]

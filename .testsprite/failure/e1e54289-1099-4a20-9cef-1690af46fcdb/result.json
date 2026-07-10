@@ -2,17 +2,17 @@
   "testId": "e1e54289-1099-4a20-9cef-1690af46fcdb",
   "status": "blocked",
   "startedAt": null,
-  "finishedAt": "2026-07-10T06:46:38.839Z",
-  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783665998576209//tmp/5b2bcc09-064b-4094-a517-bc1b1989837f/result.webm",
+  "finishedAt": "2026-07-10T08:19:36.590Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783671576246658//tmp/d117fd76-3943-4d6e-b0bf-678072836945/result.webm",
   "failureAnalysisUrl": null,
-  "snapshotId": "snap_2bdf16a35b8a1470",
-  "runIdIfAvailable": "3ac8316d-8899-4127-b2fd-e6d621e3bed2",
+  "snapshotId": "snap_6a2ca2cadbd1fd28",
+  "runIdIfAvailable": "26d9ce6b-9cae-4622-9113-092c21464249",
   "codeVersion": "v1",
   "targetUrl": "https://ghost-guild.vercel.app",
   "targetUrlSource": "run",
-  "failedStepIndex": 5,
+  "failedStepIndex": 7,
   "failureKind": null,
   "verdict": "blocked",
   "executionStatus": "completed",
-  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: All requested steps completed and verified:\n\n- Navigation: The page at https://ghost-guild.vercel.app/?seed=42&fast=1 was opened (visible in the current tab).\n- Action: The 'DEPLOY SOLO' button was clicked and the results screen appeared.\n- Assertion: The results screen was visible and contained a numeric score: \"Score 2194\" (observed on the results screen).\n- Action: The 'BACK TO GUILD' button was clicked to return to the guild.\n- Asser…"
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: PASS\n\nAll requested steps completed and verified:\n- Navigation: Visited https://ghost-guild.vercel.app/?seed=42&fast=1.\n- Run: Clicked the 'DEPLOY SOLO' button and the results screen was displayed (titled 'The Sand Settles' in the session).\n- Results assertion: The results container (#screen-results) was present and the result score element contained a numeric value. Observed score: 2194.\n- Return: Clicked the 'BACK TO GUILD' button and …"
 }

@@ -2,17 +2,17 @@
   "testId": "180cc8bd-8885-49c9-b06c-aeb2ef98945b",
   "status": "blocked",
   "startedAt": null,
-  "finishedAt": "2026-07-10T06:39:57.542Z",
-  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783665597241507//tmp/14412139-80b8-4789-a337-26d7cf28f88d/result.webm",
+  "finishedAt": "2026-07-10T08:16:01.772Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783671361069685//tmp/06175225-95e2-475b-a922-7ec3a68db983/result.webm",
   "failureAnalysisUrl": null,
-  "snapshotId": "snap_896c33cd1d84314d",
-  "runIdIfAvailable": "b1c57034-5843-4478-9978-871c06646b99",
+  "snapshotId": "snap_d9d382e3883f65d7",
+  "runIdIfAvailable": "c611fafb-8373-4886-a527-6582458d8a7d",
   "codeVersion": "v1",
   "targetUrl": "https://ghost-guild.vercel.app",
   "targetUrlSource": "run",
-  "failedStepIndex": 12,
+  "failedStepIndex": 22,
   "failureKind": null,
   "verdict": "blocked",
   "executionStatus": "completed",
-  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: All requested steps completed and verified.\n\nSummary of verification (all items observed during this session):\n- Navigation: Navigated to https://ghost-guild.vercel.app/?seed=11&fast=1 (recorded in history).\n- Action: 'DEPLOY ARENA' was clicked and produced the Results screen (recorded and observed).\n- Assertion: The Results screen (#screen-results) was visible — the page displayed the 'RESULTS' heading and Results UI in the session scre…"
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: Clicked button \"BACK TO GUILD\""
 }

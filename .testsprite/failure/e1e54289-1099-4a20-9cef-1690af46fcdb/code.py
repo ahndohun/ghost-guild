@@ -39,30 +39,40 @@ async def run_test():
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
-
-        # -> Open the game page with seed=42 and fast mode (navigate to the URL with ?seed=42&fast=1).
+        
+        # -> Navigate to https://ghost-guild.vercel.app/?seed=42&fast=1
         await page.goto("https://ghost-guild.vercel.app/?seed=42&fast=1")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
-
-        # -> Click the 'DEPLOY SOLO' button.
+        
+        # -> Click the 'DEPLOY SOLO' button to start a solo deploy/run.
         # DEPLOY SOLO button
         elem = page.get_by_test_id('deploy-solo')
         await elem.click(timeout=10000)
-
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        
+        # -> Click the 'BACK TO GUILD' button
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
-
+        
+        # -> Click the 'DEPLOY SOLO' button to run a solo deploy and display the results screen.
+        # DEPLOY SOLO button
+        elem = page.get_by_test_id('deploy-solo')
+        await elem.click(timeout=10000)
+        
+        # -> Verify the RESULTS screen ('The Sand Settles') is visible and that the displayed score is a number, then click the 'BACK TO GUILD' button.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+        
         # --> Assertions to verify final state
-
+        
         # --> The element #screen-guild is visible
-        await page.locator("xpath=/html/body/div/section[2]/div/footer/button[1]").nth(0).scroll_into_view_if_needed()
-        # Assert: The guild screen is visible (the DEPLOY SOLO button is visible).
-        await expect(page.locator("xpath=/html/body/div/section[2]/div/footer/button[1]").nth(0)).to_be_visible(timeout=15000), "The guild screen is visible (the DEPLOY SOLO button is visible)."
+        await page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[1]").nth(0).scroll_into_view_if_needed()
+        # Assert: Guild screen (#screen-guild) is visible — the DEPLOY SOLO button is shown.
+        await expect(page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[1]").nth(0)).to_be_visible(timeout=15000), "Guild screen (#screen-guild) is visible \u2014 the DEPLOY SOLO button is shown."
         current_url = await page.evaluate("() => window.location.href")
         # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
         assert current_url, 'Page should have loaded with a URL'
@@ -80,4 +90,4 @@ async def run_test():
             await pw.stop()
 
 asyncio.run(run_test())
-
+    

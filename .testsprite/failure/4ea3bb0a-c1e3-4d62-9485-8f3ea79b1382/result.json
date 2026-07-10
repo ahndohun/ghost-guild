@@ -1,0 +1,18 @@
+{
+  "testId": "4ea3bb0a-c1e3-4d62-9485-8f3ea79b1382",
+  "status": "failed",
+  "startedAt": null,
+  "finishedAt": "2026-07-10T08:21:34.408Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783671691603466//tmp/fd8cdd0f-4091-4e35-b135-e993b84856c9/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_0237e31e5243b015",
+  "runIdIfAvailable": "5bef59ca-4e7f-4e14-95c6-353252ea82e1",
+  "codeVersion": "v1",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 3,
+  "failureKind": "assertion",
+  "verdict": "failed",
+  "executionStatus": "completed",
+  "summary": "Failed (assertion): The hosted production build of the guild screen likely differs from the expected UI state: the trait slider section is either not rendered at all, rendered under different identifiers, or hidden due to a production-only condition (feature flag, responsive breakpoint, missing data/config, or a stale build on Vercel). Since the class buttons and deploy button are present, the page loads, but the trait controls are missing from the DOM, indicating a frontend implementation/conf…"
+}

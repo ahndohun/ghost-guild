@@ -4,14 +4,14 @@
     <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost Colosseum</title>
-    <script type="module" crossorigin="" src="/assets/index-CzJkfit_.js"></script>
-    <style data-original-href="https://ghost-guild.vercel.app/assets/index-CrN3jw6a.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+    <script type="module" crossorigin="" src="/assets/index-D1L78jNC.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-3ct68FXy.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
 :root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; --bg: #0e0c15; --bg-deep: #08070d; --ink: #e8e3d5; --ink-dim: #e8e3d5b8; --gold: #d9a441; --gold-soft: #fff4cf; --cyan: #58d6c9; --green: #9fe3b0; --red: #e08484; --enemy: #b8453f; --panel-fill: #1a151c; --panel-fill-deep: #120f16; --button-fill: #2a1c18; --shadow: #05040a; --frame-max: 960px; --stone-slice: 48; --stone-border: 14px; --bronze-slice: 12; --bronze-border: 6px; --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 * { box-sizing: border-box; }
 html, body { background: var(--bg-deep); width: 100%; height: 100%; margin: 0px; overflow: hidden; }
 body { background: radial-gradient(circle at 50% 0px, rgba(184, 69, 63, 0.14), rgba(0, 0, 0, 0) 36rem), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 52%, rgb(8, 7, 13) 100%); min-width: 320px; min-height: 100dvh; }
 #app { width: min(var(--frame-max), 100vw); background: var(--bg); height: 100dvh; max-height: 100dvh; margin: 0px auto; position: relative; overflow: hidden; box-shadow: rgb(5, 4, 10) 0px 0px 0px 2px, rgba(0, 0, 0, 0.55) 0px 0px 48px; }
-h1, h2, .eyebrow, .gold, button, .offline-badge, .hud-chip, .class-card strong, .class-card small, .result-grid dt, .result-grid dd, #result-ranking, #leaderboard-list, .title-logo, .title-tagline, .lobby-nameplate-title, .lobby-nameplate-rule { font-family: var(--pixel-font); }
+h1, h2, .eyebrow, .gold, button, .offline-badge, .hud-chip, .class-card strong, .class-card small, .result-grid dt, .result-grid dd, #result-ranking, #leaderboard-list, .title-logo, .title-logo-big, .title-tagline, .lobby-nameplate-title, .lobby-nameplate-rule { font-family: var(--pixel-font); }
 button, input { font: inherit; }
 .ui-stone, .panel, .results-panel, .lobby-stage, .lobby-nameplate, .topbar-meta, .player-name-field, .gold, .best-survival-guild, .best-survival, .offline-badge, .hud-chip, .result-cell, #result-ranking li, #leaderboard-list li, .leaderboard-panel, .title-window, .run-canvas-frame, .game-window, .actions { border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; border-image-width: var(--stone-border); background-color: var(--panel-fill); box-shadow: 4px 4px 0 var(--shadow); image-rendering: pixelated; }
 .ui-bronze, button, .class-card, .temperament-card, .perk-card { border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; border-image-width: var(--bronze-border); background-color: var(--button-fill); box-shadow: 3px 3px 0 var(--shadow); image-rendering: pixelated; }
@@ -27,7 +27,7 @@ button.locked, .class-card.locked, .perk-card.locked { filter: grayscale(0.35) b
 .screen { opacity: 0; width: 100%; height: 100%; max-height: 100dvh; margin: 0px; padding: 0px; position: absolute; inset: 0px; overflow: hidden; transform: translateY(6px); }
 .screen.screen-active { opacity: 1; animation: 0.16s steps(3) 0s 1 normal none running screen-enter; transform: none; }
 .hidden { display: none !important; }
-@keyframes screen-enter {
+@keyframes screen-enter { 
   0% { opacity: 0; transform: translateY(8px); }
   100% { opacity: 1; transform: none; }
 }
@@ -36,13 +36,50 @@ button.locked, .class-card.locked, .perk-card.locked { filter: grayscale(0.35) b
   button { transition: none; }
   button:hover:not(:disabled), button:active:not(:disabled) { transform: none; }
 }
-.title-screen { background: radial-gradient(circle at 50% 35%, rgba(217, 164, 65, 0.12), rgba(0, 0, 0, 0) 42%), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 60%, rgb(8, 7, 13) 100%); place-items: center; padding: 16px; display: grid; }
-.title-shell { width: min(520px, 100%); }
-.title-window { text-align: center; box-shadow: 6px 6px 0 var(--shadow); justify-items: center; gap: 12px; padding: 28px 22px 24px; display: grid; }
+.title-screen { background: rgb(14, 12, 21); place-items: stretch; padding: 0px; display: grid; overflow: hidden; }
+.title-scene { isolation: isolate; flex-direction: column; justify-content: center; align-items: center; gap: clamp(12px, 2.5vh, 28px); width: 100%; height: 100%; padding: 16px 12px 24px; display: flex; position: relative; overflow: hidden; }
+.title-sky { z-index: 0; pointer-events: none; background: linear-gradient(rgb(29, 20, 48) 0%, rgb(23, 17, 31) 42%, rgb(14, 12, 21) 78%, rgb(10, 8, 16) 100%); position: absolute; inset: 0px; }
+.title-stars { z-index: 1; pointer-events: none; position: absolute; inset: 0px; overflow: hidden; }
+.title-stars::before, .title-stars::after { content: ""; background: 0px 0px; border-radius: 50%; width: 1px; height: 1px; position: absolute; }
+.title-stars::before { top: 0px; left: 0px; box-shadow: rgba(232, 227, 213, 0.55) 28px 36px 0px 0.5px, rgba(232, 227, 213, 0.35) 72px 58px 0px 0.5px, rgba(232, 227, 213, 0.45) 118px 22px 0px 0.5px, rgba(232, 227, 213, 0.3) 164px 88px 0px 0.5px, rgba(232, 227, 213, 0.5) 210px 44px 0px 0.5px, rgba(232, 227, 213, 0.28) 256px 112px 0px 0.5px, rgba(232, 227, 213, 0.4) 310px 28px 0px 0.5px, rgba(232, 227, 213, 0.32) 360px 76px 0px 0.5px, rgba(232, 227, 213, 0.48) 420px 18px 0px 0.5px, rgba(232, 227, 213, 0.26) 470px 96px 0px 0.5px, rgba(232, 227, 213, 0.42) 520px 48px 0px 0.5px, rgba(232, 227, 213, 0.34) 580px 70px 0px 0.5px, rgba(232, 227, 213, 0.5) 640px 32px 0px 0.5px, rgba(232, 227, 213, 0.28) 700px 104px 0px 0.5px, rgba(232, 227, 213, 0.38) 760px 54px 0px 0.5px, rgba(232, 227, 213, 0.44) 820px 20px 0px 0.5px, rgba(232, 227, 213, 0.3) 880px 86px 0px 0.5px, rgba(232, 227, 213, 0.46) 940px 40px 0px 0.5px, rgba(232, 227, 213, 0.22) 100px 130px 0px 0.5px, rgba(232, 227, 213, 0.25) 400px 140px 0px 0.5px, rgba(232, 227, 213, 0.2) 680px 150px 0px 0.5px; }
+.title-stars::after { opacity: 0.7; top: 0px; left: 0px; box-shadow: rgba(88, 214, 201, 0.35) 48px 90px 0px 0.5px, rgba(232, 227, 213, 0.4) 190px 16px 0px 0.5px, rgba(232, 227, 213, 0.28) 340px 120px 0px 0.5px, rgba(88, 214, 201, 0.3) 500px 14px 0px 0.5px, rgba(232, 227, 213, 0.36) 650px 64px 0px 0.5px, rgba(232, 227, 213, 0.24) 790px 128px 0px 0.5px, rgba(88, 214, 201, 0.28) 900px 72px 0px 0.5px; }
+.title-colosseum { z-index: 2; pointer-events: none; opacity: 0.38; background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 18px, rgba(8, 6, 12, 0.55) 18px, rgba(8, 6, 12, 0.55) 22px, rgba(0, 0, 0, 0) 22px, rgba(0, 0, 0, 0) 40px), radial-gradient(14% 70% at 8% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 22% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 36% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 50% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.9) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 64% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 78% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 92% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(10, 8, 16, 0.55) 40%, rgba(6, 5, 10, 0.75) 100%); height: 28%; position: absolute; top: 18%; left: -4%; right: -4%; mask-image: linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 18%, rgb(0, 0, 0) 78%, rgba(0, 0, 0, 0) 100%); }
+.title-flames { z-index: 3; pointer-events: none; position: absolute; inset: 0px; overflow: hidden; }
+.title-flame { filter: blur(2px); opacity: 0; will-change: transform, opacity; background: radial-gradient(circle, rgba(160, 255, 240, 0.95) 0%, rgba(88, 214, 201, 0.55) 42%, rgba(0, 0, 0, 0) 72%); border-radius: 50%; width: 10px; height: 10px; animation: 7s ease-in-out 0s infinite normal none running title-flame-drift; position: absolute; bottom: 8%; }
+.title-flame-1 { width: 8px; height: 8px; animation-duration: 6.2s; animation-delay: 0s; left: 12%; }
+.title-flame-2 { width: 12px; height: 12px; animation-duration: 8.1s; animation-delay: 1.1s; left: 28%; }
+.title-flame-3 { width: 9px; height: 9px; animation-duration: 7s; animation-delay: 2.4s; left: 44%; }
+.title-flame-4 { width: 11px; height: 11px; animation-duration: 6.6s; animation-delay: 0.6s; left: 58%; }
+.title-flame-5 { width: 8px; height: 8px; animation-duration: 7.8s; animation-delay: 3.2s; left: 72%; }
+.title-flame-6 { width: 13px; height: 13px; animation-duration: 9s; animation-delay: 1.8s; left: 84%; }
+.title-flame-7 { width: 7px; height: 7px; animation-duration: 5.8s; animation-delay: 4s; bottom: 14%; left: 36%; }
+@keyframes title-flame-drift { 
+  0% { opacity: 0; transform: translateY(12px) scale(0.7); }
+  12% { opacity: 0.75; }
+  55% { opacity: 0.55; }
+  100% { opacity: 0; transform: translate(6px, -220px) scale(1.15); }
+}
+.title-fog { z-index: 4; pointer-events: none; filter: blur(10px); background: linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(88, 214, 201, 0.04) 35%, rgba(40, 70, 72, 0.18) 70%, rgba(14, 18, 22, 0.55) 100%); height: 28%; position: absolute; bottom: 0px; left: 0px; right: 0px; }
+.title-statue { z-index: 5; object-fit: contain; width: auto; height: clamp(200px, 38vh, 320px); max-height: 42%; image-rendering: pixelated; pointer-events: none; filter: drop-shadow(rgba(88, 214, 201, 0.45) 0px 0px 14px) drop-shadow(rgba(88, 214, 201, 0.2) 0px 0px 28px); user-select: none; position: absolute; bottom: 0px; }
+.title-statue-left { left: clamp(0px, 2vw, 24px); }
+.title-statue-right { right: clamp(0px, 2vw, 24px); }
+.title-brand { z-index: 6; text-align: center; pointer-events: none; flex: 0 0 auto; margin: 0px; padding: 0px 12px; position: relative; }
+.title-logo-big { color: rgb(240, 235, 224); letter-spacing: 0.04em; text-shadow: rgba(255, 248, 230, 0.55) 0px -2px, rgba(255, 244, 220, 0.75) 0px -1px, rgb(42, 36, 24) 0px 1px, rgb(26, 21, 16) 0px 2px, rgb(14, 12, 21) 0px 3px, rgb(5, 4, 10) 2px 2px, rgba(88, 214, 201, 0.35) 0px 0px 18px, rgba(88, 214, 201, 0.15) 0px 0px 36px; flex-direction: column; align-items: center; gap: 0.35em; margin: 0px; font-size: clamp(28px, 6.5vw, 52px); line-height: 1.15; display: flex; }
+.title-logo-line { display: block; }
+.title-shell { z-index: 7; flex: 0 0 auto; width: min(480px, 100% - 24px); margin: 0px; position: relative; }
+.title-window { text-align: center; box-shadow: 6px 6px 0 var(--shadow); justify-items: center; gap: 10px; padding: 22px 18px 20px; display: grid; }
+.title-window .eyebrow { color: var(--gold); letter-spacing: 0.08em; text-shadow: 1px 1px 0 var(--shadow); margin: 0px; font-size: 8px; }
 .title-logo { color: var(--gold-soft); text-shadow: 2px 2px 0 var(--shadow), 0 0 12px #d9a44140; margin: 0px; font-size: clamp(16px, 4.2vw, 28px); line-height: 1.35; }
 .title-tagline { max-width: 28rem; color: var(--ink); text-shadow: 1px 1px 0 var(--shadow); margin: 0px; font-size: 9px; line-height: 1.7; }
-.title-subline { max-width: 26rem; color: var(--ink-dim); font-family: var(--pixel-font); margin: 0px 0px 8px; font-size: 8px; line-height: 1.7; }
-.title-start { letter-spacing: 0.04em; min-width: min(240px, 100%); min-height: 48px; margin-top: 6px; font-size: 11px; }
+.title-subline { max-width: 26rem; color: var(--ink-dim); font-family: var(--pixel-font); margin: 0px 0px 6px; font-size: 8px; line-height: 1.7; }
+.title-start { letter-spacing: 0.04em; min-width: min(240px, 100%); min-height: 48px; margin-top: 4px; font-size: 11px; }
+@media (prefers-reduced-motion: reduce) {
+  .title-flame { opacity: 0.4; animation: auto ease 0s 1 normal none running none; transform: none; }
+}
+@media (width <= 700px) {
+  .title-statue { display: none; }
+  .title-shell { width: min(420px, 100% - 20px); }
+}
 .guild-screen { background: linear-gradient(180deg, #0b0a0ff5 0%, #0e0c15f0 48%, #08070bfa 100%), var(--bg); }
 .guild-scroll, .results-scroll { overscroll-behavior: contain; width: 100%; height: 100%; max-height: 100dvh; padding: 12px; overflow: hidden auto; }
 .lobby-stage { border-width: 12px; background-color: var(--panel-fill-deep); box-shadow: 5px 5px 0 var(--shadow); border-image-width: 12px; gap: 0px; margin: 0px 0px 12px; padding: 0px; display: grid; overflow: hidden; }
@@ -130,7 +167,8 @@ canvas { image-rendering: pixelated; display: block; }
   .topbar { flex-direction: column; align-items: stretch; }
   .topbar-meta { grid-template-columns: 1fr; width: 100%; }
   .guild-layout, .temperament-grid, .perk-grid, .class-grid, .result-grid { grid-template-columns: 1fr; }
-  .title-window { padding: 20px 14px 18px; }
+  .title-window { padding: 18px 14px 16px; }
+  .title-logo-big { font-size: clamp(24px, 7vw, 40px); }
 }
 @media (width <= 720px) {
   :root { --stone-border: 10px; --bronze-border: 5px; }
@@ -143,7 +181,10 @@ canvas { image-rendering: pixelated; display: block; }
   .run-canvas-frame { border-width: 6px; border-image-width: 6px; }
   .actions button { flex: 1 1 calc(50% - 8px); min-width: 0px; padding: 8px 6px; font-size: 8px; }
   .title-logo { font-size: 16px; }
+  .title-logo-big { gap: 0.3em; font-size: clamp(20px, 7.5vw, 32px); }
   .title-tagline, .title-subline { font-size: 7px; }
+  .title-window { gap: 8px; padding: 16px 12px 14px; }
+  .title-start { min-height: 44px; font-size: 10px; }
 }
 @media (width <= 420px) {
   #screen-run { align-content: center; padding: 4px; }
@@ -156,13 +197,32 @@ canvas { image-rendering: pixelated; display: block; }
   <body>
     <div id="app">
     <section id="screen-title" class="screen title-screen hidden">
-      <div class="title-shell">
-        <div class="title-window">
-          <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
-          <h1 class="title-logo">Ghost Colosseum</h1>
-          <p class="title-tagline">You don't play the gladiator. You coach them.</p>
-          <p class="title-subline">Tune temperament, class, and perks — then watch judgment decide the sand.</p>
-          <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
+      <div class="title-scene">
+        <div class="title-sky" aria-hidden="true"></div>
+        <div class="title-stars" aria-hidden="true"></div>
+        <div class="title-colosseum" aria-hidden="true"></div>
+        <div class="title-flames" aria-hidden="true">
+          <span class="title-flame title-flame-1"></span>
+          <span class="title-flame title-flame-2"></span>
+          <span class="title-flame title-flame-3"></span>
+          <span class="title-flame title-flame-4"></span>
+          <span class="title-flame title-flame-5"></span>
+          <span class="title-flame title-flame-6"></span>
+          <span class="title-flame title-flame-7"></span>
+        </div>
+        <div class="title-fog" aria-hidden="true"></div>
+        <img class="title-statue title-statue-left" src="/assets/props/statue-sword.png" alt="" width="160" height="320" decoding="async" aria-hidden="true">
+        <img class="title-statue title-statue-right" src="/assets/props/statue-spear.png" alt="" width="160" height="320" decoding="async" aria-hidden="true">
+        <div class="title-brand">
+          <h1 class="title-logo-big"><span class="title-logo-line">GHOST</span><span class="title-logo-line">COLOSSEUM</span></h1>
+        </div>
+        <div class="title-shell">
+          <div class="title-window">
+            <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
+            <p class="title-tagline">You don't play the gladiator. You coach them.</p>
+            <p class="title-subline">Tune temperament, class, and perks — then watch judgment decide the sand.</p>
+            <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
+          </div>
         </div>
       </div>
     </section>
@@ -175,59 +235,59 @@ canvas { image-rendering: pixelated; display: block; }
               <p class="eyebrow">BARRACKS</p>
               <h1>Ghost Colosseum</h1>
               <p class="tagline">Coach your gladiator. The crowd remembers.</p>
-              <p class="onboarding-line">Your gladiator fights on its own - pick a temperament, hit DEPLOY, and watch. Win gold to unlock perks, classes, and upgrades.</p>
+              <p class="onboarding-line">Your gladiator fights on its own - pick a class and temperament, hit DEPLOY, and watch. Win gold to unlock perks and permanent upgrades.</p>
             </div>
           </div>
           <div class="lobby-nameplate" aria-live="polite">
-            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-2785 · Knight · Berserker</p>
+            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-9850 · Knight · Berserker</p>
             <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Ignores loot when an enemy is within 200px and never flees at low HP.</p>
-            <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
+            <div id="best-survival-guild" class="best-survival-guild" data-testid="best-survival-guild">Best 180s</div>
           </div>
         </div>
         <header class="topbar">
           <div class="topbar-meta">
             <label class="player-name-field">
               <span>Gladiator</span>
-              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-2785">
+              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-9850">
             </label>
-            <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
+            <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">400</span></div>
           </div>
         </header>
         <main class="guild-layout">
           <section class="panel temperament-panel">
             <h2>Temperament</h2>
             <div class="temperament-grid">
-
+              
     <button type="button" class="temperament-card selected" data-testid="temperament-berserker" aria-pressed="true" aria-label="Berserker temperament">
       <strong>Berserker</strong>
       <span>Ignores loot when an enemy is within 200px and never flees at low HP.</span>
       <small>Kills restore HP - but after 90s the fury fades and kills heal far less. Permanent training restores the fury (Blood Thirst sharpens it further).</small>
     </button>
-
+  
     <button type="button" class="temperament-card" data-testid="temperament-hoarder" aria-pressed="false" aria-label="Hoarder temperament">
       <strong>Hoarder</strong>
       <span>Detours to loot even below 35% HP.</span>
       <small>Gold pickup value +30%.</small>
     </button>
-
+  
     <button type="button" class="temperament-card" data-testid="temperament-duelist" aria-pressed="false" aria-label="Duelist temperament">
       <strong>Duelist</strong>
       <span>Kites at 80-100% of longest weapon range.</span>
       <small>Highest-level weapon damage +15%.</small>
     </button>
-
+  
     <button type="button" class="temperament-card" data-testid="temperament-survivor" aria-pressed="false" aria-label="Survivor temperament">
       <strong>Survivor</strong>
       <span>Danger radius is 1.5x and fleeing starts at 50% HP.</span>
       <small>Survival-time score value x1.4.</small>
     </button>
-
+  
             </div>
           </section>
           <section class="panel">
             <h2>Class</h2>
             <div class="class-grid">
-
+              
     <button type="button" class="class-card selected" data-testid="class-knight">
       <span class="class-glyph">K</span>
       <strong>Knight</strong>
@@ -236,110 +296,110 @@ canvas { image-rendering: pixelated; display: block; }
       <span class="class-weakness">No edge, no tricks</span>
       <small id="class-knight-status" class="class-status">Selected</small>
     </button>
-
-
-    <button type="button" class="class-card locked" data-testid="class-mage" disabled="">
+  
+              
+    <button type="button" class="class-card" data-testid="class-mage">
       <span class="class-glyph">M</span>
       <strong>Mage</strong>
       <small>fireBolt</small>
       <span class="class-strength">Highest burst damage</span>
       <span class="class-weakness">Dies to a stiff breeze</span>
-      <small id="class-mage-status" class="class-status">Unlock 400g</small>
+      <small id="class-mage-status" class="class-status">Ready</small>
     </button>
-
-
-    <button type="button" class="class-card locked" data-testid="class-priest" disabled="">
+  
+              
+    <button type="button" class="class-card" data-testid="class-priest">
       <span class="class-glyph">P</span>
       <strong>Priest</strong>
       <small>holyBolt</small>
       <span class="class-strength">Outlasts and heals allies</span>
       <span class="class-weakness">Weakest weapon damage</span>
-      <small id="class-priest-status" class="class-status">Unlock 1200g</small>
+      <small id="class-priest-status" class="class-status">Ready</small>
     </button>
-
-
-    <button type="button" class="class-card locked" data-testid="class-monk" disabled="">
+  
+              
+    <button type="button" class="class-card" data-testid="class-monk">
       <span class="class-glyph">O</span>
       <strong>Monk</strong>
       <small>garlicAura</small>
       <span class="class-strength">One weapon honed to Lv.8, contact damage -20%</span>
       <span class="class-weakness">Weapon slots locked to 1, no ranged options ever</span>
-      <small id="class-monk-status" class="class-status">Unlock 800g</small>
+      <small id="class-monk-status" class="class-status">Ready</small>
     </button>
-
-
-    <button type="button" class="class-card locked" data-testid="class-gambler" disabled="">
+  
+              
+    <button type="button" class="class-card" data-testid="class-gambler">
       <span class="class-glyph">G</span>
       <strong>Gambler</strong>
       <small>throwingAxe</small>
       <span class="class-strength">Luck +25%, level-up options roll 1 tier higher</span>
       <span class="class-weakness">Never chooses — every level-up pick is a seeded dice roll (temperament preference ignored)</span>
-      <small id="class-gambler-status" class="class-status">Unlock 2000g</small>
+      <small id="class-gambler-status" class="class-status">Ready</small>
     </button>
-
+  
             </div>
           </section>
           <section class="panel">
             <h2>Guild Upgrades</h2>
             <div class="upgrade-grid">
-              <button type="button" data-testid="buy-atk" disabled="">ATK Lv.0 50g</button>
-              <button type="button" data-testid="buy-hp" disabled="">HP Lv.0 50g</button>
-              <button type="button" data-testid="buy-spd" disabled="">SPD Lv.0 80g</button>
-              <button type="button" data-testid="buy-luck" disabled="">LUCK Lv.0 100g</button>
-              <button type="button" data-testid="buy-lvl" disabled="">LVL Lv.0 200g</button>
+              <button type="button" data-testid="buy-atk">ATK Lv.0 50g</button>
+              <button type="button" data-testid="buy-hp">HP Lv.0 50g</button>
+              <button type="button" data-testid="buy-spd">SPD Lv.0 80g</button>
+              <button type="button" data-testid="buy-luck">LUCK Lv.0 100g</button>
+              <button type="button" data-testid="buy-lvl">LVL Lv.0 200g</button>
             </div>
           </section>
           <section class="panel perk-panel">
             <h2>Perks</h2>
             <div class="perk-grid">
-
-    <button type="button" class="perk-card locked" data-testid="perk-t1-a" aria-pressed="false" disabled="">
+              
+    <button type="button" class="perk-card" data-testid="perk-t1-a" aria-pressed="false">
       <span class="perk-tier">T1A</span>
       <strong id="perk-t1-a-name">Blood Thirst</strong>
       <small id="perk-t1-a-effect">Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.</small>
       <em id="perk-t1-a-cost">150g</em>
     </button>
-
-
-    <button type="button" class="perk-card locked" data-testid="perk-t1-b" aria-pressed="false" disabled="">
+  
+              
+    <button type="button" class="perk-card" data-testid="perk-t1-b" aria-pressed="false">
       <span class="perk-tier">T1B</span>
       <strong id="perk-t1-b-name">Combat Instinct</strong>
       <small id="perk-t1-b-effect">Weapon cooldowns -5%.</small>
       <em id="perk-t1-b-cost">150g</em>
     </button>
-
-
+  
+              
     <button type="button" class="perk-card locked" data-testid="perk-t2-a" aria-pressed="false" disabled="">
       <span class="perk-tier">T2A</span>
       <strong id="perk-t2-a-name">Frenzy</strong>
       <small id="perk-t2-a-effect">Damage +25% below 35% HP.</small>
       <em id="perk-t2-a-cost">400g</em>
     </button>
-
-
+  
+              
     <button type="button" class="perk-card locked" data-testid="perk-t2-b" aria-pressed="false" disabled="">
       <span class="perk-tier">T2B</span>
       <strong id="perk-t2-b-name">Iron Skin</strong>
       <small id="perk-t2-b-effect">Contact damage taken -12.5%.</small>
       <em id="perk-t2-b-cost">400g</em>
     </button>
-
-
+  
+              
     <button type="button" class="perk-card locked" data-testid="perk-t3-a" aria-pressed="false" disabled="">
       <span class="perk-tier">T3A</span>
       <strong id="perk-t3-a-name">Slaughterer</strong>
       <small id="perk-t3-a-effect">Elite kills reset all weapon cooldowns.</small>
       <em id="perk-t3-a-cost">900g</em>
     </button>
-
-
+  
+              
     <button type="button" class="perk-card locked" data-testid="perk-t3-b" aria-pressed="false" disabled="">
       <span class="perk-tier">T3B</span>
       <strong id="perk-t3-b-name">Undying Rage</strong>
       <small id="perk-t3-b-effect">Survive one lethal blow at 1 HP.</small>
       <em id="perk-t3-b-cost">900g</em>
     </button>
-
+  
             </div>
           </section>
         </main>
@@ -359,12 +419,12 @@ canvas { image-rendering: pixelated; display: block; }
         </div>
         <div class="hud">
           <span class="hud-chip">HP <strong id="hud-hp">0</strong></span>
-          <span class="hud-chip">LV <strong id="hud-level">8</strong></span>
-          <span class="hud-chip">KILLS <strong id="hud-kills">167</strong></span>
-          <span class="hud-chip">TIME <strong id="hud-time">96s</strong></span>
+          <span class="hud-chip">LV <strong id="hud-level">10</strong></span>
+          <span class="hud-chip">KILLS <strong id="hud-kills">202</strong></span>
+          <span class="hud-chip">TIME <strong id="hud-time">170s</strong></span>
           <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
         </div>
-        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="96" data-hp="0" data-level="8" data-kills="167" data-gold="44" data-seed="42"></div>
+        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="170" data-hp="0" data-level="10" data-kills="202" data-gold="64" data-seed="11"></div>
       </div>
     </section>
     <section id="screen-results" class="screen screen-active">
@@ -374,24 +434,24 @@ canvas { image-rendering: pixelated; display: block; }
           <h1 class="victory-title">The Sand Settles</h1>
           <p class="victory-sub">Match report from the colosseum floor</p>
           <dl class="result-grid">
-            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">2194</dd></div>
+            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">2934</dd></div>
             <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
-            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">167</dd></div>
-            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">96s</dd></div>
-            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">44</dd></div>
+            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">202</dd></div>
+            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">170s</dd></div>
+            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">64</dd></div>
           </dl>
-          <p id="best-survival" class="best-survival is-new-best" data-testid="best-survival">NEW BEST! 96s</p>
+          <p id="best-survival" class="best-survival" data-testid="best-survival">Best 180s</p>
           <h2 class="results-section-title">Match Ranking</h2>
-          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li class="local-row">#1 Gladiator-2785 knight 2194</li></ol>
+          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li class="local-row">#1 Gladiator-9850 knight 2934</li><li>#2 Gladiator-3830 knight 2571</li><li>#3 Gladiator-7511 knight 2265</li><li>#4 Gladiator-4550 knight 1959</li></ol>
           <section id="leaderboard-section" class="leaderboard-panel">
             <h2 class="results-section-title">World Leaderboard</h2>
-            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-3830 knight berserker 4310</li><li>#11 Gladiator-9596 knight berserker 4310</li><li>#12 Gladiator-6522 knight berserker 4019</li><li>#13 Gladiator-4876 knight duelist 2073</li></ol>
+            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-3830 knight berserker 4310</li><li>#11 Gladiator-9596 knight berserker 4310</li><li>#12 Gladiator-9850 knight berserker 4310</li><li>#13 Gladiator-6522 knight berserker 4019</li><li>#14 ahndohun knight survivor 2990</li><li>#15 Gladiator-4876 knight duelist 2073</li></ol>
           </section>
-          <button type="button" class="primary" data-testid="back-to-guild" data-testsprite-action-target="0">BACK TO GUILD</button>
+          <button type="button" class="primary" data-testid="back-to-guild" data-testsprite-action-target="4">BACK TO GUILD</button>
         </div>
       </div>
     </section>
   </div>
-
+  
 
 </body></html>

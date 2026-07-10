@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 6,
+    "summary": "Step 6 'Verify the RESULTS screen ('The Sand Settles') is visible and that the displayed score is a number, then click the 'BACK TO GUILD' button' passed.",
+    "path": "steps/06-snapshot.html"
+  }
+]

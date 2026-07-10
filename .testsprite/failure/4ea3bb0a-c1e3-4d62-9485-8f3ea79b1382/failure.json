@@ -1,0 +1,28 @@
+{
+  "rootCauseHypothesis": "The hosted production build of the guild screen likely differs from the expected UI state: the trait slider section is either not rendered at all, rendered under different identifiers, or hidden due to a production-only condition (feature flag, responsive breakpoint, missing data/config, or a stale build on Vercel). Since the class buttons and deploy button are present, the page loads, but the trait controls are missing from the DOM, indicating a frontend implementation/configuration issue on the hosting side rather than a general page failure. Underlying error: TEST FAILURE\n\nRequired UI element(s) are missing — the guild screen lacks the expected trait sliders for Bravery, Greed, and Focus.\n\nObservations:\n- The guild/barracks screen loaded and #screen-guild is visible.\n- Class selection buttons for Knight, Mage, and Priest are visible, and the DEPLOY SOLO button is present.\n- No trait sliders with data-testids 'trait-bravery', 'trait-greed', or 'trait-focus' were found on the page.",
+  "recommendedFixTarget": {
+    "kind": "code",
+    "reference": null,
+    "rationale": "Update the guild/barracks screen implementation to render the three trait controls with stable test IDs: trait-bravery, trait-greed, and trait-focus. If these sliders are produced by client-side data/config, verify the hosting deployment is serving the latest build and that the trait configuration is not being stripped or conditionally hidden in production. Also check for CSS/viewport logic that may collapse or hide the trait panel on certain screen sizes, and ensure the guild screen component always mounts the sliders before the test runs."
+  },
+  "evidence": [
+    {
+      "kind": "snapshot",
+      "stepIndex": 2,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/4ea3bb0a-c1e3-4d62-9485-8f3ea79b1382/002.html?REDACTED",
+      "summary": "Step 2 'Click the 'PRESS START' button to enter the app and reveal the guild screen' passed."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 3,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/4ea3bb0a-c1e3-4d62-9485-8f3ea79b1382/007.html?REDACTED",
+      "summary": "Step 3 'Expected button with data-testid class-knight to be visible.' failed. Error: TEST FAILURE\n\nRequired UI element(s) are missing — the guild screen lacks the expected trait sliders for Bravery, Greed, and Focus.\n\nObservations:\n- The guild/barracks screen loaded and #screen-guild is visible.\n- Class selection buttons for Knight, Mage, and Priest are visible, and the DEPLOY SOLO button is present.\n- No trait sliders with data-testids 'trait-bravery', 'trait-greed', or 'trait-focus' were found on the page."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 4,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/4ea3bb0a-c1e3-4d62-9485-8f3ea79b1382/007.html?REDACTED",
+      "summary": "Step 4 'Expected button with data-testid class-mage to be visible.' failed. Error: TEST FAILURE\n\nRequired UI element(s) are missing — the guild screen lacks the expected trait sliders for Bravery, Greed, and Focus.\n\nObservations:\n- The guild/barracks screen loaded and #screen-guild is visible.\n- Class selection buttons for Knight, Mage, and Priest are visible, and the DEPLOY SOLO button is present.\n- No trait sliders with data-testids 'trait-bravery', 'trait-greed', or 'trait-focus' were found on the page."
+    }
+  ]
+}

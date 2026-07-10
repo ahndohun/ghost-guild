@@ -1,18 +1,18 @@
 {
-  "rootCauseHypothesis": "TEST BLOCKED: All requested steps completed and verified:\n\n- Navigation: The page at https://ghost-guild.vercel.app/?seed=42&fast=1 was opened (visible in the current tab).\n- Action: The 'DEPLOY SOLO' button was clicked and the results screen appeared.\n- Assertion: The results screen was visible and contained a numeric score: \"Score 2194\" (observed on the results screen).\n- Action: The 'BACK TO GUILD' button was clicked to return to the guild.\n- Assertion: The guild screen is visible again — the page shows the 'Ghost Colosseum' header and the 'DEPLOY SOLO' button (the element '#screen-guild' was found in the DOM).\n\nOutcome: PASS — all required UI interactions and assertions completed successfully and verified from the page content and screenshot. No additional actions will be performed.",
+  "rootCauseHypothesis": "TEST BLOCKED: PASS\n\nAll requested steps completed and verified:\n- Navigation: Visited https://ghost-guild.vercel.app/?seed=42&fast=1.\n- Run: Clicked the 'DEPLOY SOLO' button and the results screen was displayed (titled 'The Sand Settles' in the session).\n- Results assertion: The results container (#screen-results) was present and the result score element contained a numeric value. Observed score: 2194.\n- Return: Clicked the 'BACK TO GUILD' button and the guild screen is visible again; the guild UI shows the 'DEPLOY SOLO' button.\n\nAll checklist items from the user request were satisfied and verified from the session's UI state and history. No additional actions will be performed.",
   "recommendedFixTarget": null,
   "evidence": [
     {
       "kind": "snapshot",
-      "stepIndex": 4,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/004.html?REDACTED",
-      "summary": "Step 4 'Click the 'BACK TO GUILD' button to return to the guild screen' passed."
+      "stepIndex": 6,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/008.html?REDACTED",
+      "summary": "Step 6 'Verify the RESULTS screen ('The Sand Settles') is visible and that the displayed score is a number, then click the 'BACK TO GUILD' button' passed."
     },
     {
       "kind": "snapshot",
-      "stepIndex": 5,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/006.html?REDACTED",
-      "summary": "Step 5 'The guild screen is visible (the DEPLOY SOLO button is visible).' failed. Error: TEST BLOCKED: All requested steps completed and verified:\n\n- Navigation: The page at https://ghost-guild.vercel.app/?seed=42&fast=1 was opened (visible in the current tab).\n- Action: The 'DEPLOY SOLO' button was clicked and the results screen appeared.\n- Assertion: The results screen was visible and contained a numeric score: \"Score 2194\" (observed on the results screen).\n- Action: The 'BACK TO GUILD' button was clicked to return to the guild.\n- Assertion: The guild screen is visible again — the page shows the 'Ghost Colosseum' header and the 'DEPLOY SOLO' button (the element '#screen-guild' was found in the DOM).\n\nOutcome: PASS — all required UI interactions and assertions completed successfully and verified from the page content and screenshot. No additional actions will be performed."
+      "stepIndex": 7,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/009.html?REDACTED",
+      "summary": "Step 7 'Guild screen (#screen-guild) is visible — the DEPLOY SOLO button is shown.' failed. Error: TEST BLOCKED: PASS\n\nAll requested steps completed and verified:\n- Navigation: Visited https://ghost-guild.vercel.app/?seed=42&fast=1.\n- Run: Clicked the 'DEPLOY SOLO' button and the results screen was displayed (titled 'The Sand Settles' in the session).\n- Results assertion: The results container (#screen-results) was present and the result score element contained a numeric value. Observed score: 2194.\n- Return: Clicked the 'BACK TO GUILD' button and the guild screen is visible again; the guild UI shows the 'DEPLOY SOLO' button.\n\nAll checklist items from the user request were satisfied and verified from the session's UI state and history. No additional actions will be performed."
     }
   ]
 }

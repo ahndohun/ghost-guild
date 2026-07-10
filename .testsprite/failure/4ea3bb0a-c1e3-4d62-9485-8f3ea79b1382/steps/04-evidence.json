@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 4,
+    "summary": "Step 4 'Expected button with data-testid class-mage to be visible.' failed. Error: TEST FAILURE\n\nRequired UI element(s) are missing — the guild screen lacks the expected trait sliders for Bravery, Greed, and Focus.\n\nObservations:\n- The guild/barracks screen loaded and #screen-guild is visible.\n- Class selection buttons for Knight, Mage, and Priest are visible, and the DEPLOY SOLO button is present.\n- No trait sliders with data-testids 'trait-bravery', 'trait-greed', or 'trait-focus' were found on the page.",
+    "path": "steps/04-snapshot.html"
+  }
+]

@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 2,
+    "summary": "Step 2 'Click the 'PRESS START' button to enter the app and reveal the guild screen' passed.",
+    "path": "steps/02-snapshot.html"
+  }
+]
