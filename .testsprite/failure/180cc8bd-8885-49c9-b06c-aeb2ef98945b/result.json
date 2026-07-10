@@ -2,17 +2,17 @@
   "testId": "180cc8bd-8885-49c9-b06c-aeb2ef98945b",
   "status": "blocked",
   "startedAt": null,
-  "finishedAt": "2026-07-10T08:44:56.895Z",
-  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783673096678833//tmp/4917449d-003d-4ec9-955e-4509ada6e670/result.webm",
+  "finishedAt": "2026-07-10T09:37:08.619Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783676228317995//tmp/1b456797-2061-45e9-b948-9173adb40f05/result.webm",
   "failureAnalysisUrl": null,
-  "snapshotId": "snap_fb027acf692301d5",
-  "runIdIfAvailable": "7ab83b31-6b08-4e10-b36a-1592e37428f2",
+  "snapshotId": "snap_990c66ed8a866ba0",
+  "runIdIfAvailable": "3584b6f8-ad8b-4885-b904-9a47cbdcda60",
   "codeVersion": "v1",
   "targetUrl": "https://ghost-guild.vercel.app",
   "targetUrlSource": "run",
-  "failedStepIndex": 5,
+  "failedStepIndex": 18,
   "failureKind": null,
   "verdict": "blocked",
   "executionStatus": "completed",
-  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: All requested steps were completed and verified in this session:\n\n- Navigation: Opened https://ghost-guild.vercel.app/?seed=11&fast=1 (session tab present).\n- Action: Clicked the 'DEPLOY ARENA' button (deploy-arena) — the RESULTS screen was displayed (heading 'RESULTS' and text 'The Sand Settles' observed).\n- Assertion: The results screen (#screen-results) was visible after DEPLOY ARENA (observed in the results screen view).\n- Assertion:…"
+  "summary": "Blocked before a verdict could be produced: The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Clicked button \"DEPLOY ARENA\""
 }

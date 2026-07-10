@@ -4,8 +4,8 @@
     <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost Colosseum</title>
-    <script type="module" crossorigin="" src="/assets/index-D6EVgcL8.js"></script>
-    <style data-original-href="https://ghost-guild.vercel.app/assets/index-BWIdM5ND.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+    <script type="module" crossorigin="" src="/assets/index-C74Zd97K.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-CCxNw_iz.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
 :root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; --bg: #0e0c15; --bg-deep: #08070d; --ink: #e8e3d5; --ink-dim: #e8e3d5b8; --gold: #d9a441; --gold-soft: #fff4cf; --cyan: #58d6c9; --green: #9fe3b0; --red: #e08484; --enemy: #b8453f; --panel-fill: #1a151c; --panel-fill-deep: #120f16; --button-fill: #2a1c18; --shadow: #05040a; --frame-max: 960px; --stone-slice: 48; --stone-border: 14px; --bronze-slice: 12; --bronze-border: 6px; --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 * { box-sizing: border-box; }
 html, body { background: var(--bg-deep); width: 100%; height: 100%; margin: 0px; overflow: hidden; }
@@ -140,10 +140,24 @@ h2, .results-section-title { color: var(--gold-soft); text-shadow: 1px 1px 0 var
 #run-canvas { aspect-ratio: 960 / 540; width: 100%; max-width: 100%; height: auto; box-shadow: none; image-rendering: pixelated; background: rgb(14, 12, 21); border: 0px; display: block; }
 canvas { image-rendering: pixelated; display: block; }
 .offline-badge { z-index: 2; border-width: 8px; color: var(--gold-soft); box-shadow: 2px 2px 0 var(--shadow); background-color: rgba(20, 14, 18, 0.92); border-image-width: 8px; padding: 6px 8px; font-size: 8px; position: absolute; top: 8px; left: 8px; }
-.hud { flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; padding: 8px 2px 2px; font-size: 8px; display: flex; }
-.hud-chip { border-width: 8px; min-height: 28px; color: var(--ink); box-shadow: 2px 2px 0 var(--shadow); text-shadow: 1px 1px 0 var(--shadow); background-color: rgba(18, 14, 20, 0.94); border-image-width: 8px; align-items: center; gap: 4px; padding: 4px 6px; font-size: 8px; line-height: 1.2; display: inline-flex; }
+.hud { z-index: 3; pointer-events: none; font-size: 8px; position: absolute; inset: 0px; }
+.hud-chip { border-width: 8px; min-height: 28px; color: var(--ink); box-shadow: 2px 2px 0 var(--shadow); text-shadow: 1px 1px 0 var(--shadow); background-color: rgba(18, 14, 20, 0.94); border-image-width: 8px; align-items: center; gap: 4px; padding: 4px 8px; font-size: 8px; line-height: 1.2; display: inline-flex; }
 .hud-chip strong { color: var(--gold-soft); font-weight: 400; }
-.hud-sound { min-height: 28px; padding: 4px 8px; font-size: 8px; }
+.hud-time { z-index: 4; white-space: nowrap; position: absolute; top: 8px; left: 50%; transform: translate(-50%); }
+.hud-hp-orb { z-index: 4; width: 120px; height: 120px; position: absolute; bottom: 6px; left: 6px; }
+.hud-hp-well { background: radial-gradient(circle at 50% 40%, rgb(42, 16, 20) 0%, rgb(18, 8, 10) 100%); border-radius: 50%; width: 44%; height: 43%; position: absolute; top: 28.5%; left: 28%; overflow: hidden; box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 6px inset; }
+.hud-hp-fill { background: radial-gradient(at 50% 20%, rgba(255, 140, 120, 0.55), rgba(0, 0, 0, 0) 55%), linear-gradient(rgb(255, 90, 90) 0%, rgb(198, 40, 40) 45%, rgb(122, 16, 24) 100%); height: 100%; transition: height 80ms steps(2); position: absolute; bottom: 0px; left: 0px; right: 0px; }
+.hud-hp-frame { object-fit: contain; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; user-select: none; position: absolute; inset: 0px; }
+.hud-hp-label { z-index: 2; font-family: var(--pixel-font); color: rgb(255, 255, 255); text-shadow: rgb(5, 4, 10) 1px 1px, rgb(5, 4, 10) -1px 0px, rgb(5, 4, 10) 0px -1px, rgb(5, 4, 10) 1px 0px, rgb(5, 4, 10) 0px 1px; place-items: center; padding-top: 4px; font-size: 9px; line-height: 1.2; display: grid; position: absolute; inset: 0px; }
+.hud-hp-label strong { color: rgb(255, 255, 255); font-weight: 400; }
+.hud-xp { z-index: 4; pointer-events: none; flex-direction: column; align-items: center; gap: 4px; width: min(360px, 62%); display: flex; position: absolute; bottom: 10px; left: 50%; transform: translate(-50%); }
+.hud-xp-level { font-family: var(--pixel-font); color: var(--gold-soft); text-shadow: 1px 1px 0 var(--shadow), 0 0 6px #d9a44140; white-space: nowrap; font-size: 9px; line-height: 1.2; }
+.hud-xp-level strong { color: var(--gold-soft); font-weight: 400; }
+.hud-xp-bar { --xp-band: 56; aspect-ratio: 512 / 56; width: 100%; max-height: 48px; position: relative; overflow: visible; }
+.hud-xp-track { z-index: 0; background: rgba(12, 8, 14, 0.55); border-radius: 3px; position: absolute; inset: 18% 5.5%; overflow: hidden; }
+.hud-xp-fill { background: linear-gradient(rgba(255, 240, 180, 0.45) 0%, rgba(0, 0, 0, 0) 40%, rgba(80, 40, 0, 0.35) 100%), repeating-linear-gradient(90deg, rgb(240, 208, 96) 0px, rgb(240, 208, 96) 9px, rgb(212, 168, 42) 9px, rgb(212, 168, 42) 11px, rgb(196, 146, 24) 11px, rgb(196, 146, 24) 12px); width: 0%; height: 100%; transition: width 80ms steps(2); box-shadow: rgba(255, 250, 200, 0.45) 0px 1px inset; }
+.hud-xp-frame { width: 100%; height: calc(100% * 192 / var(--xp-band)); z-index: 1; object-fit: fill; image-rendering: pixelated; pointer-events: none; user-select: none; position: absolute; top: 50%; left: 0px; transform: translateY(-50%); }
+.hud-sound { z-index: 5; pointer-events: auto; min-height: 28px; padding: 4px 8px; font-size: 8px; position: absolute; bottom: 8px; right: 8px; }
 .results-scroll { place-items: start center; padding: 16px 12px 24px; display: grid; }
 .results-panel, .victory-window { border-width: 14px; width: min(720px, 100%); box-shadow: 6px 6px 0 var(--shadow); background-color: var(--panel-fill); text-align: center; border-image-width: 14px; margin: 0px auto; padding: 18px 16px 16px; }
 .results-eyebrow { margin: 0px 0px 6px; }
@@ -175,8 +189,14 @@ canvas { image-rendering: pixelated; display: block; }
   .result-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
   .result-grid .result-cell:last-child, .result-grid div:last-child { grid-column: 1 / -1; }
   #result-ranking li, #leaderboard-list li { font-size: 8px; line-height: 1.7; }
-  .hud { gap: 4px; padding: 6px 0px 0px; }
   .hud-chip, .hud-sound { border-width: 6px; border-image-width: 6px; min-height: 24px; padding: 3px 5px; font-size: 7px; }
+  .hud-time { top: 6px; }
+  .hud-hp-orb { width: 88px; height: 88px; bottom: 4px; left: 4px; }
+  .hud-hp-label { padding-top: 2px; font-size: 7px; }
+  .hud-xp { gap: 3px; width: min(240px, 58%); bottom: 6px; }
+  .hud-xp-level { font-size: 7px; }
+  .hud-xp-bar { max-height: 36px; }
+  .hud-sound { bottom: 4px; right: 4px; }
   .run-shell, .game-window { border-width: 8px; border-image-width: 8px; padding: 4px; }
   .run-canvas-frame { border-width: 6px; border-image-width: 6px; }
   .actions button { flex: 1 1 calc(50% - 8px); min-width: 0px; padding: 8px 6px; font-size: 8px; }
@@ -189,8 +209,13 @@ canvas { image-rendering: pixelated; display: block; }
 @media (width <= 420px) {
   #screen-run { align-content: center; padding: 4px; }
   .run-shell { width: 100%; }
-  .hud { gap: 3px; }
-  .hud-chip { flex: 1 1 auto; justify-content: center; }
+  .hud-hp-orb { width: 72px; height: 72px; bottom: 2px; left: 2px; }
+  .hud-hp-label { font-size: 6px; }
+  .hud-xp { width: min(200px, 56%); bottom: 4px; }
+  .hud-xp-level { font-size: 6px; }
+  .hud-xp-bar { max-height: 30px; }
+  .hud-time { min-height: 22px; padding: 2px 5px; font-size: 6px; top: 4px; }
+  .hud-sound { min-height: 22px; padding: 2px 5px; font-size: 6px; bottom: 2px; right: 2px; }
   .lobby-stage-frame { height: 210px; min-height: 210px; }
 }</style>
   </head>
@@ -226,7 +251,7 @@ canvas { image-rendering: pixelated; display: block; }
         </div>
       </div>
     </section>
-    <section id="screen-guild" class="screen guild-screen hidden">
+    <section id="screen-guild" class="screen guild-screen screen-active">
       <div class="guild-scroll">
         <div class="lobby-stage" aria-label="Gladiator lobby">
           <div class="lobby-stage-frame">
@@ -239,18 +264,18 @@ canvas { image-rendering: pixelated; display: block; }
             </div>
           </div>
           <div class="lobby-nameplate" aria-live="polite">
-            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-1908 · Knight · Berserker</p>
+            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-9411 · Knight · Berserker</p>
             <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Ignores loot when an enemy is within 200px and never flees at low HP.</p>
-            <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
+            <div id="best-survival-guild" class="best-survival-guild" data-testid="best-survival-guild">Best 180s</div>
           </div>
         </div>
         <header class="topbar">
           <div class="topbar-meta">
             <label class="player-name-field">
               <span>Gladiator</span>
-              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-1908">
+              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-9411">
             </label>
-            <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
+            <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">468</span></div>
           </div>
         </header>
         <main class="guild-layout">
@@ -342,18 +367,18 @@ canvas { image-rendering: pixelated; display: block; }
           <section class="panel">
             <h2>Guild Upgrades</h2>
             <div class="upgrade-grid">
-              <button type="button" data-testid="buy-atk" disabled="">ATK Lv.0 50g</button>
-              <button type="button" data-testid="buy-hp" disabled="">HP Lv.0 50g</button>
-              <button type="button" data-testid="buy-spd" disabled="">SPD Lv.0 80g</button>
-              <button type="button" data-testid="buy-luck" disabled="">LUCK Lv.0 100g</button>
-              <button type="button" data-testid="buy-lvl" disabled="">LVL Lv.0 200g</button>
+              <button type="button" data-testid="buy-atk">ATK Lv.0 50g</button>
+              <button type="button" data-testid="buy-hp">HP Lv.0 50g</button>
+              <button type="button" data-testid="buy-spd">SPD Lv.0 80g</button>
+              <button type="button" data-testid="buy-luck">LUCK Lv.0 100g</button>
+              <button type="button" data-testid="buy-lvl">LVL Lv.0 200g</button>
             </div>
           </section>
           <section class="panel perk-panel">
             <h2>Perks</h2>
             <div class="perk-grid">
               
-    <button type="button" class="perk-card locked" data-testid="perk-t1-a" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t1-a" aria-pressed="false">
       <span class="perk-tier">T1A</span>
       <strong id="perk-t1-a-name">Blood Thirst</strong>
       <small id="perk-t1-a-effect">Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.</small>
@@ -361,7 +386,7 @@ canvas { image-rendering: pixelated; display: block; }
     </button>
   
               
-    <button type="button" class="perk-card locked" data-testid="perk-t1-b" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t1-b" aria-pressed="false">
       <span class="perk-tier">T1B</span>
       <strong id="perk-t1-b-name">Combat Instinct</strong>
       <small id="perk-t1-b-effect">Weapon cooldowns -5%.</small>
@@ -405,7 +430,7 @@ canvas { image-rendering: pixelated; display: block; }
         </main>
         <footer class="actions">
           <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
-          <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>
+          <button type="button" data-testid="deploy-arena" data-testsprite-action-target="0">DEPLOY ARENA</button>
           <button type="button" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
           <button type="button" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
         </footer>
@@ -416,38 +441,51 @@ canvas { image-rendering: pixelated; display: block; }
         <div class="run-canvas-frame">
           <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
           <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
+          <div class="hud" aria-hidden="false">
+            <span class="hud-chip hud-time">TIME <strong id="hud-time">180s</strong></span>
+            <div class="hud-hp-orb">
+              <div class="hud-hp-well" aria-hidden="true">
+                <div class="hud-hp-fill" id="hud-hp-fill" style="height: 0%;"></div>
+              </div>
+              <img class="hud-hp-frame" src="/assets/ui/hp-orb-frame.png" alt="" draggable="false">
+              <span class="hud-hp-label">HP <strong id="hud-hp">0</strong></span>
+            </div>
+            <div class="hud-xp">
+              <span class="hud-xp-level">LV <strong id="hud-level">8</strong></span>
+              <div class="hud-xp-bar">
+                <div class="hud-xp-track" aria-hidden="true">
+                  <div class="hud-xp-fill" id="hud-xp-fill" style="width: 48.2759%;"></div>
+                </div>
+                <img class="hud-xp-frame" src="/assets/ui/xp-bar-frame.png" alt="" draggable="false">
+              </div>
+            </div>
+            <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
+          </div>
         </div>
-        <div class="hud">
-          <span class="hud-chip">HP <strong id="hud-hp">0</strong></span>
-          <span class="hud-chip">LV <strong id="hud-level">11</strong></span>
-          <span class="hud-chip">KILLS <strong id="hud-kills">233</strong></span>
-          <span class="hud-chip">TIME <strong id="hud-time">179s</strong></span>
-          <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
-        </div>
-        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="179" data-hp="0" data-level="11" data-kills="233" data-gold="84" data-seed="11"></div>
+        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="180" data-hp="0" data-level="8" data-kills="135" data-gold="59" data-seed="11"></div>
       </div>
     </section>
-    <section id="screen-results" class="screen screen-active">
+    <section id="screen-results" class="screen hidden">
       <div class="results-scroll">
         <div class="results-panel victory-window">
           <p class="eyebrow results-eyebrow">RESULTS</p>
           <h1 class="victory-title">The Sand Settles</h1>
           <p class="victory-sub">Match report from the colosseum floor</p>
           <dl class="result-grid">
-            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">2999</dd></div>
-            <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">2</dd></div>
-            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">233</dd></div>
-            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">117s</dd></div>
-            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">84</dd></div>
+            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">2084</dd></div>
+            <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">3</dd></div>
+            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">135</dd></div>
+            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">135s</dd></div>
+            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">59</dd></div>
           </dl>
-          <p id="best-survival" class="best-survival is-new-best" data-testid="best-survival">NEW BEST! 117s</p>
+          <p id="best-survival" class="best-survival" data-testid="best-survival">Best 180s</p>
           <h2 class="results-section-title">Match Ranking</h2>
-          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li>#1 ahndohun knight 4372</li><li class="local-row">#2 Gladiator-1908 knight 2999</li><li>#3 Lady Fortuna gambler 1108</li><li>#4 Vale of Ash mage 977</li></ol>
+          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li>#1 Sister Calm priest 3320</li><li>#2 Gladiator-3367 knight 2486</li><li class="local-row">#3 Gladiator-9411 knight 2084</li><li>#4 Vex the Hoarder mage 1172</li></ol>
           <section id="leaderboard-section" class="leaderboard-panel">
             <h2 class="results-section-title">World Leaderboard</h2>
-            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-3830 knight berserker 4310</li><li>#11 Gladiator-9596 knight berserker 4310</li><li>#12 Gladiator-9850 knight berserker 4310</li><li>#13 Gladiator-6522 knight berserker 4019</li><li>#14 Gladiator-1908 knight berserker 2999</li><li>#15 ahndohun knight survivor 2990</li><li>#16 Gladiator-4876 knight duelist 2073</li></ol>
+            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-3830 knight berserker 4310</li><li>#11 Gladiator-9596 knight berserker 4310</li><li>#12 Gladiator-9850 knight berserker 4310</li><li>#13 Gladiator-9411 knight berserker 4310</li><li>#14 Gladiator-5562 knight berserker 4310</li><li>#15 Gladiator-6522 knight berserker 4019</li><li>#16 Gladiator-1908 knight berserker 2999</li><li>#17 ahndohun knight survivor 2990</li><li>#18 Gladiator-4876 knight duelist 2073</li></ol>
           </section>
-          <button type="button" class="primary" data-testid="back-to-guild" data-testsprite-action-target="0">BACK TO GUILD</button>
+          <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
         </div>
       </div>
     </section>
