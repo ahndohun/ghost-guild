@@ -1186,9 +1186,14 @@ canvas {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  /* LV label sits tight against the bar (board 2026-07-10). */
+  gap: 0;
   width: min(360px, 62%);
   pointer-events: none;
+}
+
+.hud-xp-level {
+  margin-bottom: -2px;
 }
 
 .hud-xp-level {
@@ -1219,9 +1224,10 @@ canvas {
   position: absolute;
   left: 5.5%;
   right: 5.5%;
-  top: 18%;
-  bottom: 18%;
-  z-index: 0;
+  top: 24%;
+  bottom: 24%;
+  /* Above the frame image — its opaque dark band was hiding the gold fill (board bug 2026-07-10). */
+  z-index: 2;
   overflow: hidden;
   border-radius: 3px;
   background: rgba(12, 8, 14, 0.55);
