@@ -35,15 +35,20 @@ test.describe("Ghost Guild core flow", () => {
     const mageCard = page.getByTestId("class-mage");
     const firstPerkCard = page.getByTestId("perk-t1-a");
 
+    // Fresh save defaults to Overview; Class and Training are behind tabs.
+    const perkTextBeforeSelect = (await firstPerkCard.textContent()) ?? "";
+
+    await page.getByTestId("guild-tab-class").click();
     // Fresh save defaults to Knight.
     await expect(knightCard).toHaveClass(/\bselected\b/);
     await expect(mageCard).not.toHaveClass(/\bselected\b/);
-    const perkTextBeforeSelect = (await firstPerkCard.textContent()) ?? "";
 
     await mageCard.click();
 
     await expect(mageCard).toHaveClass(/\bselected\b/);
     await expect(knightCard).not.toHaveClass(/\bselected\b/);
+
+    await page.getByTestId("guild-tab-training").click();
     // The specialization tree re-renders per class (Knight "Bulwark" vs Mage
     // "Edge Study" on tier 1a) — this is the Guild's class identity signal.
     await expect(firstPerkCard).not.toHaveText(perkTextBeforeSelect);
