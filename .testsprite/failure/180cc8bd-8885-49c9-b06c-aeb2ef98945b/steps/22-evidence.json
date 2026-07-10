@@ -1,8 +1,0 @@
-[
-  {
-    "kind": "snapshot",
-    "stepIndex": 22,
-    "summary": "Step 22 'The guild screen is visible (the DEPLOY ARENA button is present).' failed. Error: TEST BLOCKED: Clicked button \"BACK TO GUILD\"",
-    "path": "steps/22-snapshot.html"
-  }
-]

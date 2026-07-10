@@ -4,8 +4,8 @@
     <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost Colosseum</title>
-    <script type="module" crossorigin="" src="/assets/index-D1L78jNC.js"></script>
-    <style data-original-href="https://ghost-guild.vercel.app/assets/index-3ct68FXy.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+    <script type="module" crossorigin="" src="/assets/index-D6EVgcL8.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-BWIdM5ND.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
 :root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; --bg: #0e0c15; --bg-deep: #08070d; --ink: #e8e3d5; --ink-dim: #e8e3d5b8; --gold: #d9a441; --gold-soft: #fff4cf; --cyan: #58d6c9; --green: #9fe3b0; --red: #e08484; --enemy: #b8453f; --panel-fill: #1a151c; --panel-fill-deep: #120f16; --button-fill: #2a1c18; --shadow: #05040a; --frame-max: 960px; --stone-slice: 48; --stone-border: 14px; --bronze-slice: 12; --bronze-border: 6px; --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 * { box-sizing: border-box; }
 html, body { background: var(--bg-deep); width: 100%; height: 100%; margin: 0px; overflow: hidden; }
@@ -38,8 +38,8 @@ button.locked, .class-card.locked, .perk-card.locked { filter: grayscale(0.35) b
 }
 .title-screen { background: rgb(14, 12, 21); place-items: stretch; padding: 0px; display: grid; overflow: hidden; }
 .title-scene { isolation: isolate; flex-direction: column; justify-content: center; align-items: center; gap: clamp(12px, 2.5vh, 28px); width: 100%; height: 100%; padding: 16px 12px 24px; display: flex; position: relative; overflow: hidden; }
-.title-sky { z-index: 0; pointer-events: none; background: linear-gradient(rgb(29, 20, 48) 0%, rgb(23, 17, 31) 42%, rgb(14, 12, 21) 78%, rgb(10, 8, 16) 100%); position: absolute; inset: 0px; }
-.title-stars { z-index: 1; pointer-events: none; position: absolute; inset: 0px; overflow: hidden; }
+.title-sky { z-index: 0; image-rendering: pixelated; pointer-events: none; background: url("/assets/ui/title-arena-bg.png") center bottom / cover no-repeat, linear-gradient(rgb(29, 20, 48) 0%, rgb(23, 17, 31) 42%, rgb(14, 12, 21) 78%, rgb(10, 8, 16) 100%); position: absolute; inset: 0px; }
+.title-stars { z-index: 1; pointer-events: none; display: none; position: absolute; inset: 0px; overflow: hidden; }
 .title-stars::before, .title-stars::after { content: ""; background: 0px 0px; border-radius: 50%; width: 1px; height: 1px; position: absolute; }
 .title-stars::before { top: 0px; left: 0px; box-shadow: rgba(232, 227, 213, 0.55) 28px 36px 0px 0.5px, rgba(232, 227, 213, 0.35) 72px 58px 0px 0.5px, rgba(232, 227, 213, 0.45) 118px 22px 0px 0.5px, rgba(232, 227, 213, 0.3) 164px 88px 0px 0.5px, rgba(232, 227, 213, 0.5) 210px 44px 0px 0.5px, rgba(232, 227, 213, 0.28) 256px 112px 0px 0.5px, rgba(232, 227, 213, 0.4) 310px 28px 0px 0.5px, rgba(232, 227, 213, 0.32) 360px 76px 0px 0.5px, rgba(232, 227, 213, 0.48) 420px 18px 0px 0.5px, rgba(232, 227, 213, 0.26) 470px 96px 0px 0.5px, rgba(232, 227, 213, 0.42) 520px 48px 0px 0.5px, rgba(232, 227, 213, 0.34) 580px 70px 0px 0.5px, rgba(232, 227, 213, 0.5) 640px 32px 0px 0.5px, rgba(232, 227, 213, 0.28) 700px 104px 0px 0.5px, rgba(232, 227, 213, 0.38) 760px 54px 0px 0.5px, rgba(232, 227, 213, 0.44) 820px 20px 0px 0.5px, rgba(232, 227, 213, 0.3) 880px 86px 0px 0.5px, rgba(232, 227, 213, 0.46) 940px 40px 0px 0.5px, rgba(232, 227, 213, 0.22) 100px 130px 0px 0.5px, rgba(232, 227, 213, 0.25) 400px 140px 0px 0.5px, rgba(232, 227, 213, 0.2) 680px 150px 0px 0.5px; }
 .title-stars::after { opacity: 0.7; top: 0px; left: 0px; box-shadow: rgba(88, 214, 201, 0.35) 48px 90px 0px 0.5px, rgba(232, 227, 213, 0.4) 190px 16px 0px 0.5px, rgba(232, 227, 213, 0.28) 340px 120px 0px 0.5px, rgba(88, 214, 201, 0.3) 500px 14px 0px 0.5px, rgba(232, 227, 213, 0.36) 650px 64px 0px 0.5px, rgba(232, 227, 213, 0.24) 790px 128px 0px 0.5px, rgba(88, 214, 201, 0.28) 900px 72px 0px 0.5px; }
@@ -226,7 +226,7 @@ canvas { image-rendering: pixelated; display: block; }
         </div>
       </div>
     </section>
-    <section id="screen-guild" class="screen guild-screen hidden">
+    <section id="screen-guild" class="screen guild-screen screen-active">
       <div class="guild-scroll">
         <div class="lobby-stage" aria-label="Gladiator lobby">
           <div class="lobby-stage-frame">
@@ -239,18 +239,18 @@ canvas { image-rendering: pixelated; display: block; }
             </div>
           </div>
           <div class="lobby-nameplate" aria-live="polite">
-            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-9850 · Knight · Berserker</p>
+            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-1908 · Knight · Berserker</p>
             <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Ignores loot when an enemy is within 200px and never flees at low HP.</p>
-            <div id="best-survival-guild" class="best-survival-guild" data-testid="best-survival-guild">Best 180s</div>
+            <div id="best-survival-guild" class="best-survival-guild" data-testid="best-survival-guild">Best 117s</div>
           </div>
         </div>
         <header class="topbar">
           <div class="topbar-meta">
             <label class="player-name-field">
               <span>Gladiator</span>
-              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-9850">
+              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-1908">
             </label>
-            <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">400</span></div>
+            <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">84</span></div>
           </div>
         </header>
         <main class="guild-layout">
@@ -345,15 +345,15 @@ canvas { image-rendering: pixelated; display: block; }
               <button type="button" data-testid="buy-atk">ATK Lv.0 50g</button>
               <button type="button" data-testid="buy-hp">HP Lv.0 50g</button>
               <button type="button" data-testid="buy-spd">SPD Lv.0 80g</button>
-              <button type="button" data-testid="buy-luck">LUCK Lv.0 100g</button>
-              <button type="button" data-testid="buy-lvl">LVL Lv.0 200g</button>
+              <button type="button" data-testid="buy-luck" disabled="">LUCK Lv.0 100g</button>
+              <button type="button" data-testid="buy-lvl" disabled="">LVL Lv.0 200g</button>
             </div>
           </section>
           <section class="panel perk-panel">
             <h2>Perks</h2>
             <div class="perk-grid">
               
-    <button type="button" class="perk-card" data-testid="perk-t1-a" aria-pressed="false">
+    <button type="button" class="perk-card locked" data-testid="perk-t1-a" aria-pressed="false" disabled="">
       <span class="perk-tier">T1A</span>
       <strong id="perk-t1-a-name">Blood Thirst</strong>
       <small id="perk-t1-a-effect">Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.</small>
@@ -361,7 +361,7 @@ canvas { image-rendering: pixelated; display: block; }
     </button>
   
               
-    <button type="button" class="perk-card" data-testid="perk-t1-b" aria-pressed="false">
+    <button type="button" class="perk-card locked" data-testid="perk-t1-b" aria-pressed="false" disabled="">
       <span class="perk-tier">T1B</span>
       <strong id="perk-t1-b-name">Combat Instinct</strong>
       <small id="perk-t1-b-effect">Weapon cooldowns -5%.</small>
@@ -419,35 +419,35 @@ canvas { image-rendering: pixelated; display: block; }
         </div>
         <div class="hud">
           <span class="hud-chip">HP <strong id="hud-hp">0</strong></span>
-          <span class="hud-chip">LV <strong id="hud-level">10</strong></span>
-          <span class="hud-chip">KILLS <strong id="hud-kills">202</strong></span>
-          <span class="hud-chip">TIME <strong id="hud-time">170s</strong></span>
+          <span class="hud-chip">LV <strong id="hud-level">11</strong></span>
+          <span class="hud-chip">KILLS <strong id="hud-kills">233</strong></span>
+          <span class="hud-chip">TIME <strong id="hud-time">179s</strong></span>
           <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
         </div>
-        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="170" data-hp="0" data-level="10" data-kills="202" data-gold="64" data-seed="11"></div>
+        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="179" data-hp="0" data-level="11" data-kills="233" data-gold="84" data-seed="11"></div>
       </div>
     </section>
-    <section id="screen-results" class="screen screen-active">
+    <section id="screen-results" class="screen hidden">
       <div class="results-scroll">
         <div class="results-panel victory-window">
           <p class="eyebrow results-eyebrow">RESULTS</p>
           <h1 class="victory-title">The Sand Settles</h1>
           <p class="victory-sub">Match report from the colosseum floor</p>
           <dl class="result-grid">
-            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">2934</dd></div>
-            <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
-            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">202</dd></div>
-            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">170s</dd></div>
-            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">64</dd></div>
+            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">2999</dd></div>
+            <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">2</dd></div>
+            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">233</dd></div>
+            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">117s</dd></div>
+            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">84</dd></div>
           </dl>
-          <p id="best-survival" class="best-survival" data-testid="best-survival">Best 180s</p>
+          <p id="best-survival" class="best-survival is-new-best" data-testid="best-survival">NEW BEST! 117s</p>
           <h2 class="results-section-title">Match Ranking</h2>
-          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li class="local-row">#1 Gladiator-9850 knight 2934</li><li>#2 Gladiator-3830 knight 2571</li><li>#3 Gladiator-7511 knight 2265</li><li>#4 Gladiator-4550 knight 1959</li></ol>
+          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li>#1 ahndohun knight 4372</li><li class="local-row">#2 Gladiator-1908 knight 2999</li><li>#3 Lady Fortuna gambler 1108</li><li>#4 Vale of Ash mage 977</li></ol>
           <section id="leaderboard-section" class="leaderboard-panel">
             <h2 class="results-section-title">World Leaderboard</h2>
-            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-3830 knight berserker 4310</li><li>#11 Gladiator-9596 knight berserker 4310</li><li>#12 Gladiator-9850 knight berserker 4310</li><li>#13 Gladiator-6522 knight berserker 4019</li><li>#14 ahndohun knight survivor 2990</li><li>#15 Gladiator-4876 knight duelist 2073</li></ol>
+            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-3830 knight berserker 4310</li><li>#11 Gladiator-9596 knight berserker 4310</li><li>#12 Gladiator-9850 knight berserker 4310</li><li>#13 Gladiator-6522 knight berserker 4019</li><li>#14 Gladiator-1908 knight berserker 2999</li><li>#15 ahndohun knight survivor 2990</li><li>#16 Gladiator-4876 knight duelist 2073</li></ol>
           </section>
-          <button type="button" class="primary" data-testid="back-to-guild" data-testsprite-action-target="4">BACK TO GUILD</button>
+          <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
         </div>
       </div>
     </section>
