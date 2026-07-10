@@ -62,7 +62,7 @@ export function defaultSave(): GuildSave {
     nextSeed: 1,
     playerName: randomGladiatorName(),
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
-    unlockedClasses: { knight: true, mage: false, priest: false },
+    unlockedClasses: { knight: true, mage: false, priest: false, monk: false, gambler: false },
   };
 }
 
@@ -215,6 +215,8 @@ function parseUnlockedClasses(
     knight: true,
     mage: value["mage"] === true,
     priest: value["priest"] === true,
+    monk: value["monk"] === true,
+    gambler: value["gambler"] === true,
   };
 }
 

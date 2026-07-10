@@ -52,7 +52,13 @@ describe("Ghost Guild UI data boundaries", () => {
     const stored = storage.getItem(saveKey);
 
     expect(save.permStats).toEqual({ atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 });
-    expect(save.unlockedClasses).toEqual({ knight: true, mage: false, priest: false });
+    expect(save.unlockedClasses).toEqual({
+      knight: true,
+      mage: false,
+      priest: false,
+      monk: false,
+      gambler: false,
+    });
     expect(save.temperament).toBe("duelist");
     expect(save.perksByTemperament).toEqual({ berserker: [], hoarder: [], duelist: [], survivor: [] });
     expect(save.playerName).toMatch(/^Gladiator-[0-9]{4}$/);
@@ -179,6 +185,6 @@ function testSave(): GuildSave {
     nextSeed: 1,
     playerName: "Gladiator-0001",
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
-    unlockedClasses: { knight: true, mage: false, priest: false },
+    unlockedClasses: { knight: true, mage: false, priest: false, monk: false, gambler: false },
   };
 }

@@ -1,6 +1,6 @@
 export type Phase = "running" | "levelup" | "finished";
 
-export type HeroClassId = "knight" | "mage" | "priest";
+export type HeroClassId = "knight" | "mage" | "priest" | "monk" | "gambler";
 
 export type WeaponId =
   | "swordSweep"
@@ -90,6 +90,8 @@ export type ClassDefinition = {
   readonly startingWeapon: WeaponId;
   readonly color: string;
   readonly glyph: string;
+  readonly strength: string;
+  readonly weakness: string;
 };
 
 export type WeaponDefinition = {

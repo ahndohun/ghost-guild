@@ -21,6 +21,8 @@ export const classUnlockCosts: Record<HeroClassId, number> = {
   knight: 0,
   mage: 400,
   priest: 1200,
+  monk: 800,
+  gambler: 2000,
 };
 
 export function nextUpgradeCost(statId: PermStatId, owned: number): number {

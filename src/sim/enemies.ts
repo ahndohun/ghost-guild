@@ -158,5 +158,6 @@ function resetWeaponCooldowns(hero: HeroState): void {
 function contactDamage(amount: number, hero: HeroState): number {
   const berserkerIronSkin = hasPerk(hero.perks, "berserkerIronSkin") ? 0.875 : 1;
   const survivorLastLine = hasPerk(hero.perks, "survivorLastLine") && hero.hp / hero.maxHp < 0.5 ? 0.7 : 1;
-  return amount * berserkerIronSkin * survivorLastLine;
+  const monkDiscipline = hero.classId === "monk" ? 0.8 : 1;
+  return amount * berserkerIronSkin * survivorLastLine * monkDiscipline;
 }

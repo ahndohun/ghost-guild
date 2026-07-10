@@ -1,5 +1,4 @@
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../sim/constants";
-import { classDefinitions } from "../sim/data";
 import type { EnemyState, HeroClassId, HeroState, MatchState } from "../sim";
 import { drawBackground } from "./background";
 import {
@@ -24,6 +23,15 @@ const palette = {
   ink: "#e8e3d5",
   black: "#05040a",
   white: "#ffffff",
+};
+
+/** Class accent colors for HP bars, nameplates, and combat chrome. */
+const classColors: Record<HeroClassId, string> = {
+  knight: "#d9a441",
+  mage: "#7aa5ff",
+  priest: "#9fe3b0",
+  monk: "#c98a4b",
+  gambler: "#9b6dd6",
 };
 
 // Temperament aura palette (existing sprite colors; alpha kept 0.15–0.35)
@@ -53,6 +61,8 @@ const heroSprites: Record<HeroClassId, SpriteId> = {
   knight: "heroKnight",
   mage: "heroMage",
   priest: "heroPriest",
+  monk: "heroMonk",
+  gambler: "heroGambler",
 };
 
 const enemySprites: Record<EnemyKind, SpriteId> = {
@@ -168,8 +178,8 @@ function drawEnemy(context: CanvasRenderingContext2D, input: EnemyDrawInput): vo
 }
 
 function drawHero(context: CanvasRenderingContext2D, hero: HeroState, facing: Facing): void {
-  const definition = classDefinitions[hero.classId];
-  drawHeroName(context, hero, definition.color);
+  const accent = classColors[hero.classId];
+  drawHeroName(context, hero, accent);
   drawSprite(context, {
     id: heroSprites[hero.classId],
     x: hero.x,
@@ -181,7 +191,7 @@ function drawHero(context: CanvasRenderingContext2D, hero: HeroState, facing: Fa
 
   context.fillStyle = "#1b1520";
   context.fillRect(hero.x - 18, hero.y - 26, 36, 4);
-  context.fillStyle = definition.color;
+  context.fillStyle = accent;
   context.fillRect(hero.x - 18, hero.y - 26, 36 * Math.max(0, Math.min(1, hero.hp / hero.maxHp)), 4);
 }
 

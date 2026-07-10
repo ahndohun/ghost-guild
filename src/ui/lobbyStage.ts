@@ -36,6 +36,9 @@ const heroSpriteIds: Record<HeroClassId, SpriteId> = {
   knight: "heroKnight",
   mage: "heroMage",
   priest: "heroPriest",
+  // Placeholder sprites until UI/render worker ships class art.
+  monk: "heroPriest",
+  gambler: "heroMage",
 };
 
 const palette = {

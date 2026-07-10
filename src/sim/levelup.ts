@@ -40,7 +40,7 @@ export function resolvePendingLevelUp(hero: HeroState, rng: Rng): LevelDialogSta
   hero.xpToNext = xpNeededForLevel(hero.level);
 
   const options = rollOptions(hero, filterOptionsForTemperament(hero, buildOptions(hero)), rng);
-  const picked = chooseOption(hero, options);
+  const picked = chooseOption(hero, options, rng);
   if (picked === undefined) {
     return {
       heroId: hero.id,
@@ -62,20 +62,25 @@ export function resolvePendingLevelUp(hero: HeroState, rng: Rng): LevelDialogSta
 /** Apply one seeded level-up choice without raising level, dialog, or pause. */
 export function applyStartingLevelUp(hero: HeroState, rng: Rng): void {
   const options = rollOptions(hero, filterOptionsForTemperament(hero, buildOptions(hero)), rng);
-  const picked = chooseOption(hero, options);
+  const picked = chooseOption(hero, options, rng);
   if (picked === undefined) {
     return;
   }
   applyOption(hero, picked);
 }
 
+function maxWeaponLevel(hero: HeroState): number {
+  return hero.classId === "monk" ? 8 : 5;
+}
+
 function buildOptions(hero: HeroState): readonly LevelOption[] {
   const options: LevelOption[] = [];
+  const weaponCap = maxWeaponLevel(hero);
 
   for (const weaponId of weaponIds) {
     const owned = hero.weapons.find((weapon) => weapon.id === weaponId);
     const definition = weaponDefinitions[weaponId];
-    if (owned !== undefined && owned.level < 5) {
+    if (owned !== undefined && owned.level < weaponCap) {
       options.push({
         kind: "weapon",
         id: weaponId,
@@ -84,7 +89,8 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
         flavor: definition.flavor,
         quality: 4 + owned.level,
       });
-    } else if (owned === undefined && hero.weapons.length < 4) {
+    } else if (owned === undefined && hero.weapons.length < 4 && hero.classId !== "monk") {
+      // Monk: never offer new weapons — owned upgrades + passives only (slots locked to 1).
       options.push({
         kind: "weapon",
         id: weaponId,
@@ -115,7 +121,8 @@ function buildOptions(hero: HeroState): readonly LevelOption[] {
 }
 
 function rollOptions(hero: HeroState, options: readonly LevelOption[], rng: Rng): readonly LevelOption[] {
-  if (hero.permStats.luck <= 0) {
+  const luckBonus = optionLuckBonus(hero);
+  if (luckBonus <= 0) {
     return rollUniformOptions(options, rng);
   }
 
@@ -123,7 +130,7 @@ function rollOptions(hero: HeroState, options: readonly LevelOption[], rng: Rng)
   const picked: LevelOption[] = [];
 
   while (picked.length < 3 && remaining.length > 0) {
-    const index = pickWeightedIndex(remaining, rng, hero.permStats.luck);
+    const index = pickWeightedIndex(remaining, rng, luckBonus);
     const removed = remaining.splice(index, 1);
     const option = removed[0];
     if (option !== undefined) {
@@ -132,6 +139,12 @@ function rollOptions(hero: HeroState, options: readonly LevelOption[], rng: Rng)
   }
 
   return picked;
+}
+
+/** Luck weight bonus: each luck rank is +5%p; Gambler adds a flat +25%p. */
+function optionLuckBonus(hero: HeroState): number {
+  const gamblerBonus = hero.classId === "gambler" ? 0.25 : 0;
+  return hero.permStats.luck * 0.05 + gamblerBonus;
 }
 
 function rollUniformOptions(options: readonly LevelOption[], rng: Rng): readonly LevelOption[] {
@@ -150,8 +163,7 @@ function rollUniformOptions(options: readonly LevelOption[], rng: Rng): readonly
   return picked;
 }
 
-function pickWeightedIndex(options: readonly LevelOption[], rng: Rng, luck: number): number {
-  const luckBonus = luck * 0.05;
+function pickWeightedIndex(options: readonly LevelOption[], rng: Rng, luckBonus: number): number {
   let totalWeight = 0;
   for (const option of options) {
     totalWeight += optionWeight(option, luckBonus);
@@ -176,7 +188,17 @@ function optionWeight(option: LevelOption, luckBonus: number): number {
   return 1 + option.quality * luckBonus;
 }
 
-function chooseOption(hero: HeroState, options: readonly LevelOption[]): LevelOption | undefined {
+function chooseOption(hero: HeroState, options: readonly LevelOption[], rng: Rng): LevelOption | undefined {
+  if (options.length === 0) {
+    return undefined;
+  }
+
+  // Gambler only: seeded uniform pick among the rolled options (temperament utility ignored).
+  // RNG is consumed only on this branch so other classes keep the same call order.
+  if (hero.classId === "gambler") {
+    return options[rng.int(options.length)];
+  }
+
   let bestOption: LevelOption | undefined;
   let bestScore = Number.NEGATIVE_INFINITY;
 

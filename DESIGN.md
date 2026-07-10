@@ -69,13 +69,21 @@ Dialog box shows the pick with a one-liner (from a fixed 12-line table keyed by 
 
 로드아웃 호환: loadout에 `temperament`·`perks` 필드 추가. traits만 있는 구버전 로드아웃은 가장 가까운 기질로 매핑(서버·클라 공통 함수).
 
-## 3. Classes (DQ 문법, 3종)
+## 3. Classes (DQ 문법 × Brotato 로스터 문법, 5종 — 2026-07-10 확장)
 
-| Class | Unlock | HP | Speed | Starting weapon | Flavor |
-|---|---|---|---|---|---|
-| **Knight** | free | 120 | 90px/s | Sword Sweep: 140° arc, r=70, dmg 8, cd 0.9s | melee bruiser |
-| **Mage** | 400g | 70 | 100px/s | Fire Bolt: nearest-enemy projectile, dmg 12, speed 260, cd 1.1s | glass cannon |
-| **Priest** | 1200g | 95 | 95px/s | Holy Bolt: dmg 7, cd 1.0s + Heal Pulse: +3 HP to lowest-HP ally (or self) in 160px every 4s | multiplayer synergy |
+**로스터 설계 원칙 (Brotato 참조)**: 무난한 기준점 1 + 강점/약점이 카드에 정직하게 명기되는 뚜렷형 + 빌드 규칙 자체를 바꾸는 극단형. 모든 카드는 strength(녹색)/weakness(적색) 2줄을 노출한다 — 선택이 트레이드오프 결정이 되게.
+
+| Class | Unlock | HP | Speed | Starting weapon | 유형 | Strength / Weakness |
+|---|---|---|---|---|---|---|
+| **Knight** | free | 120 | 90 | Sword Sweep | 무난 기준점 | Reliable in every fight / No edge, no tricks |
+| **Mage** | 400g | 70 | 100 | Fire Bolt | 유리대포 | Highest burst damage / Dies to a stiff breeze |
+| **Priest** | 1200g | 95 | 95 | Holy Bolt + Heal Pulse | 유지력·지원 | Outlasts and heals allies / Weakest weapon damage |
+| **Monk** | 800g | 110 | 100 | Garlic Aura | **극단: 외팔이** | One weapon honed to Lv.8, contact damage -20% / **Weapon slots locked to 1, no ranged options ever** |
+| **Gambler** | 2000g | 90 | 95 | Throwing Axe | **극단: 규칙 변경** | Luck +25%, level-up options roll 1 tier higher / **Never chooses — every level-up pick is a seeded dice roll (temperament preference ignored)** |
+
+Monk 구현: 레벨업 옵션 풀에서 신규 무기 옵션 제외(보유 무기 강화·패시브만), 보유 무기 레벨 상한 5→8 (Lv.6~8 dmg 성장 동일 ×1.25). Gambler 구현: 기질 유틸리티 선택 대신 시드 PRNG로 3옵션 중 균등 픽(결정론 유지), 옵션 롤 시 luck 보정 +25%p. 두 클래스 모두 전용 분기 — 기존 3클래스의 RNG 호출 순서·골든 불변.
+
+무기 스펙 참고: Sword Sweep 140° arc r=70 dmg 8 cd 0.9s / Fire Bolt 투사체 dmg 12 spd 260 cd 1.1s / Holy Bolt dmg 7 cd 1.0s + Heal Pulse(+3 HP, 160px, 4s) — §4의 풀과 동일.
 
 ## 4. Weapons & upgrades (level-up option pool)
 

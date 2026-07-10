@@ -211,6 +211,7 @@ describe("Ghost Guild deterministic simulation", () => {
 
     // Calibration target after balance integration: {score:2194, kills:167, level:8}.
     // survivedSeconds / survived are reported in the balance-c report; not goldenized as a score string.
+    // Must remain unchanged after Monk/Gambler class additions (RNG order for existing classes).
     expect({
       score: hero.score,
       kills: hero.kills,
@@ -220,6 +221,65 @@ describe("Ghost Guild deterministic simulation", () => {
       kills: 167,
       level: 8,
     });
+  });
+
+  it("returns an identical MatchResult hash for monk on the same seed", () => {
+    const config: MatchConfig = {
+      seed: 1337,
+      heroes: [
+        {
+          classId: "monk",
+          temperament: "duelist",
+          perks: [],
+        },
+      ],
+    };
+    const first = JSON.stringify(simulateMatch(config));
+    const second = JSON.stringify(simulateMatch(config));
+    expect(second).toBe(first);
+  });
+
+  it("keeps monk to exactly one weapon at level ≤8 after a full run", () => {
+    const match = createMatch({
+      seed: 1337,
+      heroes: [
+        {
+          classId: "monk",
+          temperament: "duelist",
+          perks: ["duelistEdgeStudy", "duelistSingleEdge", "duelistMastersChoice"],
+          permStats: { atk: 5, hp: 5, spd: 2, luck: 2, lvl: 3 },
+        },
+      ],
+    });
+    let guard = 30_000;
+    while (match.state.phase !== "finished" && guard > 0) {
+      match.step();
+      guard -= 1;
+    }
+
+    const hero = match.state.heroes[0];
+    expect(match.state.phase).toBe("finished");
+    expect(hero?.classId).toBe("monk");
+    expect(hero?.weapons).toHaveLength(1);
+    expect(hero?.weapons[0]?.id).toBe("garlicAura");
+    expect(hero?.weapons[0]?.level).toBeLessThanOrEqual(8);
+    expect(hero?.weapons[0]?.level).toBeGreaterThanOrEqual(1);
+  });
+
+  it("returns an identical MatchResult hash for gambler on the same seed", () => {
+    const config: MatchConfig = {
+      seed: 4242,
+      heroes: [
+        {
+          classId: "gambler",
+          temperament: "berserker",
+          perks: [],
+        },
+      ],
+    };
+    const first = JSON.stringify(simulateMatch(config));
+    const second = JSON.stringify(simulateMatch(config));
+    expect(second).toBe(first);
   });
 });
 

@@ -10,7 +10,7 @@ import type {
   WeaponId,
 } from "./types";
 
-export const heroClassIds: readonly HeroClassId[] = ["knight", "mage", "priest"];
+export const heroClassIds: readonly HeroClassId[] = ["knight", "mage", "priest", "monk", "gambler"];
 
 export const weaponIds: readonly WeaponId[] = [
   "swordSweep",
@@ -32,6 +32,8 @@ export const classDefinitions: Record<HeroClassId, ClassDefinition> = {
     startingWeapon: "swordSweep",
     color: "#d9a441",
     glyph: "K",
+    strength: "Reliable in every fight",
+    weakness: "No edge, no tricks",
   },
   mage: {
     id: "mage",
@@ -41,6 +43,8 @@ export const classDefinitions: Record<HeroClassId, ClassDefinition> = {
     startingWeapon: "fireBolt",
     color: "#7aa5ff",
     glyph: "M",
+    strength: "Highest burst damage",
+    weakness: "Dies to a stiff breeze",
   },
   priest: {
     id: "priest",
@@ -50,6 +54,30 @@ export const classDefinitions: Record<HeroClassId, ClassDefinition> = {
     startingWeapon: "holyBolt",
     color: "#9fe3b0",
     glyph: "P",
+    strength: "Outlasts and heals allies",
+    weakness: "Weakest weapon damage",
+  },
+  monk: {
+    id: "monk",
+    name: "Monk",
+    maxHp: 110,
+    speed: 100,
+    startingWeapon: "garlicAura",
+    color: "#e8c89a",
+    glyph: "O",
+    strength: "One weapon honed to Lv.8, contact damage -20%",
+    weakness: "Weapon slots locked to 1, no ranged options ever",
+  },
+  gambler: {
+    id: "gambler",
+    name: "Gambler",
+    maxHp: 90,
+    speed: 95,
+    startingWeapon: "throwingAxe",
+    color: "#d478a0",
+    glyph: "G",
+    strength: "Luck +25%, level-up options roll 1 tier higher",
+    weakness: "Never chooses — every level-up pick is a seeded dice roll (temperament preference ignored)",
   },
 };
 

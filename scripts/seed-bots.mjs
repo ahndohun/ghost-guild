@@ -43,6 +43,22 @@ const bots = [
     perks: { tier1: "a", tier2: "a", tier3: "a" },
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
   },
+  {
+    name: "Iron Palm Odo",
+    class: "monk",
+    traits: { bravery: 60, greed: 25, focus: 95 },
+    temperament: "duelist",
+    perks: { tier1: "a", tier2: "a", tier3: "a" },
+    permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+  },
+  {
+    name: "Lady Fortuna",
+    class: "gambler",
+    traits: { bravery: 25, greed: 95, focus: 40 },
+    temperament: "hoarder",
+    perks: { tier1: "a", tier2: "a", tier3: "a" },
+    permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+  },
 ];
 
 async function postLoadout(bot) {

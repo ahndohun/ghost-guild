@@ -22,7 +22,7 @@ type PerkChoice = "a" | "b" | null;
 type Perks = { tier1: PerkChoice; tier2: PerkChoice; tier3: PerkChoice };
 type Traits = { bravery: number; greed: number; focus: number };
 
-const CLASSES = new Set(["knight", "mage", "priest"]);
+const CLASSES = new Set(["knight", "mage", "priest", "monk", "gambler"]);
 const TEMPERAMENTS = new Set<Temperament>(["berserker", "hoarder", "duelist", "survivor"]);
 const PERK_CHOICES = new Set(["a", "b"]);
 const MAX_BODY_BYTES = 3072;
@@ -88,7 +88,7 @@ function temperamentFromTraits(traits: Traits): Temperament {
 function parseLoadout(body: unknown):
   | {
       name: string;
-      class: "knight" | "mage" | "priest";
+      class: "knight" | "mage" | "priest" | "monk" | "gambler";
       traits: Traits;
       temperament: Temperament;
       perks: Perks;
@@ -147,7 +147,7 @@ function parseLoadout(body: unknown):
 
   return {
     name,
-    class: heroClass as "knight" | "mage" | "priest",
+    class: heroClass as "knight" | "mage" | "priest" | "monk" | "gambler",
     traits: traits!,
     temperament: temperament!,
     perks,

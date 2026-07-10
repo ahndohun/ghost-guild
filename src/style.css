@@ -357,7 +357,8 @@ h2 {
 }
 
 .class-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* 5 class cards: wraps to 3+2 on desktop; mobile media query collapses to 1 col */
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
 }
 
 .temperament-grid,
@@ -375,7 +376,8 @@ h2 {
 }
 
 .class-card {
-  min-height: 112px;
+  min-height: 148px;
+  align-content: start;
 }
 
 .temperament-card {
@@ -451,6 +453,23 @@ h2 {
 
 .class-status {
   color: #d9a441;
+}
+
+.class-strength,
+.class-weakness {
+  max-width: 100%;
+  font-size: 8px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.class-strength {
+  color: #9fe3b0;
+}
+
+.class-weakness {
+  color: #e08484;
 }
 
 .actions {

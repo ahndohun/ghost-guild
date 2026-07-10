@@ -42,6 +42,8 @@ export function screenMarkup(): string {
             ${classMarkup("knight")}
             ${classMarkup("mage")}
             ${classMarkup("priest")}
+            ${classMarkup("monk")}
+            ${classMarkup("gambler")}
           </div>
         </section>
         <section class="panel">
@@ -143,6 +145,8 @@ function classMarkup(classId: HeroClassId): string {
       <span class="class-glyph">${definition.glyph}</span>
       <strong>${definition.name}</strong>
       <small>${definition.startingWeapon}</small>
+      <span class="class-strength">${definition.strength}</span>
+      <span class="class-weakness">${definition.weakness}</span>
       <small id="class-${classId}-status" class="class-status">Unlocked</small>
     </button>
   `;
