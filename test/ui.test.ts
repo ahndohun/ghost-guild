@@ -8,7 +8,13 @@ import {
   toServerLoadout,
 } from "../src/ui/arenaWire";
 import { currentLoadout } from "../src/ui/meta";
-import { applyBestSurvival, formatBestSurvivalLine, loadSave, normalizePlayerNameInput } from "../src/ui/save";
+import {
+  applyBestSurvival,
+  formatBestSurvivalLine,
+  loadSave,
+  normalizePlayerNameInput,
+  storeSave,
+} from "../src/ui/save";
 import type { GuildSave } from "../src/ui/save";
 import { screenMarkup } from "../src/ui/markup";
 import { updateMirror } from "../src/ui/runHud";
@@ -70,6 +76,48 @@ class MemoryStorage implements Storage {
 }
 
 describe("Ghost Guild UI data boundaries", () => {
+  it("starts a fresh save at coach step one and persists it", () => {
+    const storage = new MemoryStorage();
+
+    const save = loadSave(storage);
+    const stored = JSON.parse(storage.getItem(saveKey) ?? "{}") as GuildSave;
+
+    expect(save.coachCompleted).toBe(false);
+    expect(save.coachStep).toBe(1);
+    expect(stored.coachCompleted).toBe(false);
+    expect(stored.coachStep).toBe(1);
+  });
+
+  it("does not reopen the coach for a legacy returning save", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(saveKey, JSON.stringify({ gold: 5, classId: "knight" }));
+
+    const save = loadSave(storage);
+    const stored = JSON.parse(storage.getItem(saveKey) ?? "{}") as GuildSave;
+
+    expect(save.coachCompleted).toBe(true);
+    expect(save.coachStep).toBe(4);
+    expect(stored.coachCompleted).toBe(true);
+    expect(stored.coachStep).toBe(4);
+  });
+
+  it("round-trips in-progress coach state", () => {
+    const storage = new MemoryStorage();
+    const save = loadSave(storage);
+
+    storeSave(storage, { ...save, coachCompleted: false, coachStep: 3 });
+
+    expect(loadSave(storage)).toMatchObject({ coachCompleted: false, coachStep: 3 });
+  });
+
+  it("canonicalizes an object with omitted coach fields as a returning save", () => {
+    const storage = new MemoryStorage();
+
+    storeSave(storage, testSave());
+
+    expect(loadSave(storage)).toMatchObject({ coachCompleted: true, coachStep: 4 });
+  });
+
   it("migrates old guild saves without temperament identity and with empty class trees", () => {
     const storage = new MemoryStorage();
     storage.setItem(

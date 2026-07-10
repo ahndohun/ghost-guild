@@ -15,6 +15,7 @@ type GuildInteractionContext = {
   getSave(): GuildSave;
   setSave(save: GuildSave): void;
   renderGuild(): void;
+  onClassSelected?(classId: HeroClassId): void;
 };
 
 export function wireGuildInteractions(context: GuildInteractionContext): {
@@ -57,6 +58,7 @@ export function wireGuildInteractions(context: GuildInteractionContext): {
     button.addEventListener("click", () => {
       // Switching class swaps the specialization tree view; per-class progress is retained.
       updateSave(context, (current) => ({ ...current, classId }));
+      context.onClassSelected?.(classId);
     });
   }
 

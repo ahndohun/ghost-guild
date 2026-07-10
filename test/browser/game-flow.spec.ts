@@ -54,6 +54,34 @@ test.describe("Ghost Guild core flow", () => {
     await expect(firstPerkCard).not.toHaveText(perkTextBeforeSelect);
   });
 
+  test("Guild sections expose one active pane and support pointer and keyboard navigation", async ({ page }) => {
+    await page.goto("/?seed=7&fast=1");
+
+    const overviewTab = page.getByTestId("guild-tab-overview");
+    const classTab = page.getByTestId("guild-tab-class");
+    const trainingTab = page.getByTestId("guild-tab-training");
+
+    await expect(overviewTab).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator("#guild-section-overview")).toBeVisible();
+    await expect(page.locator("#guild-section-class")).toBeHidden();
+
+    await classTab.click();
+    await expect(classTab).toHaveAttribute("aria-pressed", "true");
+    await expect(overviewTab).toHaveAttribute("aria-pressed", "false");
+    await expect(page.locator("#guild-section-class")).toBeVisible();
+
+    await trainingTab.focus();
+    await trainingTab.press("Enter");
+    await expect(trainingTab).toHaveAttribute("aria-pressed", "true");
+    await expect(classTab).toHaveAttribute("aria-pressed", "false");
+    await expect(page.locator("#guild-section-training")).toBeVisible();
+    await expect(page.locator("#guild-section-class")).toBeHidden();
+
+    const primaryActions = page.locator(".guild-actions button.primary");
+    await expect(primaryActions).toHaveCount(1);
+    await expect(primaryActions).toHaveAttribute("data-testid", "deploy-solo");
+  });
+
   test("DEPLOY SOLO reaches Results; BACK TO GUILD returns to the Guild", async ({ page }) => {
     await page.goto("/?seed=7&fast=1");
 

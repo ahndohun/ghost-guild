@@ -8,10 +8,13 @@ const interactiveTargets = [
   "guild-tab-gear",
   "class-knight",
   "class-mage",
+  "toggle-all-classes",
   "buy-atk",
   "perk-t1-a",
   "deploy-solo",
   "deploy-arena",
+  "coach-skip",
+  "coach-replay",
   "toggle-autorun",
 ] as const;
 
@@ -20,6 +23,7 @@ const decisionBodySamples: readonly { selector: string; openTab?: "class" | "tra
   { selector: "[data-testid='perk-t1-a'] small", openTab: "training" },
   { selector: "#lobby-nameplate-rule", openTab: "overview" },
   { selector: ".item-compare-placeholder", openTab: "gear" },
+  { selector: "#coach-message" },
 ];
 
 async function shellScale(page: Page): Promise<number> {
@@ -44,7 +48,7 @@ async function openGuildTab(page: Page, section: "overview" | "class" | "trainin
 }
 
 async function ensureTargetVisible(page: Page, testId: string): Promise<void> {
-  if (testId === "class-knight" || testId === "class-mage") {
+  if (testId === "class-knight" || testId === "class-mage" || testId === "toggle-all-classes") {
     await openGuildTab(page, "class");
   } else if (testId === "buy-atk" || testId === "perk-t1-a") {
     await openGuildTab(page, "training");

@@ -14,6 +14,14 @@
     },
     {
       "type": "action",
+      "description": "Open the Class section"
+    },
+    {
+      "type": "action",
+      "description": "Expand All Classes"
+    },
+    {
+      "type": "action",
       "description": "Select the Monk class"
     },
     {

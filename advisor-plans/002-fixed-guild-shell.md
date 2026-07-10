@@ -14,6 +14,7 @@
 - **Depends on**: advisor-plans/001-browser-ui-contracts.md
 - **Category**: bug, tech-debt, direction
 - **Planned at**: commit d43f062, 2026-07-10
+- **Status**: DONE, 2026-07-11
 
 ## Why this matters
 
@@ -191,16 +192,16 @@ Expected: all commands exit 0.
 
 ## Done criteria
 
-- [ ] Guild page never scrolls at the three target viewports.
-- [ ] Only the active pane may scroll.
-- [ ] No sticky or fixed action overlaps content.
-- [ ] Overview, Class, Training, and Gear are keyboard and pointer navigable.
-- [ ] All eleven classes remain free and accessible.
-- [ ] DEPLOY SOLO is the only primary Guild action.
-- [ ] Decision text is at least 12px and controls at least 44px.
-- [ ] Tutorial is skippable and replayable.
-- [ ] All typecheck, unit, and browser gates pass.
-- [ ] This plan's row in advisor-plans/README.md is DONE.
+- [x] Guild page never scrolls at the three target viewports.
+- [x] Only the active pane may scroll.
+- [x] No sticky or fixed action overlaps content.
+- [x] Overview, Class, Training, and Gear are keyboard and pointer navigable.
+- [x] All eleven classes remain free and accessible.
+- [x] DEPLOY SOLO is the only primary Guild action.
+- [x] Decision text is at least 12px and controls at least 44px.
+- [x] Tutorial is skippable and replayable.
+- [x] All typecheck, unit, and browser gates pass.
+- [x] This plan's row in advisor-plans/README.md is DONE.
 
 ## STOP conditions
 

@@ -1,7 +1,7 @@
 import { renderMatch } from "../render/canvas";
 import { startPixelSpriteLoad } from "../render/pixelSprites";
 import { TICKS_PER_SECOND } from "../sim/constants";
-import { createMatch, resultFromState } from "../sim";
+import { classDefinitions, createMatch, resultFromState } from "../sim";
 import type { MatchResult } from "../sim";
 import { createAudioEngine } from "./audio";
 import { createMatchSoundObserver } from "./audioEvents";
@@ -14,10 +14,11 @@ import { wireGuildInteractions } from "./guildInteractions";
 import { renderGuildView } from "./guildView";
 import { createLobbyStage } from "./lobbyStage";
 import { addLootToStash, inventoryFromSave } from "./inventory";
-import { screenMarkup } from "./markup";
+import { additionalClassCount, recommendedClassIds, screenMarkup } from "./markup";
 import { currentLoadout } from "./meta";
 import { renderLeaderboard, renderRanking, updateMirror } from "./runHud";
 import { applyBestSurvival, formatBestSurvivalLine, loadSave } from "./save";
+import type { CoachStep } from "./save";
 import { settleHeroLoot } from "../sim/loot";
 import {
   clearAutorun,
@@ -130,13 +131,36 @@ function createScreenController(
   for (const section of guildSectionOrder) {
     guildSectionTabs[section].addEventListener("click", () => {
       activateGuildSection(section);
+      if (section === "training" && currentCoachStep() === 4) {
+        completeCoach();
+      }
     });
   }
+
+  const toggleAllClassesButton = requiredButton(documentRef, "toggle-all-classes");
+  const allClassesGrid = requiredElement(documentRef, "all-classes-grid");
+  toggleAllClassesButton.addEventListener("click", () => {
+    const expanded = toggleAllClassesButton.getAttribute("aria-expanded") === "true";
+    toggleAllClassesButton.setAttribute("aria-expanded", expanded ? "false" : "true");
+    toggleAllClassesButton.textContent = expanded
+      ? `ALL CLASSES +${additionalClassCount}`
+      : "HIDE ALL CLASSES";
+    allClassesGrid.classList.toggle("hidden", expanded);
+  });
 
   const startGameButton = requiredButton(documentRef, "start-game");
   const deploySoloButton = requiredButton(documentRef, "deploy-solo");
   const deployArenaButton = requiredButton(documentRef, "deploy-arena");
   const backButton = requiredButton(documentRef, "back-to-guild");
+  const coachPanel = requiredElement(documentRef, "coach-panel");
+  const coachRunPanel = requiredElement(documentRef, "coach-run-panel");
+  const coachResultsPanel = requiredElement(documentRef, "coach-results-panel");
+  const coachStepLabel = requiredElement(documentRef, "coach-step-label");
+  const coachMessage = requiredElement(documentRef, "coach-message");
+  const coachSkipButton = requiredButton(documentRef, "coach-skip");
+  const coachRunSkipButton = requiredButton(documentRef, "coach-run-skip");
+  const coachResultsSkipButton = requiredButton(documentRef, "coach-results-skip");
+  const coachReplayButton = requiredButton(documentRef, "coach-replay");
   const guildControls = {
     ...wireGuildInteractions({
       documentRef,
@@ -146,6 +170,11 @@ function createScreenController(
         save = nextSave;
       },
       renderGuild: () => renderGuild(),
+      onClassSelected: (classId) => {
+        if (currentCoachStep() === 1 && recommendedClassIds.includes(classId)) {
+          setCoachProgress(2, false);
+        }
+      },
     }),
     lobbyStage,
   };
@@ -153,7 +182,12 @@ function createScreenController(
   startGameButton.addEventListener("click", () => {
     enterGuild();
   });
-  deploySoloButton.addEventListener("click", () => deploySolo());
+  deploySoloButton.addEventListener("click", () => {
+    if (currentCoachStep() === 2) {
+      setCoachProgress(3, false);
+    }
+    deploySolo();
+  });
   deployArenaButton.addEventListener("click", () => {
     void deployArena();
   });
@@ -164,6 +198,16 @@ function createScreenController(
     setVisibleScreen(screenElements, "guild");
     activateGuildSection("overview");
     renderGuild();
+    if (currentCoachStep() === 3) {
+      setCoachProgress(4, false);
+    }
+  });
+  coachSkipButton.addEventListener("click", () => completeCoach());
+  coachRunSkipButton.addEventListener("click", () => completeCoach());
+  coachResultsSkipButton.addEventListener("click", () => completeCoach());
+  coachReplayButton.addEventListener("click", () => {
+    setCoachProgress(1, false);
+    activateGuildSection("class");
   });
 
   function showTitle(): void {
@@ -179,7 +223,48 @@ function createScreenController(
 
   function renderGuild(): void {
     renderGuildView(documentRef, save, guildControls);
+    renderCoach();
     lobbyStage.start();
+  }
+
+  function currentCoachStep(): CoachStep | undefined {
+    return save.coachCompleted === true ? undefined : (save.coachStep ?? 1);
+  }
+
+  function setCoachProgress(coachStep: CoachStep, coachCompleted: boolean): void {
+    save = { ...save, coachStep, coachCompleted };
+    persist(windowRef, save);
+    renderCoach();
+  }
+
+  function completeCoach(): void {
+    setCoachProgress(4, true);
+  }
+
+  function renderCoach(): void {
+    const step = currentCoachStep();
+    coachPanel.classList.toggle("hidden", step === undefined || step === 3);
+    coachRunPanel.classList.toggle("hidden", step !== 3);
+    coachResultsPanel.classList.toggle("hidden", step !== 3);
+    if (step === undefined) {
+      return;
+    }
+
+    coachStepLabel.textContent = `COACH ${step}/4`;
+    switch (step) {
+      case 1:
+        coachMessage.textContent = "Choose a recommended class.";
+        break;
+      case 2:
+        coachMessage.textContent = `Read ${classDefinitions[save.classId].name}'s behavior, then DEPLOY SOLO.`;
+        break;
+      case 3:
+        coachMessage.textContent = "Watch the run, then return to the Guild.";
+        break;
+      case 4:
+        coachMessage.textContent = "Open Training to invest your earnings.";
+        break;
+    }
   }
 
   function deploySolo(): void {

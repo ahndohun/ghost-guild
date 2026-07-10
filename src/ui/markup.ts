@@ -1,6 +1,11 @@
 import { classDefinitions, heroClassIds, perkDefinitions } from "../sim";
 import type { HeroClassId, PerkChoice, PerkTier } from "../sim";
 
+export const recommendedClassIds: readonly HeroClassId[] = ["fighter", "knight", "mage"];
+
+const allOtherClassIds = heroClassIds.filter((classId) => !recommendedClassIds.includes(classId));
+export const additionalClassCount = allOtherClassIds.length;
+
 export function screenMarkup(): string {
   return `
     <section id="screen-title" class="screen title-screen hidden">
@@ -97,8 +102,15 @@ export function screenMarkup(): string {
             <div id="guild-section-class" class="guild-section hidden">
               <section class="panel">
                 <h2>Class</h2>
-                <div class="class-grid">
-                  ${heroClassIds.map(classMarkup).join("")}
+                <p class="class-group-label">Recommended</p>
+                <div class="class-grid" data-class-group="recommended">
+                  ${recommendedClassIds.map(classMarkup).join("")}
+                </div>
+                <button type="button" class="toggle-all-classes" data-testid="toggle-all-classes" aria-expanded="false" aria-controls="all-classes-grid">
+                  ALL CLASSES +${additionalClassCount}
+                </button>
+                <div id="all-classes-grid" class="class-grid all-classes-grid hidden" data-class-group="all">
+                  ${allOtherClassIds.map(classMarkup).join("")}
                 </div>
               </section>
             </div>
@@ -148,12 +160,21 @@ export function screenMarkup(): string {
           </main>
         </div>
 
+        <aside id="coach-panel" class="coach-panel hidden" data-testid="coach-panel" aria-live="polite">
+          <div class="coach-copy">
+            <strong id="coach-step-label">COACH 1/4</strong>
+            <span id="coach-message">Choose a recommended class.</span>
+          </div>
+          <button type="button" data-testid="coach-skip">SKIP</button>
+        </aside>
+
         <footer class="guild-actions">
           <div class="guild-actions-primary">
             <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
             <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>
           </div>
           <div class="guild-actions-settings">
+            <button type="button" class="settings-toggle" data-testid="coach-replay">REPLAY COACH</button>
             <button type="button" class="settings-toggle" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
             <button type="button" class="settings-toggle" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false">SOUND ON</button>
           </div>
@@ -165,6 +186,13 @@ export function screenMarkup(): string {
         <div class="run-canvas-frame">
           <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
           <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
+          <aside id="coach-run-panel" class="coach-panel coach-overlay hidden" data-testid="coach-run-panel" aria-live="polite">
+            <div class="coach-copy">
+              <strong>COACH 3/4</strong>
+              <span>Watch the run, then return to the Guild.</span>
+            </div>
+            <button type="button" data-testid="coach-run-skip">SKIP</button>
+          </aside>
         </div>
         <div id="game-state" class="mirror" hidden
           data-phase="" data-time="0" data-hp="0" data-level="1" data-kills="0" data-gold="0" data-seed=""
@@ -197,6 +225,13 @@ export function screenMarkup(): string {
           <p class="eyebrow results-eyebrow">RESULTS</p>
           <h1 class="victory-title">The Sand Settles</h1>
           <p class="victory-sub">Match report from the colosseum floor</p>
+          <aside id="coach-results-panel" class="coach-panel coach-results hidden" data-testid="coach-results-panel" aria-live="polite">
+            <div class="coach-copy">
+              <strong>COACH 3/4</strong>
+              <span>Review the result, then return to the Guild.</span>
+            </div>
+            <button type="button" data-testid="coach-results-skip">SKIP</button>
+          </aside>
           <dl class="result-grid">
             <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">0</dd></div>
             <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>

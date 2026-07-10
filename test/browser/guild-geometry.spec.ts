@@ -52,6 +52,29 @@ test.describe("Guild fixed-shell geometry", () => {
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(
       await page.evaluate(() => window.innerHeight),
     );
+    const scrollOwnership = await page.evaluate(() => {
+      const pane = document.querySelector<HTMLElement>(".guild-pane");
+      const shell = document.querySelector<HTMLElement>(".guild-shell");
+      const body = document.querySelector<HTMLElement>(".guild-body");
+      const actions = document.querySelector<HTMLElement>(".guild-actions");
+      if (pane === null || shell === null || body === null || actions === null) {
+        return null;
+      }
+      return {
+        pane: getComputedStyle(pane).overflowY,
+        shell: getComputedStyle(shell).overflowY,
+        body: getComputedStyle(body).overflowY,
+        actions: getComputedStyle(actions).overflowY,
+        page: getComputedStyle(document.documentElement).overflowY,
+      };
+    });
+    expect(scrollOwnership).toEqual({
+      pane: "auto",
+      shell: "visible",
+      body: "visible",
+      actions: "visible",
+      page: "hidden",
+    });
 
     const paneBox = await rect(pane);
     const actionsBox = await rect(actions);
@@ -61,6 +84,13 @@ test.describe("Guild fixed-shell geometry", () => {
     for (const section of sections) {
       await page.getByTestId(`guild-tab-${section}`).click();
       await expect(page.locator(`#guild-section-${section}`)).toBeVisible();
+
+      if (section === "class") {
+        const toggleAllClasses = page.getByTestId("toggle-all-classes");
+        if ((await toggleAllClasses.getAttribute("aria-expanded")) !== "true") {
+          await toggleAllClasses.click();
+        }
+      }
 
       const interactiveControls = page.locator(
         `#guild-section-${section} :is(button,input,select,textarea,a)[data-testid]`,
@@ -75,6 +105,8 @@ test.describe("Guild fixed-shell geometry", () => {
         page.getByTestId(`guild-tab-${section}`),
         page.getByTestId("deploy-solo"),
         page.getByTestId("deploy-arena"),
+        page.getByTestId("coach-skip"),
+        page.getByTestId("coach-replay"),
         page.getByTestId("toggle-autorun"),
       ]) {
         expectContained(await rect(persistentControl), await rect(shell));

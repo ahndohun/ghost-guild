@@ -9,6 +9,8 @@ import type { EquippedItems, HeroClassId, ItemId, PerkId, PerkTier, PermStats } 
 
 const saveKey = "ghost-guild-save-v1";
 
+export type CoachStep = 1 | 2 | 3 | 4;
+
 /** Full 11-class roster (Track A may lag data.ts heroClassIds). */
 export const saveHeroClassIds: readonly HeroClassId[] = [
   "fighter",
@@ -77,6 +79,9 @@ export type GuildSave = {
   equippedItems: EquippedItems;
   /** Unequipped owned items — absent on legacy saves → []. */
   stash: readonly ItemId[];
+  /** Fresh-save coach progress. Legacy saves default to completed. */
+  coachCompleted?: boolean;
+  coachStep?: CoachStep;
 };
 
 /** Pure: keeps previous best unless survivedSeconds is strictly greater (or first record). */
@@ -118,6 +123,8 @@ export function defaultSave(): GuildSave {
     unlockedClasses: allClassesUnlocked(),
     equippedItems: emptyEquippedItems,
     stash: [],
+    coachCompleted: false,
+    coachStep: 1,
   };
 }
 
@@ -150,6 +157,7 @@ export function loadSave(storage: Storage): GuildSave {
 
 /** Canonical v3 persist: perksByClass + inventory; no temperament / perksByTemperament. */
 export function storeSave(storage: Storage, save: GuildSave): void {
+  const coachCompleted = save.coachCompleted !== false;
   const canonical: GuildSave = {
     gold: save.gold,
     classId: save.classId,
@@ -161,6 +169,8 @@ export function storeSave(storage: Storage, save: GuildSave): void {
     unlockedClasses: allClassesUnlocked(),
     equippedItems: normalizeEquippedItems(save.equippedItems),
     stash: normalizeStash(save.stash),
+    coachCompleted,
+    coachStep: coachCompleted ? 4 : parseCoachStep(save.coachStep),
     ...(save.soundMuted === true ? { soundMuted: true } : {}),
     ...(save.bestSurvivalSeconds === undefined ? {} : { bestSurvivalSeconds: save.bestSurvivalSeconds }),
   };
@@ -200,6 +210,9 @@ function parseSave(value: unknown): GuildSave {
   // Inventory migration: missing equippedItems/stash → empty (old saves).
   const equippedItems = normalizeEquippedItems(value["equippedItems"]);
   const stash = normalizeStash(value["stash"]);
+  const coachCompleted =
+    typeof value["coachCompleted"] === "boolean" ? value["coachCompleted"] : true;
+  const coachStep = coachCompleted ? 4 : parseCoachStep(value["coachStep"]);
 
   return {
     gold,
@@ -213,8 +226,14 @@ function parseSave(value: unknown): GuildSave {
     unlockedClasses,
     equippedItems,
     stash,
+    coachCompleted,
+    coachStep,
     ...(bestSurvivalSeconds === undefined ? {} : { bestSurvivalSeconds }),
   };
+}
+
+function parseCoachStep(value: unknown): CoachStep {
+  return value === 2 || value === 3 || value === 4 ? value : 1;
 }
 
 /**

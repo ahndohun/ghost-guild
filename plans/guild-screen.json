@@ -13,8 +13,24 @@
       "description": "Press START"
     },
     {
+      "type": "action",
+      "description": "Open the Class section"
+    },
+    {
+      "type": "assertion",
+      "description": "The Class section initially recommends Fighter, Knight, and Mage"
+    },
+    {
+      "type": "action",
+      "description": "Expand All Classes"
+    },
+    {
       "type": "assertion",
       "description": "The guild screen shows all eleven class choices: fighter, knight, berserker, dwarf, paladin, mage, priest, warlock, elf, thief, monk"
+    },
+    {
+      "type": "action",
+      "description": "Open the Training section"
     },
     {
       "type": "assertion",

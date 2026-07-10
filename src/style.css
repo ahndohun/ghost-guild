@@ -119,6 +119,7 @@ input {
 .title-window,
 .run-canvas-frame,
 .game-window,
+.coach-panel,
 .guild-actions {
   border: var(--stone-border) solid transparent;
   border-image: url("/assets/ui/panel-stone.png") var(--stone-slice) fill;
@@ -126,6 +127,75 @@ input {
   background-color: var(--panel-fill);
   box-shadow: 4px 4px 0 var(--shadow);
   image-rendering: pixelated;
+}
+
+.coach-panel {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 8px 6px;
+  padding: 8px 10px;
+  min-height: 52px;
+  border-width: 8px;
+  border-image-width: 8px;
+  background-color: var(--panel-fill-deep);
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+
+.coach-copy {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.coach-copy strong {
+  flex: 0 0 auto;
+  color: var(--cyan);
+  font-family: var(--pixel-font);
+  font-size: 9px;
+}
+
+.coach-copy span {
+  color: var(--gold-soft);
+  font-family: var(--body-font);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.coach-panel [data-testid="coach-skip"] {
+  flex: 0 0 auto;
+  min-width: 72px;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 9px;
+}
+
+.coach-panel [data-testid="coach-run-skip"],
+.coach-panel [data-testid="coach-results-skip"] {
+  flex: 0 0 auto;
+  min-width: 72px;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 9px;
+}
+
+.coach-overlay {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  z-index: 4;
+  width: min(680px, calc(100% - 24px));
+  margin: 0;
+  transform: translateX(-50%);
+}
+
+.coach-results {
+  width: 100%;
+  margin: 12px 0;
 }
 
 .ui-bronze,
@@ -1099,6 +1169,20 @@ h2,
 
 .class-grid {
   grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+}
+
+.class-group-label {
+  margin: 2px 0 8px;
+  color: var(--cyan);
+  font-family: var(--pixel-font);
+  font-size: 10px;
+}
+
+.toggle-all-classes {
+  width: 100%;
+  min-height: 44px;
+  margin: 10px 0;
+  font-size: 10px;
 }
 
 .perk-grid {
