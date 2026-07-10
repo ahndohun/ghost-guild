@@ -132,6 +132,7 @@ function createScreenController(
   backButton.addEventListener("click", () => {
     clearAutorun(windowRef, autorunTimer);
     autorunTimer = undefined;
+    audio.setBgmTrack("guild");
     setVisibleScreen(screenElements, "guild");
     renderGuild();
   });
@@ -184,6 +185,7 @@ function createScreenController(
       lastMirrorTime: 0,
     };
 
+    audio.setBgmTrack("battle");
     lobbyStage.stop();
     matchSound.startMatch(input.match.state);
     setVisibleScreen(screenElements, "run");
@@ -267,6 +269,7 @@ function createScreenController(
       return;
     }
 
+    audio.setBgmTrack("guild");
     const best = applyBestSurvival(save.bestSurvivalSeconds, primary.survivedSeconds);
     save = {
       ...save,

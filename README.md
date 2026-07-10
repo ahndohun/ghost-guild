@@ -67,3 +67,4 @@ npm run typecheck
 Concept & orchestration: Claude Fable 5 · Implementation: Codex (GPT-5.5) & Grok 4.5 workers · Verification: TestSprite CLI · Human: [@ahndohun](https://github.com/ahndohun) (zero lines of code written by hand)
 
 Music: "Spooky Dungeon" by Memoraphile @ You're Perfect Studio (CC0, OpenGameArt)
+Battle music: "8 bit battle theme" by celestialghost8 (CC0, OpenGameArt)

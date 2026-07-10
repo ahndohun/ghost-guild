@@ -1,6 +1,12 @@
 const masterVolume = 0.25;
 const bgmVolume = 0.35;
-const bgmSrc = "/assets/audio/bgm-spooky-dungeon.mp3";
+
+export type BgmTrack = "guild" | "battle";
+
+const bgmSources: Record<BgmTrack, string> = {
+  guild: "/assets/audio/bgm-spooky-dungeon.mp3",
+  battle: "/assets/audio/bgm-battle.mp3",
+};
 
 export type SoundName =
   | "hit"
@@ -21,6 +27,7 @@ type AudioEngineOptions = {
 
 export type AudioEngine = {
   readonly play: (sound: SoundName) => void;
+  readonly setBgmTrack: (track: BgmTrack) => void;
 };
 
 type AudioRuntime = {
@@ -51,6 +58,11 @@ type NotesSpec = {
   readonly duration: number;
 };
 
+type BgmElements = {
+  readonly guild: HTMLAudioElement;
+  readonly battle: HTMLAudioElement;
+};
+
 export function createAudioEngine(
   documentRef: Document,
   options: AudioEngineOptions,
@@ -61,7 +73,8 @@ export function createAudioEngine(
   let hitVariation = 0;
   let lastGemTime = Number.NEGATIVE_INFINITY;
   let bgmStarted = false;
-  const bgm = options.enabled ? createBgmElement(documentRef) : undefined;
+  let activeTrack: BgmTrack = "guild";
+  const bgm = options.enabled ? createBgmElements(documentRef) : undefined;
 
   const soundButtons = documentRef.querySelectorAll<HTMLButtonElement>("[data-testid=\"sound-toggle\"]");
   syncSoundButtons(soundButtons, muted);
@@ -76,7 +89,7 @@ export function createAudioEngine(
           runtime = undefined;
         }
       }
-      applyBgmMuteState(bgm, muted, bgmStarted);
+      applyBgmMuteState(bgm, activeTrack, muted, bgmStarted);
       syncSoundButtons(soundButtons, muted);
       options.onMutedChange(muted);
     });
@@ -116,14 +129,41 @@ export function createAudioEngine(
     }
     bgmStarted = true;
     if (muted) {
-      bgm.pause();
+      bgm.guild.pause();
+      bgm.battle.pause();
       return;
     }
-    void bgm.play().catch(() => {
-      // Autoplay / decode failures are non-fatal; user can retry via later gestures only if we re-wire.
-      // Keep the element so unmute can attempt play again.
-      bgmStarted = true;
-    });
+    playActiveBgm(bgm, activeTrack);
+  }
+
+  function setBgmTrack(track: BgmTrack): void {
+    if (bgm === undefined) {
+      activeTrack = track;
+      return;
+    }
+
+    if (track === activeTrack && bgmStarted && !muted) {
+      // Battle restarts each run even if already active.
+      if (track === "battle") {
+        bgm.battle.currentTime = 0;
+        playActiveBgm(bgm, "battle");
+      }
+      return;
+    }
+
+    activeTrack = track;
+    const other = track === "guild" ? bgm.battle : bgm.guild;
+    other.pause();
+
+    if (track === "battle") {
+      bgm.battle.currentTime = 0;
+    }
+
+    if (!bgmStarted || muted) {
+      return;
+    }
+
+    playActiveBgm(bgm, track);
   }
 
   function playButtonClick(event: MouseEvent): void {
@@ -191,12 +231,19 @@ export function createAudioEngine(
     }
   }
 
-  return { play };
+  return { play, setBgmTrack };
 }
 
-function createBgmElement(documentRef: Document): HTMLAudioElement {
+function createBgmElements(documentRef: Document): BgmElements {
+  return {
+    guild: createBgmElement(documentRef, bgmSources.guild),
+    battle: createBgmElement(documentRef, bgmSources.battle),
+  };
+}
+
+function createBgmElement(documentRef: Document, src: string): HTMLAudioElement {
   const audio = documentRef.createElement("audio");
-  audio.src = bgmSrc;
+  audio.src = src;
   audio.loop = true;
   audio.preload = "auto";
   audio.volume = bgmVolume;
@@ -205,8 +252,16 @@ function createBgmElement(documentRef: Document): HTMLAudioElement {
   return audio;
 }
 
+function playActiveBgm(bgm: BgmElements, track: BgmTrack): void {
+  const element = track === "guild" ? bgm.guild : bgm.battle;
+  void element.play().catch(() => {
+    // Ignore play() rejection (gesture / decode / autoplay policy).
+  });
+}
+
 function applyBgmMuteState(
-  bgm: HTMLAudioElement | undefined,
+  bgm: BgmElements | undefined,
+  activeTrack: BgmTrack,
   muted: boolean,
   bgmStarted: boolean,
 ): void {
@@ -214,12 +269,12 @@ function applyBgmMuteState(
     return;
   }
   if (muted) {
-    bgm.pause();
+    bgm.guild.pause();
+    bgm.battle.pause();
     return;
   }
-  void bgm.play().catch(() => {
-    // Ignore play() rejection (gesture / decode / autoplay policy).
-  });
+  // Unmute resumes the active track only.
+  playActiveBgm(bgm, activeTrack);
 }
 
 function createAudioRuntime(muted: boolean): AudioRuntime {
