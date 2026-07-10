@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createArenaRunPlan } from "../src/ui/arenaRun";
-import { loadSave, normalizePlayerNameInput } from "../src/ui/save";
+import { applyBestSurvival, formatBestSurvivalLine, loadSave, normalizePlayerNameInput } from "../src/ui/save";
 import type { GuildSave } from "../src/ui/save";
 import { screenMarkup } from "../src/ui/markup";
 
@@ -68,12 +68,75 @@ describe("Ghost Guild UI data boundaries", () => {
     expect(normalizePlayerNameInput("123456789012345678901", "Gladiator-0001")).toBe("Gladiator-0001");
   });
 
+  it("parses legacy saves without bestSurvivalSeconds as undefined", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      saveKey,
+      JSON.stringify({
+        gold: 100,
+        classId: "knight",
+        temperament: "berserker",
+        autorun: false,
+        nextSeed: 2,
+        playerName: "Legacy Hero",
+        permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        unlockedClasses: { knight: true, mage: false, priest: false },
+      }),
+    );
+
+    const save = loadSave(storage);
+
+    expect(save.bestSurvivalSeconds).toBeUndefined();
+    expect(save.playerName).toBe("Legacy Hero");
+  });
+
+  it("treats non-numeric bestSurvivalSeconds as undefined (tolerant parse)", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      saveKey,
+      JSON.stringify({
+        gold: 0,
+        classId: "knight",
+        temperament: "hoarder",
+        autorun: false,
+        nextSeed: 1,
+        playerName: "Bad Best",
+        bestSurvivalSeconds: "not-a-number",
+        permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        unlockedClasses: { knight: true, mage: false, priest: false },
+      }),
+    );
+
+    expect(loadSave(storage).bestSurvivalSeconds).toBeUndefined();
+  });
+
+  it("updates best survival only when the run is strictly longer", () => {
+    expect(applyBestSurvival(undefined, 104)).toEqual({ bestSurvivalSeconds: 104, isNewBest: true });
+    expect(applyBestSurvival(104, 140)).toEqual({ bestSurvivalSeconds: 140, isNewBest: true });
+    expect(applyBestSurvival(140, 140)).toEqual({ bestSurvivalSeconds: 140, isNewBest: false });
+    expect(applyBestSurvival(140, 120)).toEqual({ bestSurvivalSeconds: 140, isNewBest: false });
+    expect(applyBestSurvival(175, 180)).toEqual({ bestSurvivalSeconds: 180, isNewBest: true });
+  });
+
+  it("formats result best-survival line with new-best and full-survival labels", () => {
+    expect(formatBestSurvivalLine({ bestSurvivalSeconds: 140, isNewBest: true }, false)).toBe("NEW BEST! 140s");
+    expect(formatBestSurvivalLine({ bestSurvivalSeconds: 140, isNewBest: false }, false)).toBe("Best 140s");
+    expect(formatBestSurvivalLine({ bestSurvivalSeconds: 180, isNewBest: true }, true)).toBe(
+      "SURVIVED THE SANDS · NEW BEST! 180s",
+    );
+    expect(formatBestSurvivalLine({ bestSurvivalSeconds: 180, isNewBest: false }, true)).toBe(
+      "SURVIVED THE SANDS · Best 180s",
+    );
+  });
+
   it("renders the player-name input and onboarding line on the guild screen", () => {
     const markup = screenMarkup();
 
     expect(markup).toContain("data-testid=\"player-name\"");
     expect(markup).toContain("maxlength=\"20\"");
     expect(markup).toContain("Your gladiator fights on its own");
+    expect(markup).toContain("data-testid=\"best-survival\"");
+    expect(markup).toContain("data-testid=\"best-survival-guild\"");
   });
 
   it("builds an offline arena plan with bundled bots when the API is unreachable", async () => {

@@ -24,6 +24,7 @@ export function screenMarkup(): string {
             <span>Gladiator</span>
             <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" />
           </label>
+          <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
           <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
         </div>
       </header>
@@ -96,6 +97,7 @@ export function screenMarkup(): string {
           <div><dt>Time</dt><dd id="result-time" data-testid="result-time">0s</dd></div>
           <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">0</dd></div>
         </dl>
+        <p id="best-survival" class="best-survival" data-testid="best-survival"></p>
         <h2>Match Ranking</h2>
         <ol id="result-ranking" data-testid="result-ranking"></ol>
         <section id="leaderboard-section" class="leaderboard-panel">

@@ -4,8 +4,8 @@
     <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost Colosseum</title>
-    <script type="module" crossorigin="" src="/assets/index-Cu7vg0um.js"></script>
-    <style data-original-href="https://ghost-guild.vercel.app/assets/index-C8BFKZ4s.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+    <script type="module" crossorigin="" src="/assets/index-DMi9ii_f.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-DO4JGTum.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
 :root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 * { box-sizing: border-box; }
 body { background: radial-gradient(circle at 20% 0px, rgba(184, 69, 63, 0.18), rgba(0, 0, 0, 0) 28rem), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 52%, rgb(8, 7, 13) 100%); min-width: 320px; min-height: 100dvh; margin: 0px; }
@@ -66,7 +66,7 @@ h2 { font-size: 13px; line-height: 1.5; }
 .primary { color: rgb(255, 244, 207); background: rgb(58, 40, 24); border-color: rgb(217, 164, 65); }
 .run-shell { width: min(100%, 960px); margin: 0px auto; position: relative; }
 .offline-badge { color: rgb(255, 244, 207); background: rgba(5, 4, 10, 0.86); border: 2px solid rgb(232, 195, 74); padding: 8px 10px; font-size: 9px; position: absolute; top: 12px; left: 12px; box-shadow: rgb(5, 4, 10) 3px 3px; }
-canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(14, 12, 21); border: 2px solid rgb(232, 227, 213); display: block; box-shadow: rgb(5, 4, 10) 6px 6px; }
+canvas { aspect-ratio: 16 / 9; width: 100%; max-width: 100%; height: auto; image-rendering: pixelated; background: rgb(14, 12, 21); border: 2px solid rgb(232, 227, 213); display: block; box-shadow: rgb(5, 4, 10) 6px 6px; }
 .hud { flex-wrap: wrap; justify-content: center; gap: 10px; padding: 14px 0px; font-size: 11px; display: flex; }
 .hud span { background: rgba(14, 12, 21, 0.86); border: 2px solid rgb(232, 227, 213); padding: 8px 10px; box-shadow: rgb(5, 4, 10) 3px 3px; }
 .results-panel { width: min(780px, 100%); margin: 56px auto 0px; padding: 24px; }
@@ -86,6 +86,11 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
   .barracks-gate { width: 256px; height: 205px; top: 128px; }
   .barracks-banner, .barracks-rack, .brazier-right { opacity: 0.36; }
   .barracks-gladiator { opacity: 0.42; }
+}
+@media (width <= 720px) {
+  .result-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+  .result-grid div:last-child { grid-column: 1 / -1; }
+  #result-ranking li, #leaderboard-list li { font-size: 10px; line-height: 1.8; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .barracks-brazier { animation: 2.4s steps(3) 0s infinite normal none running brazier-flicker; }
@@ -118,9 +123,9 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
         <div class="topbar-meta">
           <label class="player-name-field">
             <span>Gladiator</span>
-            <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-1981">
+            <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-9596">
           </label>
-          <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">619</span></div>
+          <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">545</span></div>
         </div>
       </header>
       <main class="guild-layout">
@@ -131,7 +136,7 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
     <button type="button" class="temperament-card selected" data-testid="temperament-berserker" aria-pressed="true" aria-label="Berserker temperament">
       <strong>Berserker</strong>
       <span>Ignores loot when an enemy is within 200px and never flees at low HP.</span>
-      <small>Kill restores 1 HP.</small>
+      <small>On kill: before 90s fatigue restore 1 HP (1.1 with Blood Thirst); after fatigue restore 0.25 + 0.02 * min(15, atk+hp+spd+luck+lvl) HP (+0.2 with Blood Thirst).</small>
     </button>
   
     <button type="button" class="temperament-card" data-testid="temperament-hoarder" aria-pressed="false" aria-label="Hoarder temperament">
@@ -200,7 +205,7 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
     <button type="button" class="perk-card" data-testid="perk-t1-a" aria-pressed="false">
       <span class="perk-tier">T1A</span>
       <strong id="perk-t1-a-name">Blood Thirst</strong>
-      <small id="perk-t1-a-effect">Kill healing +1.</small>
+      <small id="perk-t1-a-effect">Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.</small>
       <em id="perk-t1-a-cost">150g</em>
     </button>
   
@@ -208,7 +213,7 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
     <button type="button" class="perk-card" data-testid="perk-t1-b" aria-pressed="false">
       <span class="perk-tier">T1B</span>
       <strong id="perk-t1-b-name">Combat Instinct</strong>
-      <small id="perk-t1-b-effect">Weapon cooldowns -8%.</small>
+      <small id="perk-t1-b-effect">Weapon cooldowns -5%.</small>
       <em id="perk-t1-b-cost">150g</em>
     </button>
   
@@ -224,7 +229,7 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
     <button type="button" class="perk-card locked" data-testid="perk-t2-b" aria-pressed="false" disabled="">
       <span class="perk-tier">T2B</span>
       <strong id="perk-t2-b-name">Iron Skin</strong>
-      <small id="perk-t2-b-effect">Contact damage taken -20%.</small>
+      <small id="perk-t2-b-effect">Contact damage taken -12.5%.</small>
       <em id="perk-t2-b-cost">400g</em>
     </button>
   
@@ -251,6 +256,7 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
         <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
         <button type="button" data-testid="deploy-arena" data-testsprite-action-target="0">DEPLOY ARENA</button>
         <button type="button" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
+        <button type="button" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
       </footer>
     </section>
     <section id="screen-run" class="screen hidden">
@@ -258,12 +264,13 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
         <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
         <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
         <div class="hud">
-          <span>HP <strong id="hud-hp">80</strong></span>
+          <span>HP <strong id="hud-hp">48</strong></span>
           <span>LV <strong id="hud-level">12</strong></span>
-          <span>KILLS <strong id="hud-kills">286</strong></span>
+          <span>KILLS <strong id="hud-kills">283</strong></span>
           <span>TIME <strong id="hud-time">180s</strong></span>
+          <button type="button" id="run-sound-toggle" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
         </div>
-        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="180" data-hp="80" data-level="12" data-kills="286" data-gold="93" data-seed="11"></div>
+        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="180" data-hp="48" data-level="12" data-kills="283" data-gold="80" data-seed="11"></div>
       </div>
     </section>
     <section id="screen-results" class="screen hidden">
@@ -271,17 +278,17 @@ canvas { width: 100%; height: auto; image-rendering: pixelated; background: rgb(
         <p class="eyebrow">RESULTS</p>
         <h1>The Sand Settles</h1>
         <dl class="result-grid">
-          <div><dt>Score</dt><dd id="result-score" data-testid="result-score">4353</dd></div>
+          <div><dt>Score</dt><dd id="result-score" data-testid="result-score">4310</dd></div>
           <div><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
-          <div><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">286</dd></div>
+          <div><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">283</dd></div>
           <div><dt>Time</dt><dd id="result-time" data-testid="result-time">180s</dd></div>
-          <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">93</dd></div>
+          <div><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">80</dd></div>
         </dl>
         <h2>Match Ranking</h2>
-        <ol id="result-ranking" data-testid="result-ranking"><li class="local-row">#1 Gladiator-1981 knight 4353</li><li>#2 Gladiator-0809 knight 3558</li><li>#3 Grimm the Reckless knight 3228</li><li>#4 Gladiator-2550 knight 2710</li></ol>
+        <ol id="result-ranking" data-testid="result-ranking"><li class="local-row">#1 Gladiator-9596 knight 4310</li><li>#2 Gladiator-1981 knight 2997</li><li>#3 Gladiator-2550 knight 2473</li><li>#4 Gladiator-1254 knight 2407</li></ol>
         <section id="leaderboard-section" class="leaderboard-panel">
           <h2>World Leaderboard</h2>
-          <ol id="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-4876 knight duelist 2073</li></ol>
+          <ol id="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-9596 knight berserker 4310</li><li>#11 Gladiator-4876 knight duelist 2073</li></ol>
         </section>
         <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
       </div>

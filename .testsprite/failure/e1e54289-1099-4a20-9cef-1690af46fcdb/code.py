@@ -40,14 +40,14 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the 'Ghost Colosseum' page with seed=42 and fast mode by navigating to the URL https://ghost-guild.vercel.app/?seed=42&fast=1.
+        # -> Click the 'DEPLOY SOLO' button
         await page.goto("https://ghost-guild.vercel.app/?seed=42&fast=1")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
         
-        # -> Click the 'DEPLOY SOLO' button to start a solo deployment run.
+        # -> Click the 'DEPLOY SOLO' button to start the seeded solo run and load the results screen.
         # DEPLOY SOLO button
         elem = page.get_by_test_id('deploy-solo')
         await elem.click(timeout=10000)
@@ -57,47 +57,17 @@ async def run_test():
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY SOLO' button to run a solo deployment and open the results screen.
+        # -> Click the 'DEPLOY SOLO' button
         # DEPLOY SOLO button
         elem = page.get_by_test_id('deploy-solo')
         await elem.click(timeout=10000)
         
-        # -> Verify the 'RESULTS' header is visible on the results screen.
+        # -> Click the 'BACK TO GUILD' button after verifying the results screen and result score are present.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY SOLO' button to run a solo deployment and open the results screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button to run a solo deployment and open the results screen
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Verify the 'RESULTS' screen is visible and the result score is numeric, then click the 'BACK TO GUILD' button.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button to start a solo deployment and open the RESULTS screen.
-        # DEPLOY SOLO button
-        elem = page.get_by_test_id('deploy-solo')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY SOLO' button to run a solo deployment and open the RESULTS screen.
+        # -> Click the 'DEPLOY SOLO' button to start the seeded solo run and load the results screen.
         # DEPLOY SOLO button
         elem = page.get_by_test_id('deploy-solo')
         await elem.click(timeout=10000)
@@ -107,7 +77,67 @@ async def run_test():
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY SOLO' button to open the RESULTS screen
+        # -> Click the 'DEPLOY SOLO' button to start the seeded solo run and load the results screen.
+        # DEPLOY SOLO button
+        elem = page.get_by_test_id('deploy-solo')
+        await elem.click(timeout=10000)
+        
+        # -> Verify the results screen titled 'The Sand Settles' is visible and the Score value is numeric, then click the 'BACK TO GUILD' button.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'DEPLOY SOLO' button to start the seeded solo run and load the results screen.
+        # DEPLOY SOLO button
+        elem = page.get_by_test_id('deploy-solo')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'DEPLOY SOLO' button to start a seeded solo run and load the results screen.
+        # DEPLOY SOLO button
+        elem = page.get_by_test_id('deploy-solo')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'DEPLOY SOLO' button to start a seeded solo run and load the results screen.
+        # DEPLOY SOLO button
+        elem = page.get_by_test_id('deploy-solo')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'DEPLOY SOLO' button to start the seeded solo run and load the results screen.
+        # DEPLOY SOLO button
+        elem = page.get_by_test_id('deploy-solo')
+        await elem.click(timeout=10000)
+        
+        # -> Verify the results screen is visible and the score is numeric, then click the 'BACK TO GUILD' button.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'DEPLOY SOLO' button to start the seeded solo run and show the results screen.
+        # DEPLOY SOLO button
+        elem = page.get_by_test_id('deploy-solo')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'DEPLOY SOLO' button to start the seeded solo run and load the results screen.
         # DEPLOY SOLO button
         elem = page.get_by_test_id('deploy-solo')
         await elem.click(timeout=10000)

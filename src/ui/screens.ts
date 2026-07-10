@@ -14,7 +14,7 @@ import { renderGuildView } from "./guildView";
 import { screenMarkup } from "./markup";
 import { currentLoadout } from "./meta";
 import { renderLeaderboard, renderRanking, updateMirror } from "./runHud";
-import { loadSave } from "./save";
+import { applyBestSurvival, formatBestSurvivalLine, loadSave } from "./save";
 import { clearAutorun, parseSeed, persist, setVisibleScreen } from "./screenUtils";
 
 type RunMode = "solo" | "arena";
@@ -224,13 +224,19 @@ function createScreenController(
       return;
     }
 
-    save = { ...save, gold: save.gold + primary.gold };
+    const best = applyBestSurvival(save.bestSurvivalSeconds, primary.survivedSeconds);
+    save = {
+      ...save,
+      gold: save.gold + primary.gold,
+      bestSurvivalSeconds: best.bestSurvivalSeconds,
+    };
     persist(windowRef, save);
     requiredElement(documentRef, "result-score").textContent = String(primary.score);
     requiredElement(documentRef, "result-rank").textContent = String(primary.rank);
     requiredElement(documentRef, "result-kills").textContent = String(primary.kills);
     requiredElement(documentRef, "result-time").textContent = `${primary.survivedSeconds}s`;
     requiredElement(documentRef, "result-gold-earned").textContent = String(primary.gold);
+    renderBestSurvivalLine(documentRef, best, primary.survived);
     renderRanking(documentRef, result, primary.heroId);
     renderLeaderboard(documentRef, mode === "arena" ? leaderboardFromResult(result) : []);
     setVisibleScreen(screenElements, "results");
@@ -271,4 +277,15 @@ function createScreenController(
   }
 
   return { renderGuild, deploySolo };
+}
+
+function renderBestSurvivalLine(
+  documentRef: Document,
+  best: { bestSurvivalSeconds: number; isNewBest: boolean },
+  survived: boolean,
+): void {
+  const el = requiredElement(documentRef, "best-survival");
+  el.textContent = formatBestSurvivalLine(best, survived);
+  el.classList.toggle("is-new-best", best.isNewBest);
+  el.classList.toggle("is-survived", survived);
 }

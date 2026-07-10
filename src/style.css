@@ -289,6 +289,40 @@ h2 {
   border-bottom-color: #58d6c9;
 }
 
+.best-survival-guild {
+  border: 2px solid #e8e3d5;
+  padding: 10px 14px;
+  background: #0a080e;
+  box-shadow: 6px 6px 0 #05040a;
+  color: #9fe3b0;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.best-survival {
+  margin: 0 0 18px;
+  color: #9a9488;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.best-survival.is-new-best {
+  color: #d9a441;
+  font-weight: 700;
+}
+
+.best-survival.is-survived {
+  color: #9fe3b0;
+}
+
+.best-survival.is-new-best.is-survived {
+  color: #d9a441;
+}
+
 .guild-layout {
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);

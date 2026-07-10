@@ -21,7 +21,35 @@ export type GuildSave = {
   playerName: string;
   permStats: PermStats;
   unlockedClasses: Record<HeroClassId, boolean>;
+  /** Personal best run survival in whole seconds. Absent on legacy saves. */
+  bestSurvivalSeconds?: number;
 };
+
+/** Pure: keeps previous best unless survivedSeconds is strictly greater (or first record). */
+export function applyBestSurvival(
+  previous: number | undefined,
+  survivedSeconds: number,
+): { bestSurvivalSeconds: number; isNewBest: boolean } {
+  if (previous === undefined || survivedSeconds > previous) {
+    return { bestSurvivalSeconds: survivedSeconds, isNewBest: true };
+  }
+  return { bestSurvivalSeconds: previous, isNewBest: false };
+}
+
+/** Result-screen copy: new best / quiet best; full 180s survival doubles as victory label. */
+export function formatBestSurvivalLine(
+  best: { bestSurvivalSeconds: number; isNewBest: boolean },
+  survived: boolean,
+): string {
+  if (best.isNewBest) {
+    return survived
+      ? `SURVIVED THE SANDS · NEW BEST! ${best.bestSurvivalSeconds}s`
+      : `NEW BEST! ${best.bestSurvivalSeconds}s`;
+  }
+  return survived
+    ? `SURVIVED THE SANDS · Best ${best.bestSurvivalSeconds}s`
+    : `Best ${best.bestSurvivalSeconds}s`;
+}
 
 export function defaultSave(): GuildSave {
   return {
@@ -79,6 +107,8 @@ function parseSave(value: unknown): GuildSave {
   const unlockedClasses = parseUnlockedClasses(value["unlockedClasses"], fallback.unlockedClasses);
   const temperament = parseTemperament(value["temperament"], value["traits"], fallback.temperament);
 
+  const bestSurvivalSeconds = parseBestSurvivalSeconds(value["bestSurvivalSeconds"]);
+
   return {
     gold: parseNonNegativeNumber(value["gold"], fallback.gold),
     classId: unlockedClasses[classId] ? classId : "knight",
@@ -90,7 +120,16 @@ function parseSave(value: unknown): GuildSave {
     playerName: parsePlayerName(value["playerName"], fallback.playerName),
     permStats: parsePermStats(value["permStats"], fallback.permStats),
     unlockedClasses,
+    ...(bestSurvivalSeconds === undefined ? {} : { bestSurvivalSeconds }),
   };
+}
+
+/** Absent or non-number → undefined (legacy saves stay valid). */
+function parseBestSurvivalSeconds(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return undefined;
+  }
+  return Math.floor(value);
 }
 
 function emptyPerksByTemperament(): Record<TemperamentId, readonly PerkId[]> {

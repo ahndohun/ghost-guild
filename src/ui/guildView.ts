@@ -25,6 +25,7 @@ export const perkSlots: readonly PerkSlot[] = [
 export function renderGuildView(documentRef: Document, save: GuildSave, controls: GuildViewControls): void {
   requiredElement(documentRef, "gold-amount").textContent = formatGold(save.gold);
   requiredInput(documentRef, "player-name").value = save.playerName;
+  renderGuildBestSurvival(documentRef, save.bestSurvivalSeconds);
   controls.autorunButton.textContent = save.autorun ? "AUTO-RUN ON" : "AUTO-RUN OFF";
   controls.autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
   renderTemperaments(documentRef, save.temperament);
@@ -53,6 +54,13 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
 
 function classStatus(selected: boolean): string {
   return selected ? "Selected" : "Unlocked";
+}
+
+function renderGuildBestSurvival(documentRef: Document, bestSurvivalSeconds: number | undefined): void {
+  const el = requiredElement(documentRef, "best-survival-guild");
+  const hasRecord = typeof bestSurvivalSeconds === "number" && Number.isFinite(bestSurvivalSeconds);
+  el.classList.toggle("hidden", !hasRecord);
+  el.textContent = hasRecord ? `Best ${bestSurvivalSeconds}s` : "";
 }
 
 function renderTemperaments(documentRef: Document, selectedTemperament: TemperamentId): void {
