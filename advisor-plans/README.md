@@ -12,7 +12,7 @@ editing, honor every STOP condition, and update the status row below.
 | Plan | Title | Priority | Effort | Depends on | Status |
 |---|---|---|---|---|---|
 | 001 | Establish real-browser UI regression coverage | P1 | M | — | DONE |
-| 002 | Rebuild Guild as a fixed game shell | P1 | L | 001 | TODO |
+| 002 | Rebuild Guild as a fixed game shell | P1 | L | 001 | IN PROGRESS — Step 1~4 done+verified; remaining: coach, reco-3 classes, TestSprite plans (see HANDOVER.md §2) |
 | 003 | Replace mockup art with a production asset system | P1 | L | 002 | TODO |
 | 004 | Make autonomous combat readable to spectators | P1 | L | 001 | TODO |
 | 005 | Turn results into a coaching and reward report | P1 | L | 004 | TODO |
