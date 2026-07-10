@@ -20,7 +20,7 @@ Built for **TestSprite Hackathon Season 3** — by an AI agent organization, ver
 
 1. Pick a temperament card. It changes how the gladiator *behaves*, not how strong it is — each has a visible hard rule (Berserker: won't loot while enemies are near; Duelist: kites at exactly weapon range; Survivor: flees early; Hoarder: loots through pain) plus a signature passive.
 2. Hit **DEPLOY SOLO**. The hero moves, fights, loots, and announces its own level-up picks in a DQ-style dialog. You can only watch.
-3. Death or 180s survival → gold → **perk nodes** (3 tiers × pick-1-of-2 per temperament — every perk amplifies the identity, none patch weaknesses), permanent upgrades (ATK/HP/SPD/LUCK/starting level), class unlocks (Knight → Mage 400g → Priest 1200g) → tune → repeat. Toggle **AUTO-RUN** and it becomes an idle game.
+3. Death or 180s survival → gold → **perk nodes** (3 tiers × pick-1-of-2 per temperament — every perk amplifies the identity, none patch weaknesses), permanent upgrades (ATK/HP/SPD/LUCK/starting level), and a 5-class roster with honest tradeoff cards — from the reliable Knight to two rule-benders: the **Monk** (one weapon honed to Lv.8, never ranged) and the **Gambler** (never chooses — every level-up is a seeded dice roll) → tune → repeat. Toggle **AUTO-RUN** and it becomes an idle game.
 4. **DEPLOY ARENA**: your hero + up to 3 real players' loadouts fight the same waves in one arena, ranked by score, feeding a world leaderboard. If the matchmaking API is unreachable you fight bundled bot ghosts instead — the arena never dead-ends.
 
 Same seed, different temperament, wildly different battles — you can watch a Berserker walk straight past a gem pile mid-brawl while a Hoarder dies reaching for it. Coaching is the game.
