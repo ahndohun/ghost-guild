@@ -39,103 +39,50 @@ async def run_test():
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
-        
-        # -> Click the 'DEPLOY ARENA' button after the seeded page loads.
+
+        # -> Open the page at https://ghost-guild.vercel.app/?seed=11&fast=1
         await page.goto("https://ghost-guild.vercel.app/?seed=11&fast=1")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
-        
-        # -> Click the 'DEPLOY ARENA' button
+
+        # -> Click the 'DEPLOY ARENA' button to start an arena run and load the results screen.
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
-        
+
+        # -> Click the 'BACK TO GUILD' button to return to the guild screen and verify the guild screen is visible.
+        # BACK TO GUILD button
+        elem = page.get_by_test_id('back-to-guild')
+        await elem.click(timeout=10000)
+
+        # -> Click the 'DEPLOY ARENA' button to start an arena run and load the results screen.
+        # DEPLOY ARENA button
+        elem = page.get_by_test_id('deploy-arena')
+        await elem.click(timeout=10000)
+
         # -> Click the 'BACK TO GUILD' button to return to the guild screen.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button to open the Results screen.
+
+        # -> Click the 'DEPLOY ARENA' button to start an arena run and load the results screen.
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
-        
+
         # -> Click the 'BACK TO GUILD' button to return to the guild screen.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button on the guild screen to open the Results screen.
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button to open the Results screen
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button on the guild screen.
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button to open the Results screen.
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button to open the Results screen.
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
-        await elem.click(timeout=10000)
-        
-        # -> Verify the Results screen shows 'Match Ranking' and 'World Leaderboard', then click the 'BACK TO GUILD' button.
-        # BACK TO GUILD button
-        elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button to open the Results screen.
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
-        await elem.click(timeout=10000)
-        
+
         # --> Assertions to verify final state
-        current_url = await page.evaluate("() => window.location.href")
-        # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
-        assert current_url, 'Page should have loaded with a URL'
+
+        # --> The element #screen-guild is visible
+        await page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[2]").nth(0).scroll_into_view_if_needed()
+        # Assert: The guild screen is visible because the 'DEPLOY ARENA' button is visible.
+        await expect(page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[2]").nth(0)).to_be_visible(timeout=15000), "The guild screen is visible because the 'DEPLOY ARENA' button is visible."
         current_url = await page.evaluate("() => window.location.href")
         # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
         assert current_url, 'Page should have loaded with a URL'
@@ -156,4 +103,4 @@ async def run_test():
             await pw.stop()
 
 asyncio.run(run_test())
-    
+

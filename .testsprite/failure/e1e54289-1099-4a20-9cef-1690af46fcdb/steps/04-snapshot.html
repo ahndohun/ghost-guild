@@ -1,0 +1,397 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Colosseum</title>
+    <script type="module" crossorigin="" src="/assets/index-CzJkfit_.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-CrN3jw6a.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+:root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; --bg: #0e0c15; --bg-deep: #08070d; --ink: #e8e3d5; --ink-dim: #e8e3d5b8; --gold: #d9a441; --gold-soft: #fff4cf; --cyan: #58d6c9; --green: #9fe3b0; --red: #e08484; --enemy: #b8453f; --panel-fill: #1a151c; --panel-fill-deep: #120f16; --button-fill: #2a1c18; --shadow: #05040a; --frame-max: 960px; --stone-slice: 48; --stone-border: 14px; --bronze-slice: 12; --bronze-border: 6px; --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+* { box-sizing: border-box; }
+html, body { background: var(--bg-deep); width: 100%; height: 100%; margin: 0px; overflow: hidden; }
+body { background: radial-gradient(circle at 50% 0px, rgba(184, 69, 63, 0.14), rgba(0, 0, 0, 0) 36rem), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 52%, rgb(8, 7, 13) 100%); min-width: 320px; min-height: 100dvh; }
+#app { width: min(var(--frame-max), 100vw); background: var(--bg); height: 100dvh; max-height: 100dvh; margin: 0px auto; position: relative; overflow: hidden; box-shadow: rgb(5, 4, 10) 0px 0px 0px 2px, rgba(0, 0, 0, 0.55) 0px 0px 48px; }
+h1, h2, .eyebrow, .gold, button, .offline-badge, .hud-chip, .class-card strong, .class-card small, .result-grid dt, .result-grid dd, #result-ranking, #leaderboard-list, .title-logo, .title-tagline, .lobby-nameplate-title, .lobby-nameplate-rule { font-family: var(--pixel-font); }
+button, input { font: inherit; }
+.ui-stone, .panel, .results-panel, .lobby-stage, .lobby-nameplate, .topbar-meta, .player-name-field, .gold, .best-survival-guild, .best-survival, .offline-badge, .hud-chip, .result-cell, #result-ranking li, #leaderboard-list li, .leaderboard-panel, .title-window, .run-canvas-frame, .game-window, .actions { border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; border-image-width: var(--stone-border); background-color: var(--panel-fill); box-shadow: 4px 4px 0 var(--shadow); image-rendering: pixelated; }
+.ui-bronze, button, .class-card, .temperament-card, .perk-card { border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; border-image-width: var(--bronze-border); background-color: var(--button-fill); box-shadow: 3px 3px 0 var(--shadow); image-rendering: pixelated; }
+button { min-height: 40px; color: var(--gold-soft); cursor: pointer; font-family: var(--pixel-font); text-shadow: 1px 1px 0 var(--shadow); padding: 8px 10px; font-size: 9px; line-height: 1.45; transition: transform 80ms step-end, box-shadow 80ms step-end, filter 80ms step-end; }
+button:hover:not(:disabled) { filter: brightness(1.12); box-shadow: 4px 4px 0 var(--shadow); transform: translate(-1px, -1px); }
+button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; filter: brightness(1.1); }
+button:active:not(:disabled) { box-shadow: 1px 1px 0 var(--shadow); filter: brightness(0.95); transform: translate(2px, 2px); }
+button:disabled, button.locked { cursor: not-allowed; filter: grayscale(0.45) brightness(0.72); opacity: 0.72; box-shadow: 2px 2px 0 var(--shadow); }
+button.selected, .class-card.selected, .temperament-card.selected, .perk-card.selected { filter: brightness(1.18) saturate(1.15); box-shadow: 0 0 0 2px var(--cyan), 3px 3px 0 var(--shadow); color: rgb(255, 255, 255); }
+button.locked, .class-card.locked, .perk-card.locked { filter: grayscale(0.35) brightness(0.78); opacity: 0.78; }
+.primary { color: var(--gold-soft); text-shadow: rgb(58, 30, 10) 1px 1px; min-height: 44px; padding: 10px 14px; font-size: 10px; }
+.primary:hover:not(:disabled) { filter: brightness(1.18) sepia(0.12); }
+.screen { opacity: 0; width: 100%; height: 100%; max-height: 100dvh; margin: 0px; padding: 0px; position: absolute; inset: 0px; overflow: hidden; transform: translateY(6px); }
+.screen.screen-active { opacity: 1; animation: 0.16s steps(3) 0s 1 normal none running screen-enter; transform: none; }
+.hidden { display: none !important; }
+@keyframes screen-enter {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen.screen-active { animation: auto ease 0s 1 normal none running none; }
+  button { transition: none; }
+  button:hover:not(:disabled), button:active:not(:disabled) { transform: none; }
+}
+.title-screen { background: radial-gradient(circle at 50% 35%, rgba(217, 164, 65, 0.12), rgba(0, 0, 0, 0) 42%), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 60%, rgb(8, 7, 13) 100%); place-items: center; padding: 16px; display: grid; }
+.title-shell { width: min(520px, 100%); }
+.title-window { text-align: center; box-shadow: 6px 6px 0 var(--shadow); justify-items: center; gap: 12px; padding: 28px 22px 24px; display: grid; }
+.title-logo { color: var(--gold-soft); text-shadow: 2px 2px 0 var(--shadow), 0 0 12px #d9a44140; margin: 0px; font-size: clamp(16px, 4.2vw, 28px); line-height: 1.35; }
+.title-tagline { max-width: 28rem; color: var(--ink); text-shadow: 1px 1px 0 var(--shadow); margin: 0px; font-size: 9px; line-height: 1.7; }
+.title-subline { max-width: 26rem; color: var(--ink-dim); font-family: var(--pixel-font); margin: 0px 0px 8px; font-size: 8px; line-height: 1.7; }
+.title-start { letter-spacing: 0.04em; min-width: min(240px, 100%); min-height: 48px; margin-top: 6px; font-size: 11px; }
+.guild-screen { background: linear-gradient(180deg, #0b0a0ff5 0%, #0e0c15f0 48%, #08070bfa 100%), var(--bg); }
+.guild-scroll, .results-scroll { overscroll-behavior: contain; width: 100%; height: 100%; max-height: 100dvh; padding: 12px; overflow: hidden auto; }
+.lobby-stage { border-width: 12px; background-color: var(--panel-fill-deep); box-shadow: 5px 5px 0 var(--shadow); border-image-width: 12px; gap: 0px; margin: 0px 0px 12px; padding: 0px; display: grid; overflow: hidden; }
+.lobby-stage-frame { background: rgb(14, 12, 21); width: 100%; height: min(32vh, 260px); min-height: 180px; position: relative; overflow: hidden; }
+#lobby-canvas { aspect-ratio: auto; width: 100%; max-width: none; height: 100%; box-shadow: none; image-rendering: pixelated; background: 0px 0px; border: 0px; display: block; }
+.lobby-title-overlay { z-index: 1; pointer-events: none; text-shadow: 2px 2px 0 var(--shadow); position: absolute; top: 10px; left: 12px; right: 12px; }
+.lobby-title-overlay .eyebrow { margin: 0px 0px 6px; font-size: 8px; }
+.lobby-title-overlay h1 { color: var(--gold-soft); margin: 0px; font-size: clamp(12px, 2.2vw, 18px); line-height: 1.3; }
+.lobby-title-overlay .tagline { max-width: 42rem; color: var(--ink-dim); margin: 6px 0px 0px; font-size: 9px; line-height: 1.45; }
+.lobby-title-overlay .onboarding-line { color: rgba(232, 227, 213, 0.52); max-width: 48rem; margin: 4px 0px 0px; font-size: 8px; line-height: 1.45; }
+.lobby-nameplate { border-width: 10px; text-align: center; box-shadow: none; background-color: var(--panel-fill-deep); border-image-width: 10px; justify-items: center; gap: 6px; margin: 0px; padding: 8px 12px 10px; display: grid; }
+.lobby-nameplate-title { color: var(--gold-soft); margin: 0px; font-size: 10px; line-height: 1.55; }
+.lobby-nameplate-rule { max-width: 52rem; color: var(--ink-dim); margin: 0px; font-size: 8px; line-height: 1.6; }
+.topbar, .actions { justify-content: space-between; align-items: center; gap: 10px; display: flex; }
+.guild-screen .topbar { margin-bottom: 4px; }
+.topbar-meta { border-width: 10px; background-color: var(--panel-fill-deep); width: 100%; box-shadow: 3px 3px 0 var(--shadow); border-image-width: 10px; grid-template-columns: minmax(0px, 1fr) auto; gap: 8px; padding: 4px; display: grid; }
+.eyebrow { color: var(--cyan); letter-spacing: 0px; text-shadow: 1px 1px 0 var(--shadow); margin: 0px 0px 8px; font-size: 9px; }
+h1, h2, p, .tagline { margin-top: 0px; }
+h1 { margin-bottom: 0px; font-size: 22px; line-height: 1.2; }
+.tagline { max-width: 560px; color: var(--ink-dim); margin: 8px 0px 0px; font-size: 12px; line-height: 1.5; }
+.onboarding-line { color: rgba(232, 227, 213, 0.56); max-width: 720px; margin: 8px 0px 0px; font-size: 11px; line-height: 1.5; }
+h2, .results-section-title { color: var(--gold-soft); text-shadow: 1px 1px 0 var(--shadow); margin-bottom: 10px; font-size: 10px; line-height: 1.5; }
+.gold { white-space: nowrap; min-width: 0px; color: var(--gold-soft); border-width: 8px; box-shadow: 2px 2px 0 var(--shadow); border-image-width: 8px; align-content: center; padding: 8px 10px; font-size: 10px; display: grid; }
+.player-name-field { border-width: 8px; min-width: 0px; box-shadow: 2px 2px 0 var(--shadow); background-color: var(--panel-fill-deep); border-image-width: 8px; gap: 4px; padding: 6px 10px; display: grid; }
+.player-name-field span { color: var(--cyan); font-family: var(--pixel-font); font-size: 8px; }
+.player-name-field input { width: 100%; min-width: 0px; color: var(--gold-soft); font-family: var(--pixel-font); background: 0px 0px; border-width: 0px 0px 2px; border-top-style: initial; border-right-style: initial; border-left-style: initial; border-top-color: initial; border-right-color: initial; border-left-color: initial; border-image: initial; border-bottom-style: solid; border-bottom-color: rgba(232, 227, 213, 0.42); outline: 0px; font-size: 11px; line-height: 1.5; }
+.player-name-field input:focus-visible { border-bottom-color: var(--cyan); }
+.best-survival-guild { border-width: 8px; box-shadow: 2px 2px 0 var(--shadow); color: var(--green); white-space: nowrap; background-color: var(--panel-fill-deep); border-image-width: 8px; padding: 4px 8px; font-size: 8px; line-height: 1.5; }
+.best-survival { color: rgb(154, 148, 136); text-align: center; border-width: 10px; box-shadow: 3px 3px 0 var(--shadow); border-image-width: 10px; margin: 0px 0px 14px; padding: 8px 10px; font-size: 9px; line-height: 1.6; }
+.best-survival.is-new-best { color: var(--gold); }
+.best-survival.is-survived { color: var(--green); }
+.best-survival.is-new-best.is-survived { color: var(--gold); }
+.guild-layout { grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr); gap: 10px; margin: 10px 0px 12px; display: grid; }
+.panel { border-width: 12px; background-color: var(--panel-fill); border-image-width: 12px; padding: 10px; }
+.class-grid, .upgrade-grid, .temperament-grid, .perk-grid { gap: 8px; display: grid; }
+.class-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+.temperament-grid, .perk-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+.class-card, .temperament-card, .perk-card { color: var(--ink); text-shadow: 1px 1px 0 var(--shadow); place-items: center; gap: 5px; padding: 8px 6px; display: grid; }
+.class-card { align-content: start; min-height: 140px; }
+.temperament-card { align-content: start; min-height: 112px; }
+.perk-card { align-content: start; min-height: 100px; }
+.upgrade-grid button { min-height: 36px; padding: 6px 8px; font-size: 8px; }
+.class-glyph { border-width: 5px; border-style: solid; border-color: rgba(0, 0, 0, 0); border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; color: rgb(14, 12, 21); width: 34px; height: 34px; box-shadow: 2px 2px 0 var(--shadow); image-rendering: pixelated; text-shadow: none; background-color: rgb(232, 227, 213); border-image-width: 5px; place-items: center; font-size: 11px; display: grid; }
+.class-card small, .temperament-card span, .temperament-card small, .perk-card small, .perk-card em, .perk-tier { max-width: 100%; color: var(--ink-dim); overflow-wrap: anywhere; text-align: center; font-size: 8px; line-height: 1.35; }
+.temperament-card strong, .perk-card strong, .class-card strong { font-family: var(--pixel-font); text-align: center; color: var(--gold-soft); font-size: 9px; line-height: 1.4; }
+.temperament-card span { color: rgba(232, 227, 213, 0.86); }
+.perk-card em, .perk-tier { color: var(--gold); font-style: normal; }
+.class-status { color: var(--gold); }
+.class-strength, .class-weakness { overflow-wrap: anywhere; text-align: center; max-width: 100%; font-size: 7px; line-height: 1.35; }
+.class-strength { color: var(--green); }
+.class-weakness { color: var(--red); }
+.actions { z-index: 2; border-width: 10px; background-color: var(--panel-fill-deep); box-shadow: 3px 3px 0 var(--shadow); border-image-width: 10px; flex-wrap: wrap; padding: 5px; position: sticky; bottom: 0px; }
+.actions button, .results-panel button { padding: 10px 12px; }
+#screen-run { background: var(--bg-deep); place-items: center; padding: 8px; display: grid; }
+#screen-run.hidden { display: none !important; }
+.run-shell, .game-window { border-width: 12px; background-color: var(--panel-fill-deep); width: min(100%, 960px); box-shadow: 5px 5px 0 var(--shadow); border-image-width: 12px; margin: 0px auto; padding: 8px; position: relative; }
+.run-canvas-frame { border-width: 10px; width: 100%; box-shadow: none; background-color: rgb(14, 12, 21); border-image-width: 10px; padding: 0px; position: relative; overflow: hidden; }
+#run-canvas { aspect-ratio: 960 / 540; width: 100%; max-width: 100%; height: auto; box-shadow: none; image-rendering: pixelated; background: rgb(14, 12, 21); border: 0px; display: block; }
+canvas { image-rendering: pixelated; display: block; }
+.offline-badge { z-index: 2; border-width: 8px; color: var(--gold-soft); box-shadow: 2px 2px 0 var(--shadow); background-color: rgba(20, 14, 18, 0.92); border-image-width: 8px; padding: 6px 8px; font-size: 8px; position: absolute; top: 8px; left: 8px; }
+.hud { flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; padding: 8px 2px 2px; font-size: 8px; display: flex; }
+.hud-chip { border-width: 8px; min-height: 28px; color: var(--ink); box-shadow: 2px 2px 0 var(--shadow); text-shadow: 1px 1px 0 var(--shadow); background-color: rgba(18, 14, 20, 0.94); border-image-width: 8px; align-items: center; gap: 4px; padding: 4px 6px; font-size: 8px; line-height: 1.2; display: inline-flex; }
+.hud-chip strong { color: var(--gold-soft); font-weight: 400; }
+.hud-sound { min-height: 28px; padding: 4px 8px; font-size: 8px; }
+.results-scroll { place-items: start center; padding: 16px 12px 24px; display: grid; }
+.results-panel, .victory-window { border-width: 14px; width: min(720px, 100%); box-shadow: 6px 6px 0 var(--shadow); background-color: var(--panel-fill); text-align: center; border-image-width: 14px; margin: 0px auto; padding: 18px 16px 16px; }
+.results-eyebrow { margin: 0px 0px 6px; }
+.victory-title { color: var(--gold-soft); text-shadow: 2px 2px 0 var(--shadow), 0 0 10px #d9a44133; margin: 0px; font-size: clamp(14px, 3.2vw, 22px); line-height: 1.35; }
+.victory-sub { color: var(--ink-dim); font-family: var(--pixel-font); margin: 8px 0px 0px; font-size: 8px; line-height: 1.6; }
+.result-grid { grid-template-columns: repeat(5, minmax(0px, 1fr)); gap: 8px; margin: 16px 0px 12px; display: grid; }
+.result-cell, .result-grid div { border-width: 10px; background-color: var(--panel-fill-deep); box-shadow: 2px 2px 0 var(--shadow); overflow-wrap: anywhere; border-image-width: 10px; padding: 8px 6px; line-height: 1.4; }
+.result-grid dt { color: var(--cyan); margin-bottom: 6px; font-size: 8px; }
+.result-grid dd { color: var(--gold-soft); margin: 0px; font-size: 13px; }
+#result-ranking, #leaderboard-list, .ranking-list, .leaderboard-list { text-align: left; gap: 6px; margin: 0px 0px 12px; padding-left: 0px; list-style: none; display: grid; }
+#result-ranking li, #leaderboard-list li { border-width: 10px; background-color: var(--panel-fill-deep); box-shadow: 2px 2px 0 var(--shadow); overflow-wrap: anywhere; border-image-width: 10px; padding: 8px 10px; font-size: 9px; line-height: 1.5; }
+#result-ranking .local-row { filter: brightness(1.12); box-shadow: 0 0 0 2px var(--cyan), 2px 2px 0 var(--shadow); color: rgb(255, 255, 255); }
+.leaderboard-panel { border-width: 12px; text-align: left; box-shadow: 3px 3px 0 var(--shadow); background-color: var(--panel-fill-deep); border-image-width: 12px; margin: 12px 0px 16px; padding: 10px; }
+.leaderboard-panel .results-section-title { text-align: center; }
+#leaderboard-list:empty::after, #result-ranking:empty::after { content: "NO ENTRIES"; border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; background-color: var(--panel-fill-deep); color: var(--ink-dim); font-family: var(--pixel-font); text-align: center; image-rendering: pixelated; box-shadow: 2px 2px 0 var(--shadow); border-image-width: 10px; padding: 10px; font-size: 8px; display: block; }
+@media (width <= 860px) {
+  .guild-scroll, .results-scroll { padding: 8px; }
+  h1 { font-size: 18px; }
+  .lobby-stage-frame { height: min(28vh, 200px); min-height: 150px; }
+  .lobby-title-overlay .tagline, .lobby-title-overlay .onboarding-line { display: none; }
+  .topbar { flex-direction: column; align-items: stretch; }
+  .topbar-meta { grid-template-columns: 1fr; width: 100%; }
+  .guild-layout, .temperament-grid, .perk-grid, .class-grid, .result-grid { grid-template-columns: 1fr; }
+  .title-window { padding: 20px 14px 18px; }
+}
+@media (width <= 720px) {
+  :root { --stone-border: 10px; --bronze-border: 5px; }
+  .result-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+  .result-grid .result-cell:last-child, .result-grid div:last-child { grid-column: 1 / -1; }
+  #result-ranking li, #leaderboard-list li { font-size: 8px; line-height: 1.7; }
+  .hud { gap: 4px; padding: 6px 0px 0px; }
+  .hud-chip, .hud-sound { border-width: 6px; border-image-width: 6px; min-height: 24px; padding: 3px 5px; font-size: 7px; }
+  .run-shell, .game-window { border-width: 8px; border-image-width: 8px; padding: 4px; }
+  .run-canvas-frame { border-width: 6px; border-image-width: 6px; }
+  .actions button { flex: 1 1 calc(50% - 8px); min-width: 0px; padding: 8px 6px; font-size: 8px; }
+  .title-logo { font-size: 16px; }
+  .title-tagline, .title-subline { font-size: 7px; }
+}
+@media (width <= 420px) {
+  #screen-run { align-content: center; padding: 4px; }
+  .run-shell { width: 100%; }
+  .hud { gap: 3px; }
+  .hud-chip { flex: 1 1 auto; justify-content: center; }
+  .lobby-stage-frame { height: 210px; min-height: 210px; }
+}</style>
+  </head>
+  <body>
+    <div id="app">
+    <section id="screen-title" class="screen title-screen hidden">
+      <div class="title-shell">
+        <div class="title-window">
+          <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
+          <h1 class="title-logo">Ghost Colosseum</h1>
+          <p class="title-tagline">You don't play the gladiator. You coach them.</p>
+          <p class="title-subline">Tune temperament, class, and perks — then watch judgment decide the sand.</p>
+          <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
+        </div>
+      </div>
+    </section>
+    <section id="screen-guild" class="screen guild-screen hidden">
+      <div class="guild-scroll">
+        <div class="lobby-stage" aria-label="Gladiator lobby">
+          <div class="lobby-stage-frame">
+            <canvas id="lobby-canvas" width="921" height="230" aria-label="Lobby stage"></canvas>
+            <div class="lobby-title-overlay">
+              <p class="eyebrow">BARRACKS</p>
+              <h1>Ghost Colosseum</h1>
+              <p class="tagline">Coach your gladiator. The crowd remembers.</p>
+              <p class="onboarding-line">Your gladiator fights on its own - pick a temperament, hit DEPLOY, and watch. Win gold to unlock perks, classes, and upgrades.</p>
+            </div>
+          </div>
+          <div class="lobby-nameplate" aria-live="polite">
+            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-2785 · Knight · Berserker</p>
+            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Ignores loot when an enemy is within 200px and never flees at low HP.</p>
+            <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
+          </div>
+        </div>
+        <header class="topbar">
+          <div class="topbar-meta">
+            <label class="player-name-field">
+              <span>Gladiator</span>
+              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-2785">
+            </label>
+            <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
+          </div>
+        </header>
+        <main class="guild-layout">
+          <section class="panel temperament-panel">
+            <h2>Temperament</h2>
+            <div class="temperament-grid">
+
+    <button type="button" class="temperament-card selected" data-testid="temperament-berserker" aria-pressed="true" aria-label="Berserker temperament">
+      <strong>Berserker</strong>
+      <span>Ignores loot when an enemy is within 200px and never flees at low HP.</span>
+      <small>Kills restore HP - but after 90s the fury fades and kills heal far less. Permanent training restores the fury (Blood Thirst sharpens it further).</small>
+    </button>
+
+    <button type="button" class="temperament-card" data-testid="temperament-hoarder" aria-pressed="false" aria-label="Hoarder temperament">
+      <strong>Hoarder</strong>
+      <span>Detours to loot even below 35% HP.</span>
+      <small>Gold pickup value +30%.</small>
+    </button>
+
+    <button type="button" class="temperament-card" data-testid="temperament-duelist" aria-pressed="false" aria-label="Duelist temperament">
+      <strong>Duelist</strong>
+      <span>Kites at 80-100% of longest weapon range.</span>
+      <small>Highest-level weapon damage +15%.</small>
+    </button>
+
+    <button type="button" class="temperament-card" data-testid="temperament-survivor" aria-pressed="false" aria-label="Survivor temperament">
+      <strong>Survivor</strong>
+      <span>Danger radius is 1.5x and fleeing starts at 50% HP.</span>
+      <small>Survival-time score value x1.4.</small>
+    </button>
+
+            </div>
+          </section>
+          <section class="panel">
+            <h2>Class</h2>
+            <div class="class-grid">
+
+    <button type="button" class="class-card selected" data-testid="class-knight">
+      <span class="class-glyph">K</span>
+      <strong>Knight</strong>
+      <small>swordSweep</small>
+      <span class="class-strength">Reliable in every fight</span>
+      <span class="class-weakness">No edge, no tricks</span>
+      <small id="class-knight-status" class="class-status">Selected</small>
+    </button>
+
+
+    <button type="button" class="class-card locked" data-testid="class-mage" disabled="">
+      <span class="class-glyph">M</span>
+      <strong>Mage</strong>
+      <small>fireBolt</small>
+      <span class="class-strength">Highest burst damage</span>
+      <span class="class-weakness">Dies to a stiff breeze</span>
+      <small id="class-mage-status" class="class-status">Unlock 400g</small>
+    </button>
+
+
+    <button type="button" class="class-card locked" data-testid="class-priest" disabled="">
+      <span class="class-glyph">P</span>
+      <strong>Priest</strong>
+      <small>holyBolt</small>
+      <span class="class-strength">Outlasts and heals allies</span>
+      <span class="class-weakness">Weakest weapon damage</span>
+      <small id="class-priest-status" class="class-status">Unlock 1200g</small>
+    </button>
+
+
+    <button type="button" class="class-card locked" data-testid="class-monk" disabled="">
+      <span class="class-glyph">O</span>
+      <strong>Monk</strong>
+      <small>garlicAura</small>
+      <span class="class-strength">One weapon honed to Lv.8, contact damage -20%</span>
+      <span class="class-weakness">Weapon slots locked to 1, no ranged options ever</span>
+      <small id="class-monk-status" class="class-status">Unlock 800g</small>
+    </button>
+
+
+    <button type="button" class="class-card locked" data-testid="class-gambler" disabled="">
+      <span class="class-glyph">G</span>
+      <strong>Gambler</strong>
+      <small>throwingAxe</small>
+      <span class="class-strength">Luck +25%, level-up options roll 1 tier higher</span>
+      <span class="class-weakness">Never chooses — every level-up pick is a seeded dice roll (temperament preference ignored)</span>
+      <small id="class-gambler-status" class="class-status">Unlock 2000g</small>
+    </button>
+
+            </div>
+          </section>
+          <section class="panel">
+            <h2>Guild Upgrades</h2>
+            <div class="upgrade-grid">
+              <button type="button" data-testid="buy-atk" disabled="">ATK Lv.0 50g</button>
+              <button type="button" data-testid="buy-hp" disabled="">HP Lv.0 50g</button>
+              <button type="button" data-testid="buy-spd" disabled="">SPD Lv.0 80g</button>
+              <button type="button" data-testid="buy-luck" disabled="">LUCK Lv.0 100g</button>
+              <button type="button" data-testid="buy-lvl" disabled="">LVL Lv.0 200g</button>
+            </div>
+          </section>
+          <section class="panel perk-panel">
+            <h2>Perks</h2>
+            <div class="perk-grid">
+
+    <button type="button" class="perk-card locked" data-testid="perk-t1-a" aria-pressed="false" disabled="">
+      <span class="perk-tier">T1A</span>
+      <strong id="perk-t1-a-name">Blood Thirst</strong>
+      <small id="perk-t1-a-effect">Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.</small>
+      <em id="perk-t1-a-cost">150g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t1-b" aria-pressed="false" disabled="">
+      <span class="perk-tier">T1B</span>
+      <strong id="perk-t1-b-name">Combat Instinct</strong>
+      <small id="perk-t1-b-effect">Weapon cooldowns -5%.</small>
+      <em id="perk-t1-b-cost">150g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t2-a" aria-pressed="false" disabled="">
+      <span class="perk-tier">T2A</span>
+      <strong id="perk-t2-a-name">Frenzy</strong>
+      <small id="perk-t2-a-effect">Damage +25% below 35% HP.</small>
+      <em id="perk-t2-a-cost">400g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t2-b" aria-pressed="false" disabled="">
+      <span class="perk-tier">T2B</span>
+      <strong id="perk-t2-b-name">Iron Skin</strong>
+      <small id="perk-t2-b-effect">Contact damage taken -12.5%.</small>
+      <em id="perk-t2-b-cost">400g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t3-a" aria-pressed="false" disabled="">
+      <span class="perk-tier">T3A</span>
+      <strong id="perk-t3-a-name">Slaughterer</strong>
+      <small id="perk-t3-a-effect">Elite kills reset all weapon cooldowns.</small>
+      <em id="perk-t3-a-cost">900g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t3-b" aria-pressed="false" disabled="">
+      <span class="perk-tier">T3B</span>
+      <strong id="perk-t3-b-name">Undying Rage</strong>
+      <small id="perk-t3-b-effect">Survive one lethal blow at 1 HP.</small>
+      <em id="perk-t3-b-cost">900g</em>
+    </button>
+
+            </div>
+          </section>
+        </main>
+        <footer class="actions">
+          <button type="button" class="primary" data-testid="deploy-solo">DEPLOY SOLO</button>
+          <button type="button" data-testid="deploy-arena">DEPLOY ARENA</button>
+          <button type="button" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
+          <button type="button" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
+        </footer>
+      </div>
+    </section>
+    <section id="screen-run" class="screen hidden">
+      <div class="run-shell game-window">
+        <div class="run-canvas-frame">
+          <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
+          <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
+        </div>
+        <div class="hud">
+          <span class="hud-chip">HP <strong id="hud-hp">0</strong></span>
+          <span class="hud-chip">LV <strong id="hud-level">8</strong></span>
+          <span class="hud-chip">KILLS <strong id="hud-kills">167</strong></span>
+          <span class="hud-chip">TIME <strong id="hud-time">96s</strong></span>
+          <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
+        </div>
+        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="96" data-hp="0" data-level="8" data-kills="167" data-gold="44" data-seed="42"></div>
+      </div>
+    </section>
+    <section id="screen-results" class="screen screen-active">
+      <div class="results-scroll">
+        <div class="results-panel victory-window">
+          <p class="eyebrow results-eyebrow">RESULTS</p>
+          <h1 class="victory-title">The Sand Settles</h1>
+          <p class="victory-sub">Match report from the colosseum floor</p>
+          <dl class="result-grid">
+            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">2194</dd></div>
+            <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
+            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">167</dd></div>
+            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">96s</dd></div>
+            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">44</dd></div>
+          </dl>
+          <p id="best-survival" class="best-survival is-new-best" data-testid="best-survival">NEW BEST! 96s</p>
+          <h2 class="results-section-title">Match Ranking</h2>
+          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li class="local-row">#1 Gladiator-2785 knight 2194</li></ol>
+          <section id="leaderboard-section" class="leaderboard-panel">
+            <h2 class="results-section-title">World Leaderboard</h2>
+            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight berserker 6565</li><li>#2 Gladiator-0809 knight berserker 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight berserker 5210</li><li>#6 Gladiator-1981 knight berserker 4918</li><li>#7 Stone Lark knight survivor 4880</li><li>#8 Gladiator-2550 knight berserker 4844</li><li>#9 Vex the Hoarder mage hoarder 4620</li><li>#10 Gladiator-3830 knight berserker 4310</li><li>#11 Gladiator-9596 knight berserker 4310</li><li>#12 Gladiator-6522 knight berserker 4019</li><li>#13 Gladiator-4876 knight duelist 2073</li></ol>
+          </section>
+          <button type="button" class="primary" data-testid="back-to-guild" data-testsprite-action-target="0">BACK TO GUILD</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+</body></html>

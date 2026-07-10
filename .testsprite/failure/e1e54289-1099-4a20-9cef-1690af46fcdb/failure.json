@@ -1,5 +1,18 @@
 {
-  "rootCauseHypothesis": "TEST BLOCKED: Clicked button \"DEPLOY SOLO\"",
+  "rootCauseHypothesis": "TEST BLOCKED: All requested steps completed and verified:\n\n- Navigation: The page at https://ghost-guild.vercel.app/?seed=42&fast=1 was opened (visible in the current tab).\n- Action: The 'DEPLOY SOLO' button was clicked and the results screen appeared.\n- Assertion: The results screen was visible and contained a numeric score: \"Score 2194\" (observed on the results screen).\n- Action: The 'BACK TO GUILD' button was clicked to return to the guild.\n- Assertion: The guild screen is visible again — the page shows the 'Ghost Colosseum' header and the 'DEPLOY SOLO' button (the element '#screen-guild' was found in the DOM).\n\nOutcome: PASS — all required UI interactions and assertions completed successfully and verified from the page content and screenshot. No additional actions will be performed.",
   "recommendedFixTarget": null,
-  "evidence": []
+  "evidence": [
+    {
+      "kind": "snapshot",
+      "stepIndex": 4,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/004.html?REDACTED",
+      "summary": "Step 4 'Click the 'BACK TO GUILD' button to return to the guild screen' passed."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 5,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/006.html?REDACTED",
+      "summary": "Step 5 'The guild screen is visible (the DEPLOY SOLO button is visible).' failed. Error: TEST BLOCKED: All requested steps completed and verified:\n\n- Navigation: The page at https://ghost-guild.vercel.app/?seed=42&fast=1 was opened (visible in the current tab).\n- Action: The 'DEPLOY SOLO' button was clicked and the results screen appeared.\n- Assertion: The results screen was visible and contained a numeric score: \"Score 2194\" (observed on the results screen).\n- Action: The 'BACK TO GUILD' button was clicked to return to the guild.\n- Assertion: The guild screen is visible again — the page shows the 'Ghost Colosseum' header and the 'DEPLOY SOLO' button (the element '#screen-guild' was found in the DOM).\n\nOutcome: PASS — all required UI interactions and assertions completed successfully and verified from the page content and screenshot. No additional actions will be performed."
+    }
+  ]
 }

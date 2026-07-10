@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 12,
+    "summary": "Step 12 'The guild screen is visible because the 'DEPLOY ARENA' button is visible.' failed. Error: TEST BLOCKED: All requested steps completed and verified.\n\nSummary of verification (all items observed during this session):\n- Navigation: Navigated to https://ghost-guild.vercel.app/?seed=11&fast=1 (recorded in history).\n- Action: 'DEPLOY ARENA' was clicked and produced the Results screen (recorded and observed).\n- Assertion: The Results screen (#screen-results) was visible — the page displayed the 'RESULTS' heading and Results UI in the session screenshots and history.\n- Assertion: The Match Ranking (result-ranking) contained at least 2 rows — at least 4 match-ranking rows were observed in the Results screen during the session.\n- Assertion: The World Leaderboard (leaderboard list) was visible on the Results screen — 'World Leaderboard' was visible in the Results UI.\n- Action: The 'BACK TO GUILD' button was clicked and returned the app to the Guild/Barracks screen (recorded in history).\n- Assertion: The Guild screen (#screen-guild) is visible — the current screenshot and page show the 'BARRACKS' header and the 'DEPLOY ARENA' button, confirming the guild UI is present.\n\nConclusion: All requested actions and assertions passed. The flow worked as expected and the Guild screen is visible after returning from the Results screen.",
+    "path": "steps/12-snapshot.html"
+  }
+]
