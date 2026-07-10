@@ -1,0 +1,18 @@
+{
+  "testId": "ce3e95fd-573b-41af-ae1a-765b2cb99daf",
+  "status": "failed",
+  "startedAt": null,
+  "finishedAt": "2026-07-10T13:35:35.296Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783690532852947//tmp/92323438-9f98-4111-8250-251e457c9a51/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_8166358db9d6b678",
+  "runIdIfAvailable": "35c6b756-f89d-4a03-901c-7dd30c89bbec",
+  "codeVersion": "v2",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 3,
+  "failureKind": "assertion",
+  "verdict": "failed",
+  "executionStatus": "completed",
+  "summary": "Failed (assertion): The hosted app is likely loading a broader class dataset or a different build than the one the test expects, causing the guild screen to render extra class choices beyond the five required. This may be due to a production data/config mismatch, stale deployment artifact, or a regression where the class selector is no longer filtered to the intended five classes. The visible tiered specialization section and missing temperament controls suggest the page may be rendering an alt…"
+}

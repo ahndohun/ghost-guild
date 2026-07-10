@@ -1,5 +1,5 @@
 {
-  "rootCauseHypothesis": "The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Clicked button \"DEPLOY ARENA\"",
+  "rootCauseHypothesis": "The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Clicked button \"BACK TO GUILD\"",
   "recommendedFixTarget": {
     "kind": "unknown",
     "reference": null,

@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 4,
+    "summary": "Step 4 'Expected the Priest class choice to not be visible.' failed. Error: TEST FAILURE\n\nThe guild screen does not match the expected \"all five classes\" requirement — more class choices are visible than the five expected.\n\nObservations:\n- The Class area displays many class choices (examples visible: Fighter, Knight, Berserker, Dwarf, Paladin, Mage, Priest, Warlock, Elf, Thief, Monk).\n- The Class Specialization section (tiered specializations T1A..T5B) is present and visible on the guild screen.\n- No standalone temperament choice controls were found on the visible guild screen.",
+    "path": "steps/04-snapshot.html"
+  }
+]

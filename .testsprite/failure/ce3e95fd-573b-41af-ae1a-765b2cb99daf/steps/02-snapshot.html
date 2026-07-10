@@ -4,8 +4,8 @@
     <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghost Colosseum</title>
-    <script type="module" crossorigin="" src="/assets/index-vlETRh04.js"></script>
-    <style data-original-href="https://ghost-guild.vercel.app/assets/index-Cf4LsUVE.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+    <script type="module" crossorigin="" src="/assets/index-G3n412ZN.js"></script>
+    <style data-original-href="https://ghost-guild.vercel.app/assets/index-Bt_6_FcZ.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
 :root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; --bg: #0e0c15; --bg-deep: #08070d; --ink: #e8e3d5; --ink-dim: #e8e3d5b8; --gold: #d9a441; --gold-soft: #fff4cf; --cyan: #58d6c9; --green: #9fe3b0; --red: #e08484; --enemy: #b8453f; --panel-fill: #1a151c; --panel-fill-deep: #120f16; --button-fill: #2a1c18; --shadow: #05040a; --frame-max: 960px; --stone-slice: 48; --stone-border: 14px; --bronze-slice: 12; --bronze-border: 6px; --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 * { box-sizing: border-box; }
 html, body { background: var(--bg-deep); width: 100%; height: 100%; margin: 0px; overflow: hidden; }
@@ -117,6 +117,14 @@ h2, .results-section-title { color: var(--gold-soft); text-shadow: 1px 1px 0 var
 .class-grid, .upgrade-grid, .perk-grid { gap: 8px; display: grid; }
 .class-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
 .perk-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+.inventory-panel { grid-column: 1 / -1; }
+.item-slots, .stash-list { grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 8px; display: grid; }
+.stash-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); margin-top: 10px; }
+.item-slot, .stash-item { text-align: left; align-content: start; gap: 6px; min-height: 88px; padding: 8px; display: grid; }
+.item-slot span, .stash-item span { color: var(--ink-dim); font-size: 7px; }
+.item-slot strong, .stash-item strong { color: var(--gold-soft); font-size: 8px; line-height: 1.4; }
+.item-slot small, .stash-item small, .stash-empty { color: var(--ink-dim); font-size: 7px; line-height: 1.5; }
+.stash-empty { text-align: center; grid-column: 1 / -1; padding: 12px; }
 .class-card, .perk-card { color: var(--ink); text-shadow: 1px 1px 0 var(--shadow); place-items: center; gap: 5px; padding: 8px 6px; display: grid; }
 .class-card { align-content: start; min-height: 140px; }
 .perk-card { align-content: start; min-height: 100px; }
@@ -178,7 +186,7 @@ canvas { image-rendering: pixelated; display: block; }
   .lobby-title-overlay .tagline, .lobby-title-overlay .onboarding-line { display: none; }
   .topbar { flex-direction: column; align-items: stretch; }
   .topbar-meta { grid-template-columns: 1fr; width: 100%; }
-  .guild-layout, .perk-grid, .class-grid, .result-grid { grid-template-columns: 1fr; }
+  .guild-layout, .perk-grid, .class-grid, .item-slots, .result-grid { grid-template-columns: 1fr; }
   .title-window { padding: 18px 14px 16px; }
   .title-logo-big { font-size: clamp(24px, 7vw, 40px); }
 }
@@ -219,7 +227,7 @@ canvas { image-rendering: pixelated; display: block; }
   </head>
   <body>
     <div id="app">
-    <section id="screen-title" class="screen title-screen hidden">
+    <section id="screen-title" class="screen title-screen screen-active">
       <div class="title-scene">
         <div class="title-sky" aria-hidden="true"></div>
         <div class="title-stars" aria-hidden="true"></div>
@@ -244,7 +252,7 @@ canvas { image-rendering: pixelated; display: block; }
             <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
             <p class="title-tagline">You don't play the gladiator. You coach them.</p>
             <p class="title-subline">Pick a class, forge its specialization tree — then watch judgment decide the sand.</p>
-            <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
+            <button type="button" class="primary title-start" data-testid="start-game" data-testsprite-action-target="0">PRESS START</button>
           </div>
         </div>
       </div>
@@ -253,7 +261,7 @@ canvas { image-rendering: pixelated; display: block; }
       <div class="guild-scroll">
         <div class="lobby-stage" aria-label="Gladiator lobby">
           <div class="lobby-stage-frame">
-            <canvas id="lobby-canvas" width="921" height="230" aria-label="Lobby stage"></canvas>
+            <canvas id="lobby-canvas" width="1" height="1" aria-label="Lobby stage"></canvas>
             <div class="lobby-title-overlay">
               <p class="eyebrow">BARRACKS</p>
               <h1>Ghost Colosseum</h1>
@@ -262,8 +270,8 @@ canvas { image-rendering: pixelated; display: block; }
             </div>
           </div>
           <div class="lobby-nameplate" aria-live="polite">
-            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator-1114 · Monk · Berserker</p>
-            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Ignores loot when an enemy is within 200px and never flees at low HP.</p>
+            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Guardian</p>
+            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Holds ground; low-HP flee only below 25%.</p>
             <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
           </div>
         </div>
@@ -271,7 +279,7 @@ canvas { image-rendering: pixelated; display: block; }
           <div class="topbar-meta">
             <label class="player-name-field">
               <span>Gladiator</span>
-              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="Gladiator-1114">
+              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="">
             </label>
             <div class="gold">Gold <span id="gold-amount" data-testid="gold-amount">0</span></div>
           </div>
@@ -281,53 +289,103 @@ canvas { image-rendering: pixelated; display: block; }
             <h2>Class</h2>
             <div class="class-grid">
               
+    <button type="button" class="class-card" data-testid="class-fighter">
+      <span class="class-glyph">F</span>
+      <strong>Fighter</strong>
+      <small>swordSweep</small>
+      <span class="class-strength">Reliable master-at-arms — steady damage every fight</span>
+      <span class="class-weakness">No signature tricks; never the best at any one job</span>
+      <small id="class-fighter-status" class="class-status">Ready</small>
+    </button>
+  
     <button type="button" class="class-card" data-testid="class-knight">
       <span class="class-glyph">K</span>
       <strong>Knight</strong>
       <small>swordSweep</small>
-      <span class="class-strength">Reliable in every fight</span>
-      <span class="class-weakness">No edge, no tricks</span>
+      <span class="class-strength">Immovable bulwark — highest HP, shrugs contact hits</span>
+      <span class="class-weakness">Lowest attack tier; slow feet, no burst</span>
       <small id="class-knight-status" class="class-status">Ready</small>
     </button>
   
-              
+    <button type="button" class="class-card" data-testid="class-berserker">
+      <span class="class-glyph">B</span>
+      <strong>Berserker</strong>
+      <small>swordSweep</small>
+      <span class="class-strength">Blood-fueled whirlwind — kills restore HP</span>
+      <span class="class-weakness">Glass jaw; fatigue after 90s drains the fury</span>
+      <small id="class-berserker-status" class="class-status">Ready</small>
+    </button>
+  
+    <button type="button" class="class-card" data-testid="class-dwarf">
+      <span class="class-glyph">D</span>
+      <strong>Dwarf</strong>
+      <small>swordSweep</small>
+      <span class="class-strength">Stout tunnel-fighter — small hitbox, quick weapon cadence</span>
+      <span class="class-weakness">Short reach fantasy; no real ranged peak</span>
+      <small id="class-dwarf-status" class="class-status">Ready</small>
+    </button>
+  
+    <button type="button" class="class-card" data-testid="class-paladin">
+      <span class="class-glyph">A</span>
+      <strong>Paladin</strong>
+      <small>swordSweep</small>
+      <span class="class-strength">Holy protector — tanky enough and mends (+2 HP / 5s)</span>
+      <span class="class-weakness">Heals worse than Priest; softer than Knight; no peak damage</span>
+      <small id="class-paladin-status" class="class-status">Ready</small>
+    </button>
+  
     <button type="button" class="class-card" data-testid="class-mage">
       <span class="class-glyph">M</span>
       <strong>Mage</strong>
       <small>fireBolt</small>
-      <span class="class-strength">Highest burst damage</span>
-      <span class="class-weakness">Dies to a stiff breeze</span>
+      <span class="class-strength">Arcane artillery — highest burst damage</span>
+      <span class="class-weakness">Dies to a stiff breeze (lowest HP)</span>
       <small id="class-mage-status" class="class-status">Ready</small>
     </button>
   
-              
     <button type="button" class="class-card" data-testid="class-priest">
       <span class="class-glyph">P</span>
       <strong>Priest</strong>
       <small>holyBolt</small>
-      <span class="class-strength">Outlasts and heals allies</span>
+      <span class="class-strength">Divine light that outlasts darkness — heal specialist</span>
       <span class="class-weakness">Weakest weapon damage</span>
       <small id="class-priest-status" class="class-status">Ready</small>
     </button>
   
-              
-    <button type="button" class="class-card selected" data-testid="class-monk">
+    <button type="button" class="class-card" data-testid="class-warlock">
+      <span class="class-glyph">W</span>
+      <strong>Warlock</strong>
+      <small>fireBolt</small>
+      <span class="class-strength">Life-stealing dark caster — 8% lifesteal on damage dealt</span>
+      <span class="class-weakness">Fragile body; must stay aggressive to survive</span>
+      <small id="class-warlock-status" class="class-status">Ready</small>
+    </button>
+  
+    <button type="button" class="class-card" data-testid="class-elf">
+      <span class="class-glyph">E</span>
+      <strong>Elf</strong>
+      <small>swordSweep</small>
+      <span class="class-strength">Graceful blade-and-spell duelist — starts with both tools</span>
+      <span class="class-weakness">Weapon slots 4→3; neither parent's peak damage or toughness</span>
+      <small id="class-elf-status" class="class-status">Ready</small>
+    </button>
+  
+    <button type="button" class="class-card" data-testid="class-thief">
+      <span class="class-glyph">T</span>
+      <strong>Thief</strong>
+      <small>throwingAxe</small>
+      <span class="class-strength">Untouchable blur — crit 20%×2, magnet +60px, gold +20%</span>
+      <span class="class-weakness">Low HP; DPS collapses when crits miss</span>
+      <small id="class-thief-status" class="class-status">Ready</small>
+    </button>
+  
+    <button type="button" class="class-card" data-testid="class-monk">
       <span class="class-glyph">O</span>
       <strong>Monk</strong>
       <small>garlicAura</small>
-      <span class="class-strength">One weapon honed to Lv.8, contact damage -20%</span>
-      <span class="class-weakness">Weapon slots locked to 1, no ranged options ever</span>
-      <small id="class-monk-status" class="class-status">Selected</small>
-    </button>
-  
-              
-    <button type="button" class="class-card" data-testid="class-gambler">
-      <span class="class-glyph">G</span>
-      <strong>Gambler</strong>
-      <small>throwingAxe</small>
-      <span class="class-strength">Luck +25%, level-up options roll 1 tier higher</span>
-      <span class="class-weakness">Never chooses — every level-up pick is a seeded dice roll (temperament preference ignored)</span>
-      <small id="class-gambler-status" class="class-status">Ready</small>
+      <span class="class-strength">One weapon perfected to Lv.8, contact damage −20%</span>
+      <span class="class-weakness">Weapon slots locked to 1 — no ranged options ever</span>
+      <small id="class-monk-status" class="class-status">Ready</small>
     </button>
   
             </div>
@@ -335,65 +393,124 @@ canvas { image-rendering: pixelated; display: block; }
           <section class="panel">
             <h2>Guild Upgrades</h2>
             <div class="upgrade-grid">
-              <button type="button" data-testid="buy-atk" disabled="">ATK Lv.0 50g</button>
-              <button type="button" data-testid="buy-hp" disabled="">HP Lv.0 50g</button>
-              <button type="button" data-testid="buy-spd" disabled="">SPD Lv.0 80g</button>
-              <button type="button" data-testid="buy-luck" disabled="">LUCK Lv.0 100g</button>
-              <button type="button" data-testid="buy-lvl" disabled="">LVL Lv.0 200g</button>
+              <button type="button" data-testid="buy-atk" disabled="">ATK 50g</button>
+              <button type="button" data-testid="buy-hp" disabled="">HP 50g</button>
+              <button type="button" data-testid="buy-spd" disabled="">SPD 80g</button>
+              <button type="button" data-testid="buy-luck" disabled="">LUCK 100g</button>
+              <button type="button" data-testid="buy-lvl" disabled="">LVL 200g</button>
             </div>
           </section>
           <section class="panel perk-panel">
             <h2>Class Specialization</h2>
             <div class="perk-grid">
               
-    <button type="button" class="perk-card locked" data-testid="perk-t1-a" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t1-a" aria-pressed="false">
       <span class="perk-tier">T1A</span>
-      <strong id="perk-t1-a-name">Blood Thirst</strong>
-      <small id="perk-t1-a-effect">Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.</small>
-      <em id="perk-t1-a-cost">150g</em>
+      <strong id="perk-t1-a-name">Bulwark</strong>
+      <small id="perk-t1-a-effect">Contact damage taken −12.5%.</small>
+      <em id="perk-t1-a-cost">0g</em>
     </button>
   
               
-    <button type="button" class="perk-card locked" data-testid="perk-t1-b" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t1-b" aria-pressed="false">
       <span class="perk-tier">T1B</span>
-      <strong id="perk-t1-b-name">Closing In</strong>
-      <small id="perk-t1-b-effect">Enemy attraction within 240px is 1.4x stronger.</small>
-      <em id="perk-t1-b-cost">150g</em>
+      <strong id="perk-t1-b-name">Weapon Drill</strong>
+      <small id="perk-t1-b-effect">All weapons +4% with soft combat focus (small low-ATK round).</small>
+      <em id="perk-t1-b-cost">0g</em>
     </button>
   
               
-    <button type="button" class="perk-card locked" data-testid="perk-t2-a" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t2-a" aria-pressed="false">
       <span class="perk-tier">T2A</span>
       <strong id="perk-t2-a-name">Frenzy</strong>
       <small id="perk-t2-a-effect">Damage +25% below 35% HP.</small>
-      <em id="perk-t2-a-cost">400g</em>
+      <em id="perk-t2-a-cost">0g</em>
     </button>
   
               
-    <button type="button" class="perk-card locked" data-testid="perk-t2-b" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t2-b" aria-pressed="false">
       <span class="perk-tier">T2B</span>
-      <strong id="perk-t2-b-name">Desperate Charge</strong>
-      <small id="perk-t2-b-effect">Below 35% HP, enemy attraction within 240px is doubled.</small>
-      <em id="perk-t2-b-cost">400g</em>
+      <strong id="perk-t2-b-name">Hasty Stance</strong>
+      <small id="perk-t2-b-effect">Speed +4% and earlier retreat (small slow-foot round).</small>
+      <em id="perk-t2-b-cost">0g</em>
     </button>
   
               
-    <button type="button" class="perk-card locked" data-testid="perk-t3-a" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t3-a" aria-pressed="false">
       <span class="perk-tier">T3A</span>
       <strong id="perk-t3-a-name">Slaughterer</strong>
       <small id="perk-t3-a-effect">Elite kills reset all weapon cooldowns.</small>
-      <em id="perk-t3-a-cost">900g</em>
+      <em id="perk-t3-a-cost">0g</em>
     </button>
   
               
-    <button type="button" class="perk-card locked" data-testid="perk-t3-b" aria-pressed="false" disabled="">
+    <button type="button" class="perk-card" data-testid="perk-t3-b" aria-pressed="false">
       <span class="perk-tier">T3B</span>
-      <strong id="perk-t3-b-name">Undying Rage</strong>
-      <small id="perk-t3-b-effect">Survive one lethal blow at 1 HP.</small>
-      <em id="perk-t3-b-cost">900g</em>
+      <strong id="perk-t3-b-name">Riposte Drill</strong>
+      <small id="perk-t3-b-effect">All weapons +8% with combat focus (round low ATK, still weakest tier).</small>
+      <em id="perk-t3-b-cost">0g</em>
+    </button>
+  
+              
+    <button type="button" class="perk-card" data-testid="perk-t4-a" aria-pressed="false">
+      <span class="perk-tier">T4A</span>
+      <strong id="perk-t4-a-name">Aegis Pulse</strong>
+      <small id="perk-t4-a-effect">Below 40% HP: max HP effective +10%.</small>
+      <em id="perk-t4-a-cost">0g</em>
+    </button>
+  
+              
+    <button type="button" class="perk-card" data-testid="perk-t4-b" aria-pressed="false">
+      <span class="perk-tier">T4B</span>
+      <strong id="perk-t4-b-name">Measured Swing</strong>
+      <small id="perk-t4-b-effect">Sword Sweep / Shield Bash +12% dmg (soft ATK round).</small>
+      <em id="perk-t4-b-cost">0g</em>
+    </button>
+  
+              
+    <button type="button" class="perk-card" data-testid="perk-t5-a" aria-pressed="false">
+      <span class="perk-tier">T5A</span>
+      <strong id="perk-t5-a-name">Immovable</strong>
+      <small id="perk-t5-a-effect">Max HP +15%, signature bulwark amplified.</small>
+      <em id="perk-t5-a-cost">0g</em>
+    </button>
+  
+              
+    <button type="button" class="perk-card" data-testid="perk-t5-b" aria-pressed="false">
+      <span class="perk-tier">T5B</span>
+      <strong id="perk-t5-b-name">Counterweight</strong>
+      <small id="perk-t5-b-effect">ATK +10% (round of lowest-ATK, capped).</small>
+      <em id="perk-t5-b-cost">0g</em>
     </button>
   
             </div>
+          </section>
+          <section class="panel inventory-panel" data-testid="inventory-panel">
+            <h2>Guild Inventory</h2>
+            <div class="item-slots" aria-label="Equipped items">
+              
+    <button type="button" class="item-slot" id="item-slot-relicWeapon" data-testid="item-slot-relicWeapon" data-item-slot="relicWeapon">
+      <span>Relic Weapon</span>
+      <strong>Empty</strong>
+      <small>Click an equipped item to unequip.</small>
+    </button>
+  
+              
+    <button type="button" class="item-slot" id="item-slot-armor" data-testid="item-slot-armor" data-item-slot="armor">
+      <span>Armor</span>
+      <strong>Empty</strong>
+      <small>Click an equipped item to unequip.</small>
+    </button>
+  
+              
+    <button type="button" class="item-slot" id="item-slot-trinket" data-testid="item-slot-trinket" data-item-slot="trinket">
+      <span>Trinket</span>
+      <strong>Empty</strong>
+      <small>Click an equipped item to unequip.</small>
+    </button>
+  
+            </div>
+            <div id="stash-list" class="stash-list" data-testid="stash-list" aria-live="polite"></div>
           </section>
         </main>
         <footer class="actions">
@@ -410,22 +527,22 @@ canvas { image-rendering: pixelated; display: block; }
           <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
           <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
         </div>
-        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="65" data-hp="0" data-level="6" data-kills="81" data-gold="25" data-seed="1" data-class="monk" data-temperament="berserker"></div>
+        <div id="game-state" class="mirror" hidden="" data-phase="" data-time="0" data-hp="0" data-level="1" data-kills="0" data-gold="0" data-seed="" data-class="" data-temperament=""></div>
       </div>
       <div class="hud" aria-hidden="false">
-        <span class="hud-chip hud-time">TIME <strong id="hud-time">65s</strong></span>
+        <span class="hud-chip hud-time">TIME <strong id="hud-time">0s</strong></span>
         <div class="hud-hp-orb">
           <div class="hud-hp-well" aria-hidden="true">
-            <div class="hud-hp-fill" id="hud-hp-fill" style="height: 0%;"></div>
+            <div class="hud-hp-fill" id="hud-hp-fill"></div>
           </div>
           <img class="hud-hp-frame" src="/assets/ui/hp-orb-frame.png" alt="" draggable="false">
-          <span class="hud-hp-label">HP <strong id="hud-hp">0/110</strong></span>
+          <span class="hud-hp-label">HP <strong id="hud-hp">0</strong></span>
         </div>
         <div class="hud-xp">
-          <span class="hud-xp-level">LV <strong id="hud-level">6</strong></span>
+          <span class="hud-xp-level">LV <strong id="hud-level">1</strong></span>
           <div class="hud-xp-bar">
             <div class="hud-xp-track" aria-hidden="true">
-              <div class="hud-xp-fill" id="hud-xp-fill" style="width: 43.4783%;"></div>
+              <div class="hud-xp-fill" id="hud-xp-fill"></div>
             </div>
             <img class="hud-xp-frame" src="/assets/ui/xp-bar-frame.png" alt="" draggable="false">
           </div>
@@ -433,25 +550,25 @@ canvas { image-rendering: pixelated; display: block; }
         <button type="button" id="run-sound-toggle" class="hud-sound" data-testid="sound-toggle" aria-pressed="false" aria-label="Mute sound">SOUND ON</button>
       </div>
     </section>
-    <section id="screen-results" class="screen screen-active">
+    <section id="screen-results" class="screen hidden">
       <div class="results-scroll">
         <div class="results-panel victory-window">
           <p class="eyebrow results-eyebrow">RESULTS</p>
           <h1 class="victory-title">The Sand Settles</h1>
           <p class="victory-sub">Match report from the colosseum floor</p>
           <dl class="result-grid">
-            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">1160</dd></div>
+            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">0</dd></div>
             <div class="result-cell"><dt>Rank</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
-            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">81</dd></div>
-            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">65s</dd></div>
-            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">25</dd></div>
+            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">0</dd></div>
+            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">0s</dd></div>
+            <div class="result-cell"><dt>Gold</dt><dd id="result-gold-earned" data-testid="result-gold-earned">0</dd></div>
           </dl>
-          <p id="best-survival" class="best-survival is-new-best" data-testid="best-survival">NEW BEST! 65s</p>
+          <p id="best-survival" class="best-survival" data-testid="best-survival"></p>
           <h2 class="results-section-title">Match Ranking</h2>
-          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li class="local-row">#1 Gladiator-1114 monk 1160</li></ol>
+          <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"></ol>
           <section id="leaderboard-section" class="leaderboard-panel">
             <h2 class="results-section-title">World Leaderboard</h2>
-            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"><li>#1 Gladiator-1254 knight vanguard 6565</li><li>#2 Gladiator-0809 knight vanguard 6443</li><li>#3 Sister Calm priest survivor 6180</li><li>#4 Vale of Ash mage duelist 5540</li><li>#5 Grimm the Reckless knight vanguard 5210</li><li>#6 Gladiator-1981 knight vanguard 4918</li><li>#7 Stone Lark knight vanguard 4880</li><li>#8 Gladiator-2550 knight vanguard 4844</li><li>#9 Vex the Hoarder mage duelist 4620</li><li>#10 Gladiator-3830 knight vanguard 4310</li><li>#11 Gladiator-9596 knight vanguard 4310</li><li>#12 Gladiator-9850 knight vanguard 4310</li><li>#13 Gladiator-9411 knight vanguard 4310</li><li>#14 Gladiator-5562 knight vanguard 4310</li><li>#15 Gladiator-6522 knight vanguard 4019</li><li>#16 Gladiator-1908 knight vanguard 2999</li><li>#17 ahndohun knight vanguard 2990</li><li>#18 Gladiator-5251 knight vanguard 2509</li><li>#19 Gladiator-3540 knight vanguard 2092</li><li>#20 Gladiator-4876 knight vanguard 2073</li></ol>
+            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"></ol>
           </section>
           <button type="button" class="primary" data-testid="back-to-guild">BACK TO GUILD</button>
         </div>

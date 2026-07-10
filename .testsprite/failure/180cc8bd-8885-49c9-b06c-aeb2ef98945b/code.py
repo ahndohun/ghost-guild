@@ -40,24 +40,24 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Navigate to the URL https://ghost-guild.vercel.app/?seed=11&fast=1 so the test can continue.
+        # -> Navigate to the URL https://ghost-guild.vercel.app/?seed=11&fast=1 to start the seeded fast run.
         await page.goto("https://ghost-guild.vercel.app/?seed=11&fast=1")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
         except Exception:
             pass
         
-        # -> Click the 'DEPLOY ARENA' button (the button labeled 'DEPLOY ARENA').
+        # -> Click the 'DEPLOY ARENA' button
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # -> Verify the results screen shows 'RESULTS', that the ranking list has at least two rows, that 'World Leaderboard' is visible, then click the 'BACK TO GUILD' button.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY ARENA' button to run an arena match and bring up the results screen.
+        # -> Click the 'DEPLOY ARENA' button on the Guild screen
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
@@ -67,59 +67,54 @@ async def run_test():
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY ARENA' button to run an arena match and bring up the Results screen.
+        # -> Click the 'DEPLOY ARENA' button to open the RESULTS screen.
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # -> Click the 'BACK TO GUILD' button after verifying the RESULTS, Match Ranking, and World Leaderboard are visible.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY ARENA' button to run an arena match and show the Results screen.
+        # -> Click the 'DEPLOY ARENA' button on the Guild screen.
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen so the DEPLOY ARENA button can be accessed.
+        # -> Verify the RESULTS screen shows the '#screen-results' element, the 'result-ranking' list contains at least two rows, and the 'World Leaderboard' is visible, then click the 'BACK TO GUILD' button.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY ARENA' button to run an arena match and bring up the Results screen.
+        # -> Click the 'DEPLOY ARENA' button on the Guild screen to open the RESULTS view.
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # -> Verify the 'RESULTS' screen shows the Match Ranking and World Leaderboard (with at least two ranking rows), then click the 'BACK TO GUILD' button.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY ARENA' button on the guild screen.
+        # -> Click the 'DEPLOY ARENA' button to open the RESULTS screen.
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen so the 'DEPLOY ARENA' button can be accessed.
+        # -> Verify the 'RESULTS' screen shows '#screen-results', the Match Ranking list has at least two rows and 'World Leaderboard' is visible, then click the 'BACK TO GUILD' button.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY ARENA' button
+        # -> Click the 'DEPLOY ARENA' button to open the RESULTS screen.
         # DEPLOY ARENA button
         elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
-        # -> Click the 'BACK TO GUILD' button to return to the guild screen.
+        # -> Click the 'BACK TO GUILD' button to return to the Guild screen.
         # BACK TO GUILD button
         elem = page.get_by_test_id('back-to-guild')
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'DEPLOY ARENA' button to run an arena match and open the Results screen.
-        # DEPLOY ARENA button
-        elem = page.get_by_test_id('deploy-arena')
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state

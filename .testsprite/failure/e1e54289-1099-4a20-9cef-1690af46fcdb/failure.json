@@ -1,5 +1,5 @@
 {
-  "rootCauseHypothesis": "TEST BLOCKED: All requested steps completed and verified:\n\n- Navigation: The page https://ghost-guild.vercel.app/?seed=42&fast=1 was opened (recorded earlier).\n- Action: 'DEPLOY SOLO' was clicked.\n- Assertion: The results screen appeared — the session recorded a 'RESULTS' header and a numeric score of '777'.\n- Action: 'BACK TO GUILD' was clicked.\n- Assertion: The guild screen is visible now (Guild UI with class cards and the 'DEPLOY SOLO' button is shown in the current page and screenshot).\n\nBased on the recorded observations and the current page state, every step and assertion in the user's checklist is satisfied. Test result: PASS.",
+  "rootCauseHypothesis": "TEST BLOCKED: Summary of results (observed in this session):\n- Navigated to: https://ghost-guild.vercel.app/?seed=42&fast=1\n- 'DEPLOY SOLO' was clicked and the Results screen (#screen-results) was displayed.\n- The result score element (data-testid=result-score) contained a numeric value: 2181 (observed immediately after DEPLOY SOLO).\n- Clicked 'BACK TO GUILD' and the Guild screen (#screen-guild) is visible now — the page displays the Guild UI including the 'DEPLOY SOLO' button and class cards.\nAll requested assertions have been observed and satisfied in this session. No blockers or sign-in were encountered.",
   "recommendedFixTarget": {
     "kind": "code",
     "reference": null,
@@ -9,14 +9,14 @@
     {
       "kind": "snapshot",
       "stepIndex": 4,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/006.html?REDACTED",
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/004.html?REDACTED",
       "summary": "Step 4 'Click the 'BACK TO GUILD' button' passed."
     },
     {
       "kind": "snapshot",
       "stepIndex": 5,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/007.html?REDACTED",
-      "summary": "Step 5 'The guild screen is visible (the DEPLOY SOLO button is shown).' failed. Error: TEST BLOCKED: All requested steps completed and verified:\n\n- Navigation: The page https://ghost-guild.vercel.app/?seed=42&fast=1 was opened (recorded earlier).\n- Action: 'DEPLOY SOLO' was clicked.\n- Assertion: The results screen appeared — the session recorded a 'RESULTS' header and a numeric score of '777'.\n- Action: 'BACK TO GUILD' was clicked.\n- Assertion: The guild screen is visible now (Guild UI with class cards and the 'DEPLOY SOLO' button is shown in the current page and screenshot).\n\nBased on the recorded observations and the current page state, every step and assertion in the user's checklist is satisfied. Test result: PASS."
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/005.html?REDACTED",
+      "summary": "Step 5 'Guild screen is visible because the DEPLOY SOLO button is visible.' failed. Error: TEST BLOCKED: Summary of results (observed in this session):\n- Navigated to: https://ghost-guild.vercel.app/?seed=42&fast=1\n- 'DEPLOY SOLO' was clicked and the Results screen (#screen-results) was displayed.\n- The result score element (data-testid=result-score) contained a numeric value: 2181 (observed immediately after DEPLOY SOLO).\n- Clicked 'BACK TO GUILD' and the Guild screen (#screen-guild) is visible now — the page displays the Guild UI including the 'DEPLOY SOLO' button and class cards.\nAll requested assertions have been observed and satisfied in this session. No blockers or sign-in were encountered."
     }
   ]
 }

@@ -40,7 +40,7 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Open the Ghost Colosseum page with seed=42 and fast mode (navigate to the URL with ?seed=42&fast=1).
+        # -> Navigate to the seeded fast run page at 'https://ghost-guild.vercel.app/?seed=42&fast=1' so the 'deploy-solo' flow can be tested.
         await page.goto("https://ghost-guild.vercel.app/?seed=42&fast=1")
         try:
             await page.wait_for_load_state("domcontentloaded", timeout=5000)
@@ -61,8 +61,8 @@ async def run_test():
         
         # --> The element #screen-guild is visible
         await page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[1]").nth(0).scroll_into_view_if_needed()
-        # Assert: The guild screen is visible (the DEPLOY SOLO button is shown).
-        await expect(page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[1]").nth(0)).to_be_visible(timeout=15000), "The guild screen is visible (the DEPLOY SOLO button is shown)."
+        # Assert: Guild screen is visible because the DEPLOY SOLO button is visible.
+        await expect(page.locator("xpath=/html/body/div[1]/section[2]/div/footer/button[1]").nth(0)).to_be_visible(timeout=15000), "Guild screen is visible because the DEPLOY SOLO button is visible."
         current_url = await page.evaluate("() => window.location.href")
         # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
         assert current_url, 'Page should have loaded with a URL'

@@ -45,19 +45,21 @@ async def run_test():
         elem = page.get_by_test_id('start-game')
         await elem.click(timeout=10000)
         
-        # -> Click the 'Monk' class button (label: 'Monk') to select the Monk class and allow the UI to update.
-        # O Monk garlicAura One weapon honed to Lv.8... button
+        # -> Select the 'Monk' class by clicking the 'Monk' button.
+        # O Monk garlicAura One weapon perfected to Lv.8... button
         elem = page.get_by_test_id('class-monk')
         await elem.click(timeout=10000)
         
-        # -> Click the 'DEPLOY SOLO' button to start the solo run and observe whether the run becomes active and the game-state mirror reports class 'monk' and temperament 'berserker'.
+        # -> Select the 'Monk' class by clicking the 'Monk' button.
         # DEPLOY SOLO button
         elem = page.get_by_test_id('deploy-solo')
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
-        # Assert: The solo run becomes active
-        assert False, "Expected: The solo run becomes active (could not be verified on the page)"
+        
+        # --> The solo run becomes active
+        # Assert: Expected the app URL to contain '/match' indicating the solo run became active.
+        await expect(page).to_have_url(re.compile("/match"), timeout=15000), "Expected the app URL to contain '/match' indicating the solo run became active."
         # Assert: The game-state mirror reports class monk and temperament berserker
         assert False, "Expected: The game-state mirror reports class monk and temperament berserker (could not be verified on the page)"
         await asyncio.sleep(5)

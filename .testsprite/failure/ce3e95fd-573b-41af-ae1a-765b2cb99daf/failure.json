@@ -1,0 +1,28 @@
+{
+  "rootCauseHypothesis": "The hosted app is likely loading a broader class dataset or a different build than the one the test expects, causing the guild screen to render extra class choices beyond the five required. This may be due to a production data/config mismatch, stale deployment artifact, or a regression where the class selector is no longer filtered to the intended five classes. The visible tiered specialization section and missing temperament controls suggest the page may be rendering an alternate/newer UI state than the test was designed for. Underlying error: TEST FAILURE\n\nThe guild screen does not match the expected \"all five classes\" requirement — more class choices are visible than the five expected.\n\nObservations:\n- The Class area displays many class choices (examples visible: Fighter, Knight, Berserker, Dwarf, Paladin, Mage, Priest, Warlock, Elf, Thief, Monk).\n- The Class Specialization section (tiered specializations T1A..T5B) is present and visible on the guild screen.\n- No standalone temperament choice controls were found on the visible guild screen.",
+  "recommendedFixTarget": {
+    "kind": "code",
+    "reference": null,
+    "rationale": "Restrict the hosted guild screen to render only the five intended class options for the test environment, and remove or hide any extra class entries coming from the data/config source. Verify the deployment is pointing at the correct build and API/config version, and if the page is generated from CMS/game-data, filter the class list to the expected five before render. Also ensure any legacy debug/admin content or an expanded class catalog is not exposed on the public guild screen."
+  },
+  "evidence": [
+    {
+      "kind": "snapshot",
+      "stepIndex": 2,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/ce3e95fd-573b-41af-ae1a-765b2cb99daf/002.html?REDACTED",
+      "summary": "Step 2 'Click the 'PRESS START' button on the central dialog' passed."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 3,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/ce3e95fd-573b-41af-ae1a-765b2cb99daf/003.html?REDACTED",
+      "summary": "Step 3 'Expected the Mage class choice to not be visible.' failed. Error: TEST FAILURE\n\nThe guild screen does not match the expected \"all five classes\" requirement — more class choices are visible than the five expected.\n\nObservations:\n- The Class area displays many class choices (examples visible: Fighter, Knight, Berserker, Dwarf, Paladin, Mage, Priest, Warlock, Elf, Thief, Monk).\n- The Class Specialization section (tiered specializations T1A..T5B) is present and visible on the guild screen.\n- No standalone temperament choice controls were found on the visible guild screen."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 4,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/ce3e95fd-573b-41af-ae1a-765b2cb99daf/003.html?REDACTED",
+      "summary": "Step 4 'Expected the Priest class choice to not be visible.' failed. Error: TEST FAILURE\n\nThe guild screen does not match the expected \"all five classes\" requirement — more class choices are visible than the five expected.\n\nObservations:\n- The Class area displays many class choices (examples visible: Fighter, Knight, Berserker, Dwarf, Paladin, Mage, Priest, Warlock, Elf, Thief, Monk).\n- The Class Specialization section (tiered specializations T1A..T5B) is present and visible on the guild screen.\n- No standalone temperament choice controls were found on the visible guild screen."
+    }
+  ]
+}
