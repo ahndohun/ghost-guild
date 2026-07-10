@@ -20,6 +20,15 @@ export const guildSectionOrder: readonly GuildSection[] = ["overview", "class", 
 export type GuildSectionPanes = Record<GuildSection, HTMLElement>;
 export type GuildSectionTabs = Record<GuildSection, HTMLButtonElement>;
 
+const guildShellWidth = 960;
+const guildShellHeight = 540;
+
+/** Keeps the Guild's logical 960x540 shell fitted to the current viewport. */
+export function setGuildShellScale(shell: HTMLElement, windowRef: Window): void {
+  const scale = Math.min(windowRef.innerWidth / guildShellWidth, windowRef.innerHeight / guildShellHeight);
+  shell.style.setProperty("--shell-scale", String(scale));
+}
+
 /** Toggles pane visibility + tab aria-pressed/selected state; does not re-render content. */
 export function setActiveGuildSection(
   panes: GuildSectionPanes,

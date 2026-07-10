@@ -25,6 +25,7 @@ import {
   parseSeed,
   persist,
   setActiveGuildSection,
+  setGuildShellScale,
   setVisibleScreen,
   shouldSkipTitle,
 } from "./screenUtils";
@@ -99,6 +100,13 @@ function createScreenController(
   const canvas = requiredCanvas(documentRef, "run-canvas");
   const titleScreen = requiredElement(documentRef, "screen-title");
   const guildScreen = requiredElement(documentRef, "screen-guild");
+  const guildShell = guildScreen.querySelector<HTMLElement>(".guild-shell");
+  if (guildShell === null) {
+    throw new Error("Missing .guild-shell");
+  }
+  const resizeGuildShell = (): void => setGuildShellScale(guildShell, windowRef);
+  resizeGuildShell();
+  windowRef.addEventListener("resize", resizeGuildShell);
   const runScreen = requiredElement(documentRef, "screen-run");
   const resultsScreen = requiredElement(documentRef, "screen-results");
   const screenElements = {
