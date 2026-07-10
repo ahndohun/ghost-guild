@@ -22,6 +22,9 @@ export function updateMirror(documentRef: Document, element: HTMLElement, state:
   element.dataset.kills = String(hero.kills);
   element.dataset.gold = String(Math.floor(hero.gold));
   element.dataset.seed = String(state.seed);
+  // E2E identity signal: class + class-derived temperament (Traits v3).
+  element.dataset.class = hero.classId;
+  element.dataset.temperament = hero.temperament;
 
   requiredElement(documentRef, "hud-hp").textContent = `${Math.ceil(hero.hp)}/${Math.round(hero.maxHp)}`;
   requiredElement(documentRef, "hud-level").textContent = String(hero.level);

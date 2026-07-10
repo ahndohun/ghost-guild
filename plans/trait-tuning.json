@@ -1,35 +1,32 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "Temperament selection persists into a run",
+  "name": "Monk class embeds Berserker identity into a solo run",
+  "priority": "p0",
   "planSteps": [
     {
       "type": "action",
-      "description": "Navigate to https://ghost-guild.vercel.app/?seed=7&fast=1"
+      "description": "Navigate to https://ghost-guild.vercel.app/"
     },
     {
       "type": "action",
-      "description": "Click the temperament card with data-testid temperament-hoarder"
+      "description": "Press START"
+    },
+    {
+      "type": "action",
+      "description": "Select the Monk class"
+    },
+    {
+      "type": "action",
+      "description": "Deploy the solo gladiator"
     },
     {
       "type": "assertion",
-      "description": "The hoarder temperament card shows a selected state (aria-pressed true)"
-    },
-    {
-      "type": "action",
-      "description": "Click the button with data-testid deploy-solo"
-    },
-    {
-      "type": "action",
-      "description": "Wait until the element #screen-results is visible"
-    },
-    {
-      "type": "action",
-      "description": "Click the button with data-testid back-to-guild"
+      "description": "The solo run becomes active"
     },
     {
       "type": "assertion",
-      "description": "The temperament card with data-testid temperament-hoarder still shows aria-pressed true (selection persisted)"
+      "description": "The game-state mirror reports class monk and temperament berserker"
     }
   ]
 }

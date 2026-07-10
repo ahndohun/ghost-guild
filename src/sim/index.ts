@@ -13,6 +13,7 @@ export {
   isTemperamentId,
   mapTraitsToTemperament,
   temperamentDefinitions,
+  temperamentForClass,
   temperamentIds,
   traitsForTemperament,
 } from "./temperament";

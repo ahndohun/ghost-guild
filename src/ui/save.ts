@@ -1,20 +1,48 @@
 import {
   heroClassIds,
   isPerkId,
-  isTemperamentId,
-  mapTraitsToTemperament,
+  perkCosts,
+  perkDefinitions,
   sanitizePerks,
-  temperamentIds,
 } from "../sim";
-import type { HeroClassId, PerkId, PermStats, TemperamentId, TraitProfile } from "../sim";
+import type { HeroClassId, PerkId, PerkTier, PermStats } from "../sim";
 
 const saveKey = "ghost-guild-save-v1";
+
+type LegacyPerkMigration = {
+  readonly classId: HeroClassId;
+  readonly perkId: PerkId;
+};
+
+/**
+ * Preserve v2 investments only when the node still has the same tier and
+ * recognizable effect in the class that now owns that temperament. Nodes
+ * whose effect or tier changed are intentionally refunded instead.
+ */
+const legacyPerkMigrations: Readonly<Record<string, LegacyPerkMigration>> = {
+  berserkerBloodThirst: { classId: "monk", perkId: "monkBloodThirst" },
+  berserkerFrenzy: { classId: "monk", perkId: "monkFrenzy" },
+  berserkerSlaughterer: { classId: "monk", perkId: "monkSlaughterer" },
+  berserkerUndyingRage: { classId: "monk", perkId: "monkUndyingRage" },
+  hoarderDeepPockets: { classId: "gambler", perkId: "gamblerDeepPockets" },
+  hoarderSpoilsBeforeBlood: { classId: "gambler", perkId: "gamblerSpoilsBeforeBlood" },
+  hoarderTributeCart: { classId: "gambler", perkId: "gamblerTributeCart" },
+  duelistEdgeStudy: { classId: "mage", perkId: "mageEdgeStudy" },
+  duelistMeasuredSteps: { classId: "mage", perkId: "mageMeasuredSteps" },
+  duelistSingleEdge: { classId: "mage", perkId: "mageSingleEdge" },
+  duelistPerfectDistance: { classId: "mage", perkId: "magePerfectDistance" },
+  duelistExecutionForm: { classId: "mage", perkId: "mageExecutionForm" },
+  duelistMastersChoice: { classId: "mage", perkId: "mageMastersChoice" },
+  survivorWideEyes: { classId: "priest", perkId: "priestWideEyes" },
+  survivorQuickRetreat: { classId: "priest", perkId: "priestQuickRetreat" },
+  survivorLastLine: { classId: "priest", perkId: "priestLastLine" },
+  survivorOutlast: { classId: "priest", perkId: "priestOutlast" },
+};
 
 export type GuildSave = {
   gold: number;
   classId: HeroClassId;
-  temperament: TemperamentId;
-  perksByTemperament: Record<TemperamentId, readonly PerkId[]>;
+  perksByClass: Record<HeroClassId, readonly PerkId[]>;
   autorun: boolean;
   soundMuted?: boolean;
   nextSeed: number;
@@ -55,8 +83,7 @@ export function defaultSave(): GuildSave {
   return {
     gold: 0,
     classId: "knight",
-    temperament: "berserker",
-    perksByTemperament: emptyPerksByTemperament(),
+    perksByClass: emptyPerksByClass(),
     autorun: false,
     soundMuted: false,
     nextSeed: 1,
@@ -93,8 +120,21 @@ export function loadSave(storage: Storage): GuildSave {
   }
 }
 
+/** Canonical v3 persist: perksByClass only — no temperament / perksByTemperament. */
 export function storeSave(storage: Storage, save: GuildSave): void {
-  storage.setItem(saveKey, JSON.stringify(save));
+  const canonical: GuildSave = {
+    gold: save.gold,
+    classId: save.classId,
+    perksByClass: save.perksByClass,
+    autorun: save.autorun,
+    nextSeed: save.nextSeed,
+    playerName: save.playerName,
+    permStats: save.permStats,
+    unlockedClasses: allClassesUnlocked(),
+    ...(save.soundMuted === true ? { soundMuted: true } : {}),
+    ...(save.bestSurvivalSeconds === undefined ? {} : { bestSurvivalSeconds: save.bestSurvivalSeconds }),
+  };
+  storage.setItem(saveKey, JSON.stringify(canonical));
 }
 
 function parseSave(value: unknown): GuildSave {
@@ -106,15 +146,17 @@ function parseSave(value: unknown): GuildSave {
   // Board 2026-07-10: class unlock gating removed — always keep classId, force all classes unlocked.
   const classId = parseClassId(value["classId"], fallback.classId);
   const unlockedClasses = allClassesUnlocked();
-  const temperament = parseTemperament(value["temperament"], value["traits"], fallback.temperament);
-
   const bestSurvivalSeconds = parseBestSurvivalSeconds(value["bestSurvivalSeconds"]);
 
+  // Traits v3: ignore legacy temperament / traits for identity.
+  // Prefer already-canonical perksByClass; otherwise migrate perksByTemperament with refunds.
+  const migrated = migratePerks(value, classId);
+  const gold = parseNonNegativeNumber(value["gold"], fallback.gold) + migrated.refundGold;
+
   return {
-    gold: parseNonNegativeNumber(value["gold"], fallback.gold),
+    gold,
     classId,
-    temperament,
-    perksByTemperament: parsePerksByTemperament(value["perksByTemperament"], fallback.perksByTemperament),
+    perksByClass: migrated.perksByClass,
     autorun: typeof value["autorun"] === "boolean" ? value["autorun"] : fallback.autorun,
     soundMuted: value["soundMuted"] === true,
     nextSeed: Math.max(1, Math.floor(parseNonNegativeNumber(value["nextSeed"], fallback.nextSeed))),
@@ -125,6 +167,111 @@ function parseSave(value: unknown): GuildSave {
   };
 }
 
+/**
+ * Canonical path: parse perksByClass.
+ * Legacy path: map each legacy bag's perk IDs onto class trees (valid-in-order only);
+ * refund tier costs 150/400/900 for every unlocked node that cannot map.
+ */
+function migratePerks(
+  value: Record<string, unknown>,
+  _classId: HeroClassId,
+): { perksByClass: Record<HeroClassId, readonly PerkId[]>; refundGold: number } {
+  if (isRecord(value["perksByClass"])) {
+    return {
+      perksByClass: parsePerksByClass(value["perksByClass"]),
+      refundGold: 0,
+    };
+  }
+
+  const legacyBags = isRecord(value["perksByTemperament"]) ? value["perksByTemperament"] : undefined;
+  if (legacyBags === undefined) {
+    return { perksByClass: emptyPerksByClass(), refundGold: 0 };
+  }
+
+  // Preserve unlock order per bag; unknown strings still count for refund when they cannot map.
+  const legacyEntries: {
+    readonly rawId: string;
+    readonly tier: PerkTier;
+    readonly migration: LegacyPerkMigration | undefined;
+  }[] = [];
+  for (const bag of Object.values(legacyBags)) {
+    if (!Array.isArray(bag)) {
+      continue;
+    }
+    let orderIndex = 0;
+    for (const entry of bag) {
+      if (typeof entry !== "string" || entry.length === 0) {
+        continue;
+      }
+      const tier = tierForLegacyPerk(entry, orderIndex);
+      legacyEntries.push({ rawId: entry, tier, migration: migrationForLegacyPerk(entry) });
+      orderIndex += 1;
+    }
+  }
+
+  const perksByClass = emptyPerksByClass();
+  const mappedByClass: Record<HeroClassId, PerkId[]> = {
+    knight: [],
+    mage: [],
+    priest: [],
+    monk: [],
+    gambler: [],
+  };
+  for (const entry of legacyEntries) {
+    if (entry.migration !== undefined) {
+      mappedByClass[entry.migration.classId].push(entry.migration.perkId);
+    }
+  }
+
+  const claimed = new Set<PerkId>();
+  for (const heroClass of heroClassIds) {
+    const mapped = sanitizePerks(heroClass, mappedByClass[heroClass]);
+    perksByClass[heroClass] = mapped;
+    for (const perkId of mapped) {
+      claimed.add(perkId);
+    }
+  }
+
+  let refundGold = 0;
+  for (const entry of legacyEntries) {
+    if (entry.migration !== undefined && claimed.has(entry.migration.perkId)) {
+      continue;
+    }
+    refundGold += perkCosts[entry.tier];
+  }
+
+  return { perksByClass, refundGold };
+}
+
+function migrationForLegacyPerk(perkId: string): LegacyPerkMigration | undefined {
+  if (isPerkId(perkId)) {
+    for (const classId of heroClassIds) {
+      if (perkDefinitions[classId].some((perk) => perk.id === perkId)) {
+        return { classId, perkId };
+      }
+    }
+  }
+  return legacyPerkMigrations[perkId];
+}
+
+function tierForLegacyPerk(perkId: string, orderIndex: number): PerkTier {
+  if (isPerkId(perkId)) {
+    for (const heroClass of heroClassIds) {
+      const definition = perkDefinitions[heroClass].find((perk) => perk.id === perkId);
+      if (definition !== undefined) {
+        return definition.tier;
+      }
+    }
+  }
+  if (orderIndex <= 0) {
+    return 1;
+  }
+  if (orderIndex === 1) {
+    return 2;
+  }
+  return 3;
+}
+
 /** Absent or non-number → undefined (legacy saves stay valid). */
 function parseBestSurvivalSeconds(value: unknown): number | undefined {
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
@@ -133,61 +280,30 @@ function parseBestSurvivalSeconds(value: unknown): number | undefined {
   return Math.floor(value);
 }
 
-function emptyPerksByTemperament(): Record<TemperamentId, readonly PerkId[]> {
+function emptyPerksByClass(): Record<HeroClassId, readonly PerkId[]> {
   return {
-    berserker: [],
-    hoarder: [],
-    duelist: [],
-    survivor: [],
+    knight: [],
+    mage: [],
+    priest: [],
+    monk: [],
+    gambler: [],
   };
 }
 
-function parseTemperament(
-  value: unknown,
-  legacyTraitsValue: unknown,
-  fallback: TemperamentId,
-): TemperamentId {
-  if (isTemperamentId(value)) {
-    return value;
+function parsePerksByClass(value: Record<string, unknown>): Record<HeroClassId, readonly PerkId[]> {
+  const perksByClass = emptyPerksByClass();
+  for (const heroClass of heroClassIds) {
+    perksByClass[heroClass] = parsePerks(heroClass, value[heroClass]);
   }
-
-  const traits = parseTraits(legacyTraitsValue);
-  return traits === undefined ? fallback : mapTraitsToTemperament(traits);
+  return perksByClass;
 }
 
-function parseTraits(value: unknown): TraitProfile | undefined {
-  if (!isRecord(value)) {
-    return undefined;
-  }
-
-  return {
-    bravery: parsePercent(value["bravery"], 50),
-    greed: parsePercent(value["greed"], 50),
-    focus: parsePercent(value["focus"], 50),
-  };
-}
-
-function parsePerksByTemperament(
-  value: unknown,
-  fallback: Record<TemperamentId, readonly PerkId[]>,
-): Record<TemperamentId, readonly PerkId[]> {
-  if (!isRecord(value)) {
-    return fallback;
-  }
-
-  const perksByTemperament = emptyPerksByTemperament();
-  for (const temperament of temperamentIds) {
-    perksByTemperament[temperament] = parsePerks(temperament, value[temperament]);
-  }
-  return perksByTemperament;
-}
-
-function parsePerks(temperament: TemperamentId, value: unknown): readonly PerkId[] {
+function parsePerks(classId: HeroClassId, value: unknown): readonly PerkId[] {
   if (!Array.isArray(value)) {
     return [];
   }
 
-  return sanitizePerks(temperament, value.filter(isPerkId));
+  return sanitizePerks(classId, value.filter(isPerkId));
 }
 
 function parsePermStats(value: unknown, fallback: PermStats): PermStats {
@@ -224,10 +340,6 @@ function parseClassId(value: unknown, fallback: HeroClassId): HeroClassId {
   return fallback;
 }
 
-function parsePercent(value: unknown, fallback: number): number {
-  return clampPercent(parseNonNegativeNumber(value, fallback));
-}
-
 function parseOwnedCount(value: unknown, fallback: number): number {
   return Math.max(0, Math.floor(parseNonNegativeNumber(value, fallback)));
 }
@@ -241,10 +353,6 @@ function parsePlayerName(value: unknown, fallback: string): string {
     return fallback;
   }
   return normalizePlayerNameInput(value, fallback);
-}
-
-function clampPercent(value: number): number {
-  return Math.max(0, Math.min(100, Math.round(value)));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

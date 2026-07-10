@@ -18,37 +18,50 @@ export type DropKind = "xp" | "gold";
 
 export type OptionFlavor = "damage" | "economy" | "defense" | "speed" | "focus";
 
-export type TemperamentId = "berserker" | "hoarder" | "duelist" | "survivor";
+/** v3: vanguard is the knight baseline; other four retain v2 combat logic. */
+export type TemperamentId = "vanguard" | "berserker" | "hoarder" | "duelist" | "survivor";
 
 export type PerkTier = 1 | 2 | 3;
 
 export type PerkChoice = "a" | "b";
 
+/** Stable explicit union — class specialization trees (Traits v3). */
 export type PerkId =
-  | "berserkerBloodThirst"
-  | "berserkerCombatInstinct"
-  | "berserkerFrenzy"
-  | "berserkerIronSkin"
-  | "berserkerSlaughterer"
-  | "berserkerUndyingRage"
-  | "hoarderDeepPockets"
-  | "hoarderLongFingers"
-  | "hoarderPrizeScent"
-  | "hoarderSpoilsBeforeBlood"
-  | "hoarderTributeCart"
-  | "hoarderNoCoinLeft"
-  | "duelistEdgeStudy"
-  | "duelistMeasuredSteps"
-  | "duelistSingleEdge"
-  | "duelistPerfectDistance"
-  | "duelistExecutionForm"
-  | "duelistMastersChoice"
-  | "survivorWideEyes"
-  | "survivorQuickRetreat"
-  | "survivorLastLine"
-  | "survivorSecondWind"
-  | "survivorOutlast"
-  | "survivorEnduringPace";
+  // Knight
+  | "knightBulwark"
+  | "knightChargeInstinct"
+  | "knightFrenzy"
+  | "knightShieldStance"
+  | "knightSlaughterer"
+  | "knightHoldTheLine"
+  // Mage
+  | "mageEdgeStudy"
+  | "mageMeasuredSteps"
+  | "mageSingleEdge"
+  | "magePerfectDistance"
+  | "mageExecutionForm"
+  | "mageMastersChoice"
+  // Priest
+  | "priestWideEyes"
+  | "priestQuickRetreat"
+  | "priestLastLine"
+  | "priestFortifyRetreat"
+  | "priestOutlast"
+  | "priestSanctuary"
+  // Monk
+  | "monkBloodThirst"
+  | "monkClosingIn"
+  | "monkFrenzy"
+  | "monkDesperateCharge"
+  | "monkSlaughterer"
+  | "monkUndyingRage"
+  // Gambler
+  | "gamblerDeepPockets"
+  | "gamblerPrizeScent"
+  | "gamblerSpoilsBeforeBlood"
+  | "gamblerLongFingers"
+  | "gamblerTributeCart"
+  | "gamblerTreasureRadar";
 
 export type Vec2 = {
   x: number;
@@ -72,6 +85,7 @@ export type PermStats = {
 export type HeroLoadout = {
   readonly name?: string;
   readonly classId: HeroClassId;
+  /** Public for structural/API stability; createMatch overrides via temperamentForClass. */
   readonly temperament: TemperamentId;
   readonly perks: readonly PerkId[];
   readonly permStats?: PermStats;

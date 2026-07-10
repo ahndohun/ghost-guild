@@ -1,8 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { createMatch, temperamentForClass } from "../src/sim";
 import { createArenaRunPlan } from "../src/ui/arenaRun";
+import {
+  parseArenaMatchResponse,
+  toHeroLoadout,
+  toLoadoutRequestBody,
+  toServerLoadout,
+} from "../src/ui/arenaWire";
+import { currentLoadout } from "../src/ui/meta";
 import { applyBestSurvival, formatBestSurvivalLine, loadSave, normalizePlayerNameInput } from "../src/ui/save";
 import type { GuildSave } from "../src/ui/save";
 import { screenMarkup } from "../src/ui/markup";
+import { updateMirror } from "../src/ui/runHud";
 
 const saveKey = "ghost-guild-save-v1";
 
@@ -35,7 +44,7 @@ class MemoryStorage implements Storage {
 }
 
 describe("Ghost Guild UI data boundaries", () => {
-  it("migrates old guild saves with management meta defaults", () => {
+  it("migrates old guild saves without temperament identity and with empty class trees", () => {
     const storage = new MemoryStorage();
     storage.setItem(
       saveKey,
@@ -59,12 +68,149 @@ describe("Ghost Guild UI data boundaries", () => {
       monk: true,
       gambler: true,
     });
-    expect(save.temperament).toBe("duelist");
-    expect(save.perksByTemperament).toEqual({ berserker: [], hoarder: [], duelist: [], survivor: [] });
+    expect(save.perksByClass).toEqual({
+      knight: [],
+      mage: [],
+      priest: [],
+      monk: [],
+      gambler: [],
+    });
+    expect(save).not.toHaveProperty("temperament");
+    expect(save).not.toHaveProperty("perksByTemperament");
     expect(save.playerName).toMatch(/^Gladiator-[0-9]{4}$/);
     expect(stored).not.toBeNull();
-    expect(stored).toContain("\"temperament\":\"duelist\"");
+    expect(stored).not.toContain("\"temperament\"");
     expect(stored).not.toContain("\"traits\"");
+    expect(stored).not.toContain("perksByTemperament");
+    expect(stored).toContain("perksByClass");
+  });
+
+  it("maps recognizable legacy nodes and refunds only unmappable tier costs", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      saveKey,
+      JSON.stringify({
+        gold: 100,
+        classId: "knight",
+        temperament: "berserker",
+        perksByTemperament: {
+          berserker: ["berserkerBloodThirst", "berserkerIronSkin", "berserkerSlaughterer"],
+          hoarder: ["hoarderDeepPockets", "hoarderSpoilsBeforeBlood", "hoarderNoCoinLeft"],
+          duelist: ["duelistEdgeStudy", "duelistSingleEdge", "duelistExecutionForm"],
+          survivor: ["survivorWideEyes", "survivorSecondWind", "survivorOutlast"],
+        },
+        autorun: false,
+        nextSeed: 2,
+        playerName: "Refund Hero",
+        permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        unlockedClasses: { knight: true, mage: true, priest: true, monk: true, gambler: true },
+      }),
+    );
+
+    const save = loadSave(storage);
+    // Monk T2 and Priest T2 are unmappable; each also invalidates its mapped T3.
+    // Gambler T3 has no corresponding v3 node. Refund = (400+900) + 900 + (400+900).
+    expect(save.gold).toBe(100 + 3_500);
+    expect(save.perksByClass.knight).toEqual([]);
+    expect(save.perksByClass.monk).toEqual(["monkBloodThirst"]);
+    expect(save.perksByClass.gambler).toEqual(["gamblerDeepPockets", "gamblerSpoilsBeforeBlood"]);
+    expect(save.perksByClass.mage).toEqual(["mageEdgeStudy", "mageSingleEdge", "mageExecutionForm"]);
+    expect(save.perksByClass.priest).toEqual(["priestWideEyes"]);
+    const stored = storage.getItem(saveKey) ?? "";
+    expect(stored).not.toContain("perksByTemperament");
+    expect(stored).not.toContain("\"temperament\"");
+  });
+
+  it("maps legacy perk IDs that still belong to a class tree and preserves per-class progress", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      saveKey,
+      JSON.stringify({
+        gold: 50,
+        classId: "mage",
+        temperament: "duelist",
+        perksByTemperament: {
+          // New class-tree IDs placed in a legacy bag — should map onto their trees.
+          berserker: ["monkBloodThirst", "monkFrenzy"],
+          duelist: ["mageEdgeStudy"],
+          hoarder: ["gamblerDeepPockets"],
+          survivor: [],
+        },
+        autorun: false,
+        nextSeed: 3,
+        playerName: "Mapped Mage",
+        permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        unlockedClasses: { knight: true, mage: true, priest: true, monk: true, gambler: true },
+      }),
+    );
+
+    const save = loadSave(storage);
+    expect(save.perksByClass.mage).toEqual(["mageEdgeStudy"]);
+    expect(save.perksByClass.monk).toEqual(["monkBloodThirst", "monkFrenzy"]);
+    expect(save.perksByClass.gambler).toEqual(["gamblerDeepPockets"]);
+    expect(save.perksByClass.knight).toEqual([]);
+    expect(save.perksByClass.priest).toEqual([]);
+    // All mapped → no refund
+    expect(save.gold).toBe(50);
+  });
+
+  it("retains perksByClass when already canonical and ignores legacy temperament field", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      saveKey,
+      JSON.stringify({
+        gold: 200,
+        classId: "monk",
+        temperament: "hoarder",
+        perksByClass: {
+          knight: [],
+          mage: [],
+          priest: [],
+          monk: ["monkBloodThirst"],
+          gambler: ["gamblerDeepPockets", "gamblerSpoilsBeforeBlood"],
+        },
+        autorun: false,
+        nextSeed: 4,
+        playerName: "Canon Monk",
+        permStats: { atk: 1, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        unlockedClasses: { knight: true, mage: true, priest: true, monk: true, gambler: true },
+      }),
+    );
+
+    const save = loadSave(storage);
+    expect(save.classId).toBe("monk");
+    expect(save.gold).toBe(200);
+    expect(save.perksByClass.monk).toEqual(["monkBloodThirst"]);
+    expect(save.perksByClass.gambler).toEqual(["gamblerDeepPockets", "gamblerSpoilsBeforeBlood"]);
+    expect(currentLoadout(save)).toEqual({
+      name: "Canon Monk",
+      classId: "monk",
+      temperament: "berserker",
+      perks: ["monkBloodThirst"],
+      permStats: { atk: 1, hp: 0, spd: 0, luck: 0, lvl: 0 },
+    });
+  });
+
+  it("currentLoadout auto-fills temperament via temperamentForClass and selected class perks", () => {
+    const save = testSave({ classId: "monk", perksByClass: {
+      knight: ["knightBulwark"],
+      mage: [],
+      priest: [],
+      monk: ["monkBloodThirst", "monkFrenzy"],
+      gambler: [],
+    }});
+    expect(temperamentForClass("monk")).toBe("berserker");
+    expect(currentLoadout(save).temperament).toBe("berserker");
+    expect(currentLoadout(save).perks).toEqual(["monkBloodThirst", "monkFrenzy"]);
+
+    const mage = { ...save, classId: "mage" as const };
+    expect(currentLoadout(mage).temperament).toBe("duelist");
+    expect(currentLoadout(mage).perks).toEqual([]);
+    expect(mage.perksByClass.monk).toEqual(["monkBloodThirst", "monkFrenzy"]);
+
+    const knight = testSave({ classId: "knight" });
+    expect(currentLoadout(knight).temperament).toBe("vanguard");
+    expect(currentLoadout(knight).perks).toEqual([]);
   });
 
   it("normalizes typed gladiator names without erasing the current name on empty input", () => {
@@ -178,17 +324,76 @@ describe("Ghost Guild UI data boundaries", () => {
     );
   });
 
-  it("renders the player-name input and onboarding line on the guild screen", () => {
+  it("renders class specialization surface without temperament cards, keeps perk testids", () => {
     const markup = screenMarkup();
 
     expect(markup).toContain("data-testid=\"player-name\"");
     expect(markup).toContain("maxlength=\"20\"");
     expect(markup).toContain("Your gladiator fights on its own");
+    expect(markup).toContain("Class Specialization");
     expect(markup).toContain("data-testid=\"best-survival\"");
     expect(markup).toContain("data-testid=\"best-survival-guild\"");
+
+    // Temperament selection removed (Traits v3)
+    expect(markup).not.toContain("data-testid=\"temperament-berserker\"");
+    expect(markup).not.toContain("data-testid=\"temperament-hoarder\"");
+    expect(markup).not.toContain("data-testid=\"temperament-duelist\"");
+    expect(markup).not.toContain("data-testid=\"temperament-survivor\"");
+    expect(markup).not.toContain("data-testid=\"temperament-vanguard\"");
+    expect(markup).not.toContain("temperament-card");
+    expect(markup).not.toContain("temperament-grid");
+
+    // Perk testids retained
+    for (const tier of [1, 2, 3]) {
+      for (const choice of ["a", "b"]) {
+        expect(markup).toContain(`data-testid="perk-t${tier}-${choice}"`);
+      }
+    }
+
+    // Nameplate shows class-derived identity (default knight / vanguard)
+    expect(markup).toContain("Knight · Vanguard");
+    expect(markup).toContain("data-class");
+    expect(markup).toContain("data-temperament");
   });
 
-  it("builds an offline arena plan with bundled bots when the API is unreachable", async () => {
+  it("writes data-class and data-temperament on #game-state for E2E identity asserts", () => {
+    const hudNodes: Record<string, { textContent: string; style: { height: string; width: string } }> = {
+      "hud-hp": { textContent: "", style: { height: "", width: "" } },
+      "hud-level": { textContent: "", style: { height: "", width: "" } },
+      "hud-time": { textContent: "", style: { height: "", width: "" } },
+      "hud-hp-fill": { textContent: "", style: { height: "", width: "" } },
+      "hud-xp-fill": { textContent: "", style: { height: "", width: "" } },
+    };
+    const documentRef = {
+      getElementById: (id: string) => hudNodes[id] ?? null,
+    } as unknown as Document;
+    const element = { dataset: {} as Record<string, string> } as unknown as HTMLElement;
+
+    const match = createMatch({
+      seed: 42,
+      heroes: [
+        {
+          name: "Test",
+          classId: "monk",
+          temperament: "berserker",
+          perks: [],
+          permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        },
+      ],
+    });
+    // Step a few ticks so mirror has a non-zero time signal while keeping seed/identity.
+    for (let i = 0; i < 30; i += 1) {
+      match.step();
+    }
+    updateMirror(documentRef, element, match.state);
+
+    expect(element.dataset.class).toBe("monk");
+    expect(element.dataset.temperament).toBe("berserker");
+    expect(element.dataset.seed).toBe("42");
+    expect(element.dataset.time).toBe("1");
+  });
+
+  it("builds an offline arena plan with class-derived bot temperaments", async () => {
     const originalFetch = globalThis.fetch;
     globalThis.fetch = async () => {
       throw new TypeError("offline");
@@ -206,28 +411,74 @@ describe("Ghost Guild UI data boundaries", () => {
         "Vex the Hoarder",
         "Sister Calm",
       ]);
+      // knight→vanguard, knight→vanguard, gambler→hoarder, priest→survivor
       expect(plan.heroes.map((hero) => hero.temperament)).toEqual([
-        "berserker",
-        "berserker",
+        "vanguard",
+        "vanguard",
         "hoarder",
         "survivor",
+      ]);
+      expect(plan.heroes.map((hero) => hero.classId)).toEqual([
+        "knight",
+        "knight",
+        "gambler",
+        "priest",
       ]);
     } finally {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it("derives server loadout identity from class and accepts legacy ghost shapes", () => {
+    const fromHero = toServerLoadout({
+      name: "Ghost",
+      classId: "monk",
+      temperament: "hoarder", // ignored for identity
+      perks: ["monkBloodThirst"],
+      permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+    });
+    expect(fromHero.temperament).toBe("berserker");
+    expect(fromHero.class).toBe("monk");
+
+    const body = toLoadoutRequestBody(fromHero) as {
+      class: string;
+      temperament: string;
+      traits: { bravery: number };
+      perks: { tier1: string | null };
+    };
+    expect(body.temperament).toBe("berserker");
+    expect(body.class).toBe("monk");
+    expect(body.traits.bravery).toBe(90);
+    expect(body.perks.tier1).toBe("a");
+
+    // Legacy ghost: traits only, no temperament
+    const parsed = parseArenaMatchResponse({
+      seed: 7,
+      opponents: [
+        {
+          name: "Old Ghost",
+          class: "mage",
+          traits: { bravery: 90, greed: 10, focus: 10 },
+          perks: { tier1: "a", tier2: null, tier3: null },
+          permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
+        },
+      ],
+    });
+    expect(parsed?.opponents[0]?.temperament).toBe("duelist");
+    expect(toHeroLoadout(parsed!.opponents[0]!).temperament).toBe("duelist");
+  });
 });
 
-function testSave(): GuildSave {
+function testSave(partial: Partial<GuildSave> = {}): GuildSave {
   return {
     gold: 0,
     classId: "knight",
-    temperament: "berserker",
-    perksByTemperament: { berserker: [], hoarder: [], duelist: [], survivor: [] },
+    perksByClass: { knight: [], mage: [], priest: [], monk: [], gambler: [] },
     autorun: false,
     nextSeed: 1,
     playerName: "Gladiator-0001",
     permStats: { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
     unlockedClasses: { knight: true, mage: true, priest: true, monk: true, gambler: true },
+    ...partial,
   };
 }

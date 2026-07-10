@@ -37,9 +37,8 @@ function heroResult(hero: HeroState, finalTick: number): HeroResult {
   const survived = hero.alive && finalTick >= MAX_TICKS;
   const survivedSeconds = survived ? RUN_SECONDS : Math.floor(lifeTick / TICKS_PER_SECOND);
   const gold = Math.floor(hero.gold);
-  const survivalMultiplier = hero.temperament === "survivor"
-    ? hasPerk(hero.perks, "survivorOutlast") ? 1.6 : 1.4
-    : 1;
+  const survivalMultiplier =
+    hero.temperament === "survivor" ? (hasPerk(hero.perks, "priestOutlast") ? 1.6 : 1.4) : 1;
   const score = Math.floor(hero.kills * 10 + gold + survivedSeconds * 5 * survivalMultiplier + (survived ? 500 : 0));
 
   return {

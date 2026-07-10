@@ -29,11 +29,12 @@ type VercelResponse = {
   json: (body: unknown) => void;
 };
 
-const CLASSES = new Set(["knight", "mage", "priest"]);
-const TEMPERAMENTS = ["berserker", "hoarder", "duelist", "survivor"] as const;
+const CLASSES = new Set(["knight", "mage", "priest", "monk", "gambler"]);
+const TEMPERAMENTS = ["berserker", "hoarder", "duelist", "survivor", "vanguard"] as const;
 const MAX_BODY_BYTES = 2048;
 
 type Temperament = (typeof TEMPERAMENTS)[number];
+type HeroClass = "knight" | "mage" | "priest" | "monk" | "gambler";
 
 function bodyByteLength(req: VercelRequest): number {
   const header = req.headers["content-length"];
@@ -62,7 +63,7 @@ function parseTemperament(value: unknown): Temperament | undefined {
 function parseResult(body: unknown):
   | {
       name: string;
-      class: "knight" | "mage" | "priest";
+      class: HeroClass;
       score: number;
       kills: number;
       survived: boolean;
@@ -82,12 +83,13 @@ function parseResult(body: unknown):
   if (!isResultScoreSane(scoreFields)) return null;
   if (typeof body.survived !== "boolean") return null;
 
+  // Accept legacy temperament field; vanguard included for Traits v3 class-derived identity.
   const temperament = body.temperament === undefined ? undefined : parseTemperament(body.temperament);
   if (body.temperament !== undefined && temperament === undefined) return null;
 
   return {
     name,
-    class: heroClass as "knight" | "mage" | "priest",
+    class: heroClass as HeroClass,
     score: scoreFields.score,
     kills: scoreFields.kills,
     survived: body.survived,

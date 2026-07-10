@@ -1,6 +1,6 @@
+import { heroClassIds } from "./data";
 import { assertNever } from "./math";
-import { temperamentIds } from "./temperament";
-import type { PerkChoice, PerkId, PerkTier, TemperamentId } from "./types";
+import type { HeroClassId, PerkChoice, PerkId, PerkTier } from "./types";
 
 export type PerkDefinition = {
   readonly id: PerkId;
@@ -8,6 +8,8 @@ export type PerkDefinition = {
   readonly choice: PerkChoice;
   readonly name: string;
   readonly effect: string;
+  /** True when the node changes AI / decision / movement rules, not only numeric stats. */
+  readonly changesBehavior: boolean;
 };
 
 export const perkCosts: Record<PerkTier, number> = {
@@ -16,193 +18,271 @@ export const perkCosts: Record<PerkTier, number> = {
   3: 900,
 };
 
-export const perkDefinitions: Record<TemperamentId, readonly PerkDefinition[]> = {
-  berserker: [
+/**
+ * Traits v3: specialization trees keyed by class (not temperament).
+ * Each tier has at least one changesBehavior node; costs stay 150/400/900.
+ */
+export const perkDefinitions: Record<HeroClassId, readonly PerkDefinition[]> = {
+  knight: [
     {
-      id: "berserkerBloodThirst",
+      id: "knightBulwark",
       tier: 1,
       choice: "a",
-      name: "Blood Thirst",
-      effect: "Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.",
+      name: "Bulwark",
+      effect: "Contact damage taken -12.5%.",
+      changesBehavior: false,
     },
     {
-      id: "berserkerCombatInstinct",
+      id: "knightChargeInstinct",
       tier: 1,
       choice: "b",
-      name: "Combat Instinct",
-      effect: "Weapon cooldowns -5%.",
+      name: "Charge Instinct",
+      effect: "Ignore loot while an enemy is within 200px (berserker combat focus graft).",
+      changesBehavior: true,
     },
     {
-      id: "berserkerFrenzy",
+      id: "knightFrenzy",
       tier: 2,
       choice: "a",
       name: "Frenzy",
       effect: "Damage +25% below 35% HP.",
+      changesBehavior: false,
     },
     {
-      id: "berserkerIronSkin",
+      id: "knightShieldStance",
       tier: 2,
       choice: "b",
-      name: "Iron Skin",
-      effect: "Contact damage taken -12.5%.",
+      name: "Shield Stance",
+      effect: "Begin low-HP flee corrections at 50% HP instead of 35%.",
+      changesBehavior: true,
     },
     {
-      id: "berserkerSlaughterer",
+      id: "knightSlaughterer",
       tier: 3,
       choice: "a",
       name: "Slaughterer",
       effect: "Elite kills reset all weapon cooldowns.",
+      changesBehavior: false,
     },
     {
-      id: "berserkerUndyingRage",
+      id: "knightHoldTheLine",
       tier: 3,
       choice: "b",
-      name: "Undying Rage",
-      effect: "Survive one lethal blow at 1 HP.",
+      name: "Hold the Line",
+      effect: "Never apply low-HP flee corrections (berserker no-retreat graft).",
+      changesBehavior: true,
     },
   ],
-  hoarder: [
+  mage: [
     {
-      id: "hoarderDeepPockets",
-      tier: 1,
-      choice: "a",
-      name: "Deep Pockets",
-      effect: "Gold pickup value +15%.",
-    },
-    {
-      id: "hoarderLongFingers",
-      tier: 1,
-      choice: "b",
-      name: "Long Fingers",
-      effect: "Magnet radius +30px.",
-    },
-    {
-      id: "hoarderPrizeScent",
-      tier: 2,
-      choice: "a",
-      name: "Prize Scent",
-      effect: "Loot attraction scan range +80px.",
-    },
-    {
-      id: "hoarderSpoilsBeforeBlood",
-      tier: 2,
-      choice: "b",
-      name: "Spoils Before Blood",
-      effect: "Loot pull is stronger below 35% HP.",
-    },
-    {
-      id: "hoarderTributeCart",
-      tier: 3,
-      choice: "a",
-      name: "Tribute Cart",
-      effect: "Elite brutes drop +10 gold.",
-    },
-    {
-      id: "hoarderNoCoinLeft",
-      tier: 3,
-      choice: "b",
-      name: "No Coin Left",
-      effect: "Magnet radius +60px while loot is nearby.",
-    },
-  ],
-  duelist: [
-    {
-      id: "duelistEdgeStudy",
+      id: "mageEdgeStudy",
       tier: 1,
       choice: "a",
       name: "Edge Study",
       effect: "Owned weapon upgrade utility increases.",
+      changesBehavior: false,
     },
     {
-      id: "duelistMeasuredSteps",
+      id: "mageMeasuredSteps",
       tier: 1,
       choice: "b",
       name: "Measured Steps",
       effect: "Kiting distance preference is sharper.",
+      changesBehavior: true,
     },
     {
-      id: "duelistSingleEdge",
+      id: "mageSingleEdge",
       tier: 2,
       choice: "a",
       name: "Single Edge",
       effect: "Highest-level weapon damage +10%.",
+      changesBehavior: false,
     },
     {
-      id: "duelistPerfectDistance",
+      id: "magePerfectDistance",
       tier: 2,
       choice: "b",
       name: "Perfect Distance",
       effect: "Kiting band tightens to 90-100% range.",
+      changesBehavior: true,
     },
     {
-      id: "duelistExecutionForm",
+      id: "mageExecutionForm",
       tier: 3,
       choice: "a",
       name: "Execution Form",
       effect: "Highest-level weapon cooldowns -12%.",
+      changesBehavior: false,
     },
     {
-      id: "duelistMastersChoice",
+      id: "mageMastersChoice",
       tier: 3,
       choice: "b",
       name: "Master's Choice",
       effect: "Owned weapon upgrades gain extra level-up weight.",
+      changesBehavior: true,
     },
   ],
-  survivor: [
+  priest: [
     {
-      id: "survivorWideEyes",
+      id: "priestWideEyes",
       tier: 1,
       choice: "a",
       name: "Wide Eyes",
       effect: "Danger detection radius gains another +0.25x.",
+      changesBehavior: true,
     },
     {
-      id: "survivorQuickRetreat",
+      id: "priestQuickRetreat",
       tier: 1,
       choice: "b",
       name: "Quick Retreat",
-      effect: "Speed +12% while fleeing.",
+      effect: "Speed +12% while fleeing (HP below 50%).",
+      changesBehavior: false,
     },
     {
-      id: "survivorLastLine",
+      id: "priestLastLine",
       tier: 2,
       choice: "a",
       name: "Last Line",
       effect: "Contact damage taken -30% while HP is below 50%.",
+      changesBehavior: false,
     },
     {
-      id: "survivorSecondWind",
+      id: "priestFortifyRetreat",
       tier: 2,
       choice: "b",
-      name: "Second Wind",
-      effect: "Max-HP passive effect +40%.",
+      name: "Fortify Retreat",
+      effect: "Ignore loot attraction while HP is below 50%.",
+      changesBehavior: true,
     },
     {
-      id: "survivorOutlast",
+      id: "priestOutlast",
       tier: 3,
       choice: "a",
       name: "Outlast",
       effect: "Survival-time score value gains another +0.2x.",
+      changesBehavior: false,
     },
     {
-      id: "survivorEnduringPace",
+      id: "priestSanctuary",
       tier: 3,
       choice: "b",
-      name: "Enduring Pace",
-      effect: "Speed passive effect +50%.",
+      name: "Sanctuary",
+      effect: "Ignore loot while any enemy is within 160px (pure survival pathing).",
+      changesBehavior: true,
+    },
+  ],
+  monk: [
+    {
+      id: "monkBloodThirst",
+      tier: 1,
+      choice: "a",
+      name: "Blood Thirst",
+      effect: "Kill healing +0.1 HP before fatigue, +0.2 HP after fatigue.",
+      changesBehavior: false,
+    },
+    {
+      id: "monkClosingIn",
+      tier: 1,
+      choice: "b",
+      name: "Closing In",
+      effect: "Enemy attraction within 240px is 1.4x stronger.",
+      changesBehavior: true,
+    },
+    {
+      id: "monkFrenzy",
+      tier: 2,
+      choice: "a",
+      name: "Frenzy",
+      effect: "Damage +25% below 35% HP.",
+      changesBehavior: false,
+    },
+    {
+      id: "monkDesperateCharge",
+      tier: 2,
+      choice: "b",
+      name: "Desperate Charge",
+      effect: "Below 35% HP, enemy attraction within 240px is doubled.",
+      changesBehavior: true,
+    },
+    {
+      id: "monkSlaughterer",
+      tier: 3,
+      choice: "a",
+      name: "Slaughterer",
+      effect: "Elite kills reset all weapon cooldowns.",
+      changesBehavior: false,
+    },
+    {
+      id: "monkUndyingRage",
+      tier: 3,
+      choice: "b",
+      name: "Undying Rage",
+      effect: "Survive one lethal blow at 1 HP.",
+      changesBehavior: true,
+    },
+  ],
+  gambler: [
+    {
+      id: "gamblerDeepPockets",
+      tier: 1,
+      choice: "a",
+      name: "Deep Pockets",
+      effect: "Gold pickup value +15%.",
+      changesBehavior: false,
+    },
+    {
+      id: "gamblerPrizeScent",
+      tier: 1,
+      choice: "b",
+      name: "Prize Scent",
+      effect: "Loot attraction scan range +80px.",
+      changesBehavior: true,
+    },
+    {
+      id: "gamblerSpoilsBeforeBlood",
+      tier: 2,
+      choice: "a",
+      name: "Spoils Before Blood",
+      effect: "Loot pull is stronger below 35% HP.",
+      changesBehavior: true,
+    },
+    {
+      id: "gamblerLongFingers",
+      tier: 2,
+      choice: "b",
+      name: "Long Fingers",
+      effect: "Magnet radius +30px.",
+      changesBehavior: false,
+    },
+    {
+      id: "gamblerTributeCart",
+      tier: 3,
+      choice: "a",
+      name: "Tribute Cart",
+      effect: "Elite brutes drop +10 gold.",
+      changesBehavior: false,
+    },
+    {
+      id: "gamblerTreasureRadar",
+      tier: 3,
+      choice: "b",
+      name: "Treasure Radar",
+      effect: "Loot attraction scan range +120px (stacks past Prize Scent).",
+      changesBehavior: true,
     },
   ],
 };
 
-export function sanitizePerks(temperament: TemperamentId, perks: readonly PerkId[]): readonly PerkId[] {
+export function sanitizePerks(classId: HeroClassId, perks: readonly PerkId[]): readonly PerkId[] {
   const sanitized: PerkId[] = [];
   let expectedTier: PerkTier = 1;
-  for (const tier of [1, 2, 3]) {
+  for (const tier of [1, 2, 3] as const) {
     if (tier !== expectedTier) {
       break;
     }
-    const selected = perkDefinitions[temperament].find((perk) => perk.tier === tier && perks.includes(perk.id));
+    const selected = perkDefinitions[classId].find((perk) => perk.tier === tier && perks.includes(perk.id));
     if (selected === undefined) {
       break;
     }
@@ -216,7 +296,7 @@ export function isPerkId(value: unknown): value is PerkId {
   if (typeof value !== "string") {
     return false;
   }
-  return temperamentIds.some((temperament) => perkDefinitions[temperament].some((perk) => perk.id === value));
+  return heroClassIds.some((classId) => perkDefinitions[classId].some((perk) => perk.id === value));
 }
 
 export function hasPerk(perks: readonly PerkId[], perkId: PerkId): boolean {

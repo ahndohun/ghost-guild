@@ -134,7 +134,7 @@ export function createLobbyStage(documentRef: Document, windowRef: Window): Lobb
   let appearance: LobbyAppearance = {
     playerName: "Gladiator",
     classId: "knight",
-    temperament: "berserker",
+    temperament: "vanguard",
     bestSurvivalSeconds: undefined,
   };
   let running = false;
@@ -364,7 +364,11 @@ export function createLobbyStage(documentRef: Document, windowRef: Window): Lobb
       drawDuelistLines(ctx, x, y, heroSizePx, elapsedMs, staticOnly);
       return;
     }
-    drawSurvivorStaticGlow(ctx, x, y, heroSizePx);
+    if (temperament === "survivor") {
+      drawSurvivorStaticGlow(ctx, x, y, heroSizePx);
+      return;
+    }
+    // vanguard (and any future neutral): no dramatic aura — class identity is the signal.
   }
 
   function drawBerserkerAura(

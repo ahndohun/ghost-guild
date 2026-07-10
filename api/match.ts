@@ -2,6 +2,7 @@ import { list } from "@vercel/blob";
 
 // Inlined (not imported) so the Vercel serverless bundle has zero cross-file
 // resolution risk. Picks up to `limit` opponents, deduped by name, excluding self.
+// Keep Traits v3 derivation in sync with src/apiRules.ts / api/loadout.ts.
 function selectUniqueByName<T extends { readonly name: string }>(
   candidates: readonly T[],
   excludeName: string,
@@ -28,6 +29,9 @@ type VercelResponse = {
   json: (body: unknown) => void;
 };
 
+type HeroClass = "knight" | "mage" | "priest" | "monk" | "gambler";
+type Temperament = "berserker" | "hoarder" | "duelist" | "survivor" | "vanguard";
+
 type Loadout = {
   name: string;
   class: string;
@@ -36,6 +40,31 @@ type Loadout = {
   perks?: { tier1: string | null; tier2: string | null; tier3: string | null };
   permStats: { atk: number; hp: number; spd: number; luck: number; lvl: number };
 };
+
+const TEMPERAMENT_PRESETS: Record<Temperament, { bravery: number; greed: number; focus: number }> = {
+  berserker: { bravery: 90, greed: 20, focus: 50 },
+  hoarder: { bravery: 35, greed: 95, focus: 45 },
+  duelist: { bravery: 60, greed: 25, focus: 95 },
+  survivor: { bravery: 20, greed: 40, focus: 60 },
+  vanguard: { bravery: 60, greed: 40, focus: 60 },
+};
+
+function temperamentForClass(classId: string): Temperament | undefined {
+  switch (classId) {
+    case "knight":
+      return "vanguard";
+    case "mage":
+      return "duelist";
+    case "priest":
+      return "survivor";
+    case "monk":
+      return "berserker";
+    case "gambler":
+      return "hoarder";
+    default:
+      return undefined;
+  }
+}
 
 function queryValue(query: VercelRequest["query"], key: string): string | undefined {
   const value = query?.[key];
@@ -63,6 +92,34 @@ function isLoadout(value: unknown): value is Loadout {
   }
 
   return true;
+}
+
+/**
+ * Old ghosts stay usable. Always provide class-derived temperament when class is known.
+ * Preserves stored perks shape; client maps a/b onto the class specialization tree.
+ */
+function canonicalizeGhost(loadout: Loadout): Loadout {
+  const derived = temperamentForClass(loadout.class);
+  if (derived === undefined) {
+    // Unknown class string — pass through stored temperament if any.
+    return {
+      name: loadout.name,
+      class: loadout.class,
+      traits: loadout.traits,
+      ...(loadout.temperament !== undefined ? { temperament: loadout.temperament } : {}),
+      ...(loadout.perks !== undefined ? { perks: loadout.perks } : {}),
+      permStats: loadout.permStats,
+    };
+  }
+
+  return {
+    name: loadout.name,
+    class: loadout.class,
+    traits: { ...TEMPERAMENT_PRESETS[derived] },
+    temperament: derived,
+    ...(loadout.perks !== undefined ? { perks: loadout.perks } : {}),
+    permStats: loadout.permStats,
+  };
 }
 
 function shuffleInPlace<T>(items: T[]): void {
@@ -104,13 +161,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         if (!response.ok) continue;
         const data: unknown = await response.json();
         if (!isLoadout(data)) continue;
-        candidates.push(data);
+        candidates.push(canonicalizeGhost(data));
       } catch {
         // skip unreadable blobs
       }
     }
 
-    // Pass through temperament/perks when present on stored loadouts
     const opponents = selectUniqueByName(candidates, exclude, 3).map((c) => ({
       name: c.name,
       class: c.class,

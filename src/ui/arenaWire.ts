@@ -5,6 +5,8 @@ import {
   mapTraitsToTemperament,
   perkDefinitions,
   sanitizePerks,
+  temperamentForClass,
+  traitsForTemperament,
 } from "../sim";
 import type {
   HeroClassId,
@@ -51,31 +53,36 @@ const serverPerkSlots: readonly { readonly tier: PerkTier; readonly key: keyof S
 ];
 
 export function toServerLoadout(loadout: HeroLoadout): ServerLoadout {
+  const classId = loadout.classId;
   return {
     name: loadout.name ?? "Gladiator",
-    class: loadout.classId,
-    temperament: loadout.temperament,
-    perks: loadout.perks,
+    class: classId,
+    temperament: temperamentForClass(classId),
+    perks: sanitizePerks(classId, loadout.perks),
     permStats: loadout.permStats ?? { atk: 0, hp: 0, spd: 0, luck: 0, lvl: 0 },
   };
 }
 
 export function toHeroLoadout(loadout: ServerLoadout): HeroLoadout {
+  const classId = loadout.class;
   return {
     name: loadout.name,
-    classId: loadout.class,
-    temperament: loadout.temperament,
-    perks: loadout.perks,
+    classId,
+    temperament: temperamentForClass(classId),
+    perks: sanitizePerks(classId, loadout.perks),
     permStats: loadout.permStats,
   };
 }
 
 export function toLoadoutRequestBody(loadout: ServerLoadout): unknown {
+  const classId = loadout.class;
+  const temperament = temperamentForClass(classId);
   return {
     name: loadout.name,
-    class: loadout.class,
-    temperament: loadout.temperament,
-    perks: toServerPerks(loadout.temperament, loadout.perks),
+    class: classId,
+    temperament,
+    traits: traitsForTemperament(temperament),
+    perks: toServerPerks(classId, loadout.perks),
     permStats: loadout.permStats,
   };
 }
@@ -122,10 +129,14 @@ function parseLeaderboardEntry(value: unknown): LeaderboardEntry | undefined {
     name: loadout.name,
     classId: loadout.classId,
     score: loadout.score,
-    ...(loadout.temperament !== undefined ? { temperament: loadout.temperament } : {}),
+    temperament: temperamentForClass(loadout.classId),
   };
 }
 
+/**
+ * Accept legacy temperament / traits for old ghosts; canonical identity is class-derived.
+ * Perks resolve against the class specialization tree when possible.
+ */
 function parseServerLoadout(value: unknown): ServerLoadout | undefined {
   if (!isRecord(value)) {
     return undefined;
@@ -133,17 +144,20 @@ function parseServerLoadout(value: unknown): ServerLoadout | undefined {
 
   const name = parseName(value["name"]);
   const heroClass = parseHeroClass(value["class"]);
-  const temperament = parseTemperament(value["temperament"], value["traits"]);
   const permStats = parsePermStats(value["permStats"]);
-  if (name === undefined || heroClass === undefined || temperament === undefined || permStats === undefined) {
+  if (name === undefined || heroClass === undefined || permStats === undefined) {
     return undefined;
   }
+
+  // Still accept legacy temperament/traits (do not reject old ghosts), but derive identity from class.
+  void parseTemperament(value["temperament"], value["traits"]);
+  const temperament = temperamentForClass(heroClass);
 
   return {
     name,
     class: heroClass,
     temperament,
-    perks: parsePerks(temperament, value["perks"]),
+    perks: parsePerks(heroClass, value["perks"]),
     permStats,
   };
 }
@@ -155,7 +169,6 @@ function parseClassNameScore(value: unknown): LeaderboardEntry | undefined {
 
   const name = parseName(value["name"]);
   const heroClass = parseHeroClass(value["class"]);
-  const temperament = isTemperamentId(value["temperament"]) ? value["temperament"] : undefined;
   const score = value["score"];
   if (name === undefined || heroClass === undefined || typeof score !== "number" || !Number.isFinite(score)) {
     return undefined;
@@ -165,7 +178,7 @@ function parseClassNameScore(value: unknown): LeaderboardEntry | undefined {
     name,
     classId: heroClass,
     score: Math.floor(score),
-    ...(temperament !== undefined ? { temperament } : {}),
+    temperament: temperamentForClass(heroClass),
   };
 }
 
@@ -193,9 +206,9 @@ function parseTemperament(value: unknown, legacyTraitsValue: unknown): Temperame
   return traits === undefined ? undefined : mapTraitsToTemperament(traits);
 }
 
-function parsePerks(temperament: TemperamentId, value: unknown): readonly PerkId[] {
+function parsePerks(classId: HeroClassId, value: unknown): readonly PerkId[] {
   if (Array.isArray(value)) {
-    return sanitizePerks(temperament, value.filter(isPerkId));
+    return sanitizePerks(classId, value.filter(isPerkId));
   }
 
   if (!isRecord(value)) {
@@ -208,12 +221,12 @@ function parsePerks(temperament: TemperamentId, value: unknown): readonly PerkId
     if (choice !== "a" && choice !== "b") {
       continue;
     }
-    const perk = perkDefinitions[temperament].find((entry) => entry.tier === slot.tier && entry.choice === choice);
+    const perk = perkDefinitions[classId].find((entry) => entry.tier === slot.tier && entry.choice === choice);
     if (perk !== undefined) {
       perkIds.push(perk.id);
     }
   }
-  return sanitizePerks(temperament, perkIds);
+  return sanitizePerks(classId, perkIds);
 }
 
 function parsePermStats(value: unknown): PermStats | undefined {
@@ -266,23 +279,23 @@ function parseIntegerInRange(value: unknown, min: number, max: number): number |
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+  return typeof value === "object" && value !== null;
 }
 
-function toServerPerks(temperament: TemperamentId, perks: readonly PerkId[]): ServerPerks {
-  const sanitized = sanitizePerks(temperament, perks);
+function toServerPerks(classId: HeroClassId, perks: readonly PerkId[]): ServerPerks {
+  const sanitized = sanitizePerks(classId, perks);
   return {
-    tier1: selectedPerkChoice(temperament, sanitized, 1),
-    tier2: selectedPerkChoice(temperament, sanitized, 2),
-    tier3: selectedPerkChoice(temperament, sanitized, 3),
+    tier1: selectedPerkChoice(classId, sanitized, 1),
+    tier2: selectedPerkChoice(classId, sanitized, 2),
+    tier3: selectedPerkChoice(classId, sanitized, 3),
   };
 }
 
 function selectedPerkChoice(
-  temperament: TemperamentId,
+  classId: HeroClassId,
   perks: readonly PerkId[],
   tier: PerkTier,
 ): PerkChoice | null {
-  const perk = perkDefinitions[temperament].find((entry) => entry.tier === tier && perks.includes(entry.id));
+  const perk = perkDefinitions[classId].find((entry) => entry.tier === tier && perks.includes(entry.id));
   return perk === undefined ? null : perk.choice;
 }

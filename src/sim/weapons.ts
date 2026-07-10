@@ -240,9 +240,9 @@ function addDamageNumber(
 function cooldownFor(hero: HeroState, weapon: WeaponState): number {
   const base = weaponDefinitions[weapon.id].cooldownTicks;
   const levelMultiplier = 1 - (weapon.level - 1) * 0.05;
-  const berserkerMultiplier = hasPerk(hero.perks, "berserkerCombatInstinct") ? 0.95 : 1;
-  const duelistMultiplier = hasPerk(hero.perks, "duelistExecutionForm") && isHighestLevelWeapon(hero, weapon.id) ? 0.88 : 1;
-  return Math.max(6, Math.round(base * levelMultiplier * berserkerMultiplier * duelistMultiplier));
+  const mageExecution =
+    hasPerk(hero.perks, "mageExecutionForm") && isHighestLevelWeapon(hero, weapon.id) ? 0.88 : 1;
+  return Math.max(6, Math.round(base * levelMultiplier * mageExecution));
 }
 
 function weaponDamage(weaponId: WeaponId, level: number, hero: HeroState): number {

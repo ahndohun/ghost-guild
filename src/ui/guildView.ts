@@ -1,5 +1,5 @@
-import { heroClassIds, perkCosts, perkDefinitions, temperamentDefinitions, temperamentIds } from "../sim";
-import type { PerkChoice, PerkId, PerkTier, TemperamentId } from "../sim";
+import { heroClassIds, perkCosts, perkDefinitions, temperamentForClass } from "../sim";
+import type { HeroClassId, PerkChoice, PerkId, PerkTier } from "../sim";
 import { requiredButton, requiredElement, requiredInput } from "./dom";
 import type { LobbyStageController } from "./lobbyStage";
 import { formatGold, nextUpgradeCost, permStatUpgrades } from "./meta";
@@ -30,12 +30,12 @@ export function renderGuildView(documentRef: Document, save: GuildSave, controls
   renderGuildBestSurvival(documentRef, save.bestSurvivalSeconds);
   controls.autorunButton.textContent = save.autorun ? "AUTO-RUN ON" : "AUTO-RUN OFF";
   controls.autorunButton.setAttribute("aria-pressed", save.autorun ? "true" : "false");
-  renderTemperaments(documentRef, save.temperament);
   renderPerks(documentRef, save);
+
   controls.lobbyStage.setAppearance({
     playerName: save.playerName,
     classId: save.classId,
-    temperament: save.temperament,
+    temperament: temperamentForClass(save.classId),
     bestSurvivalSeconds: save.bestSurvivalSeconds,
   });
 
@@ -64,29 +64,19 @@ function renderGuildBestSurvival(documentRef: Document, bestSurvivalSeconds: num
   el.textContent = hasRecord ? `Best ${bestSurvivalSeconds}s` : "";
 }
 
-function renderTemperaments(documentRef: Document, selectedTemperament: TemperamentId): void {
-  for (const temperament of temperamentIds) {
-    const button = requiredButton(documentRef, `temperament-${temperament}`);
-    const selected = selectedTemperament === temperament;
-    button.classList.toggle("selected", selected);
-    button.setAttribute("aria-pressed", selected ? "true" : "false");
-    button.setAttribute("aria-label", `${temperamentDefinitions[temperament].name} temperament`);
-  }
-}
-
 function renderPerks(documentRef: Document, save: GuildSave): void {
-  const selectedPerks = save.perksByTemperament[save.temperament];
+  const selectedPerks = save.perksByClass[save.classId];
 
   for (const slot of perkSlots) {
-    const perk = perkForSlot(save.temperament, slot);
+    const perk = perkForSlot(save.classId, slot);
     const button = requiredButton(documentRef, `perk-t${slot.tier}-${slot.choice}`);
     if (perk === undefined) {
       button.disabled = true;
       continue;
     }
 
-    const tierChosen = hasTierPerk(save.temperament, selectedPerks, slot.tier);
-    const previousTierChosen = slot.tier === 1 || hasTierPerk(save.temperament, selectedPerks, previousTier(slot.tier));
+    const tierChosen = hasTierPerk(save.classId, selectedPerks, slot.tier);
+    const previousTierChosen = slot.tier === 1 || hasTierPerk(save.classId, selectedPerks, previousTier(slot.tier));
     const selected = selectedPerks.includes(perk.id);
     const locked = !selected && (tierChosen || !previousTierChosen || save.gold < perkCosts[slot.tier]);
     requiredElement(documentRef, `perk-t${slot.tier}-${slot.choice}-name`).textContent = perk.name;
@@ -99,12 +89,15 @@ function renderPerks(documentRef: Document, save: GuildSave): void {
   }
 }
 
-function perkForSlot(temperament: TemperamentId, slot: PerkSlot): (typeof perkDefinitions)[TemperamentId][number] | undefined {
-  return perkDefinitions[temperament].find((perk) => perk.tier === slot.tier && perk.choice === slot.choice);
+function perkForSlot(
+  classId: HeroClassId,
+  slot: PerkSlot,
+): (typeof perkDefinitions)[HeroClassId][number] | undefined {
+  return perkDefinitions[classId].find((perk) => perk.tier === slot.tier && perk.choice === slot.choice);
 }
 
-function hasTierPerk(temperament: TemperamentId, perks: readonly PerkId[], tier: PerkTier): boolean {
-  return perkDefinitions[temperament].some((perk) => perk.tier === tier && perks.includes(perk.id));
+function hasTierPerk(classId: HeroClassId, perks: readonly PerkId[], tier: PerkTier): boolean {
+  return perkDefinitions[classId].some((perk) => perk.tier === tier && perks.includes(perk.id));
 }
 
 function previousTier(tier: PerkTier): PerkTier {

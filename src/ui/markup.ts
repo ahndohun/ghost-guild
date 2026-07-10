@@ -1,5 +1,5 @@
-import { classDefinitions, perkDefinitions, temperamentDefinitions, temperamentIds } from "../sim";
-import type { HeroClassId, PerkChoice, PerkTier, TemperamentId } from "../sim";
+import { classDefinitions, perkDefinitions } from "../sim";
+import type { HeroClassId, PerkChoice, PerkTier } from "../sim";
 
 export function screenMarkup(): string {
   return `
@@ -43,7 +43,7 @@ export function screenMarkup(): string {
           <div class="title-window">
             <p class="eyebrow">THE GHOST GUILD PRESENTS</p>
             <p class="title-tagline">You don't play the gladiator. You coach them.</p>
-            <p class="title-subline">Tune temperament, class, and perks — then watch judgment decide the sand.</p>
+            <p class="title-subline">Pick a class, forge its specialization tree — then watch judgment decide the sand.</p>
             <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
           </div>
         </div>
@@ -58,12 +58,12 @@ export function screenMarkup(): string {
               <p class="eyebrow">BARRACKS</p>
               <h1>Ghost Colosseum</h1>
               <p class="tagline">Coach your gladiator. The crowd remembers.</p>
-              <p class="onboarding-line">Your gladiator fights on its own - pick a class and temperament, hit DEPLOY, and watch. Win gold to unlock perks and permanent upgrades.</p>
+              <p class="onboarding-line">Your gladiator fights on its own - pick a class, unlock its specialization tree, hit DEPLOY, and watch. Win gold for perks and permanent upgrades.</p>
             </div>
           </div>
           <div class="lobby-nameplate" aria-live="polite">
-            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Berserker</p>
-            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Ignores loot when an enemy is within 200px and never flees at low HP.</p>
+            <p id="lobby-nameplate-title" class="lobby-nameplate-title">Gladiator · Knight · Vanguard</p>
+            <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">None — balanced situation judgment.</p>
             <div id="best-survival-guild" class="best-survival-guild hidden" data-testid="best-survival-guild"></div>
           </div>
         </div>
@@ -77,12 +77,6 @@ export function screenMarkup(): string {
           </div>
         </header>
         <main class="guild-layout">
-          <section class="panel temperament-panel">
-            <h2>Temperament</h2>
-            <div class="temperament-grid">
-              ${temperamentIds.map(temperamentMarkup).join("")}
-            </div>
-          </section>
           <section class="panel">
             <h2>Class</h2>
             <div class="class-grid">
@@ -104,7 +98,7 @@ export function screenMarkup(): string {
             </div>
           </section>
           <section class="panel perk-panel">
-            <h2>Perks</h2>
+            <h2>Class Specialization</h2>
             <div class="perk-grid">
               ${perkSlotMarkup(1, "a")}
               ${perkSlotMarkup(1, "b")}
@@ -129,7 +123,9 @@ export function screenMarkup(): string {
           <canvas id="run-canvas" width="960" height="540" aria-label="Ghost Guild run"></canvas>
           <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
         </div>
-        <div id="game-state" class="mirror" hidden></div>
+        <div id="game-state" class="mirror" hidden
+          data-phase="" data-time="0" data-hp="0" data-level="1" data-kills="0" data-gold="0" data-seed=""
+          data-class="" data-temperament=""></div>
       </div>
       <div class="hud" aria-hidden="false">
         <span class="hud-chip hud-time">TIME <strong id="hud-time">0s</strong></span>
@@ -179,19 +175,8 @@ export function screenMarkup(): string {
   `;
 }
 
-function temperamentMarkup(temperament: TemperamentId): string {
-  const definition = temperamentDefinitions[temperament];
-  return `
-    <button type="button" class="temperament-card" data-testid="temperament-${temperament}" aria-pressed="false">
-      <strong>${definition.name}</strong>
-      <span>${definition.hardRule}</span>
-      <small>${definition.signature}</small>
-    </button>
-  `;
-}
-
 function perkSlotMarkup(tier: PerkTier, choice: PerkChoice): string {
-  const fallback = perkDefinitions.berserker.find((perk) => perk.tier === tier && perk.choice === choice);
+  const fallback = perkDefinitions.knight.find((perk) => perk.tier === tier && perk.choice === choice);
   const name = fallback === undefined ? "Locked" : fallback.name;
   const effect = fallback === undefined ? "Choose the previous tier first." : fallback.effect;
   return `

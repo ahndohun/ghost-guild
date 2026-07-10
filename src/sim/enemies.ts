@@ -17,7 +17,10 @@ export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: (
     if (killer !== undefined) {
       killer.kills += 1;
       healKiller(killer, state.tick);
-      if (enemy.kind === "eliteBrute" && hasPerk(killer.perks, "berserkerSlaughterer")) {
+      if (
+        enemy.kind === "eliteBrute" &&
+        (hasPerk(killer.perks, "knightSlaughterer") || hasPerk(killer.perks, "monkSlaughterer"))
+      ) {
         resetWeaponCooldowns(killer);
       }
     }
@@ -26,7 +29,7 @@ export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: (
     state.drops.push(createDrop("xp", enemy.x, enemy.y, xpValue, nextDropId()));
     if (enemy.kind === "eliteBrute") {
       state.drops.push(createDrop("gold", enemy.x + 10, enemy.y, 10, nextDropId()));
-      if (killer !== undefined && hasPerk(killer.perks, "hoarderTributeCart")) {
+      if (killer !== undefined && hasPerk(killer.perks, "gamblerTributeCart")) {
         state.drops.push(createDrop("gold", enemy.x + 18, enemy.y, 10, nextDropId()));
       }
       state.screenShakeTicks = 8;
@@ -138,7 +141,7 @@ function healKiller(hero: HeroState, tick: number): void {
     hero.permStats.atk + hero.permStats.hp + hero.permStats.spd + hero.permStats.luck + hero.permStats.lvl,
   );
   const fatiguedAmount = 0.25 + permanentRanks * 0.02;
-  const hasBloodThirst = hasPerk(hero.perks, "berserkerBloodThirst");
+  const hasBloodThirst = hasPerk(hero.perks, "monkBloodThirst");
   const amount = fatigued
     ? hasBloodThirst
       ? fatiguedAmount + 0.2
@@ -156,8 +159,8 @@ function resetWeaponCooldowns(hero: HeroState): void {
 }
 
 function contactDamage(amount: number, hero: HeroState): number {
-  const berserkerIronSkin = hasPerk(hero.perks, "berserkerIronSkin") ? 0.875 : 1;
-  const survivorLastLine = hasPerk(hero.perks, "survivorLastLine") && hero.hp / hero.maxHp < 0.5 ? 0.7 : 1;
+  const bulwark = hasPerk(hero.perks, "knightBulwark") ? 0.875 : 1;
+  const lastLine = hasPerk(hero.perks, "priestLastLine") && hero.hp / hero.maxHp < 0.5 ? 0.7 : 1;
   const monkDiscipline = hero.classId === "monk" ? 0.8 : 1;
-  return amount * berserkerIronSkin * survivorLastLine * monkDiscipline;
+  return amount * bulwark * lastLine * monkDiscipline;
 }

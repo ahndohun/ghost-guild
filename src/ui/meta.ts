@@ -1,3 +1,4 @@
+import { temperamentForClass } from "../sim";
 import type { HeroLoadout, PermStats } from "../sim";
 import type { GuildSave } from "./save";
 
@@ -26,12 +27,13 @@ export function formatGold(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
+/** HeroLoadout temperament is always class-derived; perks come from that class tree. */
 export function currentLoadout(save: GuildSave): HeroLoadout {
   return {
     name: save.playerName,
     classId: save.classId,
-    temperament: save.temperament,
-    perks: save.perksByTemperament[save.temperament],
+    temperament: temperamentForClass(save.classId),
+    perks: save.perksByClass[save.classId],
     permStats: save.permStats,
   };
 }

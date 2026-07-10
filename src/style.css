@@ -123,7 +123,6 @@ input {
 .ui-bronze,
 button,
 .class-card,
-.temperament-card,
 .perk-card {
   border: var(--bronze-border) solid transparent;
   border-image: url("/assets/ui/button-bronze.png") var(--bronze-slice) fill;
@@ -176,7 +175,6 @@ button.locked {
 
 button.selected,
 .class-card.selected,
-.temperament-card.selected,
 .perk-card.selected {
   filter: brightness(1.18) saturate(1.15);
   box-shadow:
@@ -866,7 +864,6 @@ h2,
 
 .class-grid,
 .upgrade-grid,
-.temperament-grid,
 .perk-grid {
   display: grid;
   gap: 8px;
@@ -876,13 +873,11 @@ h2,
   grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
 }
 
-.temperament-grid,
 .perk-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .class-card,
-.temperament-card,
 .perk-card {
   display: grid;
   place-items: center;
@@ -894,11 +889,6 @@ h2,
 
 .class-card {
   min-height: 140px;
-  align-content: start;
-}
-
-.temperament-card {
-  min-height: 112px;
   align-content: start;
 }
 
@@ -930,8 +920,6 @@ h2,
 }
 
 .class-card small,
-.temperament-card span,
-.temperament-card small,
 .perk-card small,
 .perk-card em,
 .perk-tier {
@@ -943,7 +931,6 @@ h2,
   text-align: center;
 }
 
-.temperament-card strong,
 .perk-card strong,
 .class-card strong {
   font-family: var(--pixel-font);
@@ -951,10 +938,6 @@ h2,
   line-height: 1.4;
   text-align: center;
   color: var(--gold-soft);
-}
-
-.temperament-card span {
-  color: rgba(232, 227, 213, 0.86);
 }
 
 .perk-card em,
@@ -1440,7 +1423,6 @@ canvas {
   }
 
   .guild-layout,
-  .temperament-grid,
   .perk-grid,
   .class-grid,
   .result-grid {

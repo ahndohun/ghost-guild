@@ -1,27 +1,28 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "guild-screen",
+  "name": "Guild screen derives identity from five classes",
+  "priority": "p0",
   "planSteps": [
     {
       "type": "action",
       "description": "Navigate to https://ghost-guild.vercel.app/"
     },
     {
-      "type": "assertion",
-      "description": "The element #screen-guild is visible"
+      "type": "action",
+      "description": "Press START"
     },
     {
       "type": "assertion",
-      "description": "Sliders with data-testid trait-bravery, trait-greed and trait-focus are visible"
+      "description": "The guild screen shows all five class choices"
     },
     {
       "type": "assertion",
-      "description": "Buttons with data-testid class-knight, class-mage and class-priest are visible"
+      "description": "The guild screen shows a class specialization tree"
     },
     {
       "type": "assertion",
-      "description": "A button with data-testid deploy-solo is visible"
+      "description": "The guild screen has no standalone temperament choices"
     }
   ]
 }

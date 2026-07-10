@@ -1,4 +1,4 @@
-import { heroClassIds, perkCosts, perkDefinitions, temperamentIds } from "../sim";
+import { heroClassIds, perkCosts, perkDefinitions } from "../sim";
 import type { PerkId, PerkTier } from "../sim";
 import { requiredButton, requiredInput } from "./dom";
 import { perkSlots } from "./guildView";
@@ -28,16 +28,10 @@ export function wireGuildInteractions(context: GuildInteractionContext): {
     }));
   });
 
-  for (const temperament of temperamentIds) {
-    requiredButton(context.documentRef, `temperament-${temperament}`).addEventListener("click", () => {
-      updateSave(context, (save) => ({ ...save, temperament }));
-    });
-  }
-
   for (const slot of perkSlots) {
     requiredButton(context.documentRef, `perk-t${slot.tier}-${slot.choice}`).addEventListener("click", () => {
       const save = context.getSave();
-      const perk = perkDefinitions[save.temperament].find(
+      const perk = perkDefinitions[save.classId].find(
         (entry) => entry.tier === slot.tier && entry.choice === slot.choice,
       );
       if (perk !== undefined) {
@@ -48,6 +42,7 @@ export function wireGuildInteractions(context: GuildInteractionContext): {
 
   for (const classId of heroClassIds) {
     requiredButton(context.documentRef, `class-${classId}`).addEventListener("click", () => {
+      // Switching class swaps the specialization tree view; per-class progress is retained.
       updateSave(context, (current) => ({ ...current, classId }));
     });
   }
@@ -76,9 +71,9 @@ export function wireGuildInteractions(context: GuildInteractionContext): {
 
 function buyPerk(context: GuildInteractionContext, perkId: PerkId, tier: PerkTier): void {
   const save = context.getSave();
-  const selectedPerks = save.perksByTemperament[save.temperament];
-  const tierChosen = perkDefinitions[save.temperament].some((perk) => perk.tier === tier && selectedPerks.includes(perk.id));
-  const previousTierChosen = tier === 1 || perkDefinitions[save.temperament].some(
+  const selectedPerks = save.perksByClass[save.classId];
+  const tierChosen = perkDefinitions[save.classId].some((perk) => perk.tier === tier && selectedPerks.includes(perk.id));
+  const previousTierChosen = tier === 1 || perkDefinitions[save.classId].some(
     (perk) => perk.tier === previousTier(tier) && selectedPerks.includes(perk.id),
   );
   const cost = perkCosts[tier];
@@ -89,9 +84,9 @@ function buyPerk(context: GuildInteractionContext, perkId: PerkId, tier: PerkTie
   updateSave(context, (current) => ({
     ...current,
     gold: current.gold - cost,
-    perksByTemperament: {
-      ...current.perksByTemperament,
-      [current.temperament]: [...selectedPerks, perkId],
+    perksByClass: {
+      ...current.perksByClass,
+      [current.classId]: [...selectedPerks, perkId],
     },
   }));
 }

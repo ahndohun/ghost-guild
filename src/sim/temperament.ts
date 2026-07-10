@@ -1,4 +1,4 @@
-import type { TemperamentId, TraitProfile } from "./types";
+import type { HeroClassId, TemperamentId, TraitProfile } from "./types";
 
 export type TemperamentDefinition = {
   readonly id: TemperamentId;
@@ -9,9 +9,23 @@ export type TemperamentDefinition = {
   readonly levelupPreference: string;
 };
 
-export const temperamentIds: readonly TemperamentId[] = ["berserker", "hoarder", "duelist", "survivor"];
+export const temperamentIds: readonly TemperamentId[] = [
+  "vanguard",
+  "berserker",
+  "hoarder",
+  "duelist",
+  "survivor",
+];
 
 export const temperamentDefinitions: Record<TemperamentId, TemperamentDefinition> = {
+  vanguard: {
+    id: "vanguard",
+    name: "Vanguard",
+    traits: { bravery: 60, greed: 40, focus: 60 },
+    hardRule: "None — balanced situation judgment.",
+    signature: "No signature extreme; steady baseline combat.",
+    levelupPreference: "Balanced trait utility across options.",
+  },
   berserker: {
     id: "berserker",
     name: "Berserker",
@@ -47,6 +61,26 @@ export const temperamentDefinitions: Record<TemperamentId, TemperamentDefinition
   },
 };
 
+/** Traits v3: class is identity — temperament is derived, never chosen. */
+export function temperamentForClass(classId: HeroClassId): TemperamentId {
+  switch (classId) {
+    case "knight":
+      return "vanguard";
+    case "mage":
+      return "duelist";
+    case "priest":
+      return "survivor";
+    case "monk":
+      return "berserker";
+    case "gambler":
+      return "hoarder";
+    default: {
+      const _exhaustive: never = classId;
+      return _exhaustive;
+    }
+  }
+}
+
 export function mapTraitsToTemperament(traits: TraitProfile): TemperamentId {
   if (traits.bravery >= 75) {
     return "berserker";
@@ -56,6 +90,16 @@ export function mapTraitsToTemperament(traits: TraitProfile): TemperamentId {
   }
   if (traits.focus >= 75) {
     return "duelist";
+  }
+  if (
+    traits.bravery >= 55 &&
+    traits.bravery <= 65 &&
+    traits.greed >= 35 &&
+    traits.greed <= 45 &&
+    traits.focus >= 55 &&
+    traits.focus <= 65
+  ) {
+    return "vanguard";
   }
   return "survivor";
 }

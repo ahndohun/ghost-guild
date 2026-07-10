@@ -8,8 +8,8 @@ import { tickProjectiles } from "./projectiles";
 import { createMulberry32 } from "./rng";
 import { resultFromState } from "./results";
 import { recomputeMaxHp } from "./stats";
-import { sanitizePerks } from "./perks";
-import { traitsForTemperament } from "./temperament";
+import { hasPerk, sanitizePerks } from "./perks";
+import { temperamentForClass, traitsForTemperament } from "./temperament";
 import { applyStartingLevelUp, resolvePendingLevelUp, xpNeededForLevel } from "./levelup";
 import { createWaveDirector } from "./waves";
 import { tickHeroWeapons } from "./weapons";
@@ -127,7 +127,7 @@ function normalizeLoadouts(loadouts: readonly HeroLoadout[]): readonly HeroLoado
     return [
       {
         classId: "knight",
-        temperament: "berserker",
+        temperament: temperamentForClass("knight"),
         perks: [],
       },
     ];
@@ -139,7 +139,9 @@ function normalizeLoadouts(loadouts: readonly HeroLoadout[]): readonly HeroLoado
 function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
   const definition = classDefinitions[loadout.classId];
   const permStats = normalizePermStats(loadout.permStats);
-  const perks = sanitizePerks(loadout.temperament, loadout.perks);
+  // Traits v3: class derives temperament; ignore any stale loadout.temperament.
+  const temperament = temperamentForClass(loadout.classId);
+  const perks = sanitizePerks(loadout.classId, loadout.perks);
   const offset = heroSpawnOffsets[index] ?? heroSpawnOffsets[0];
   const weapon: WeaponState = {
     id: definition.startingWeapon,
@@ -152,10 +154,10 @@ function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
     id: index + 1,
     name: loadout.name ?? definition.name,
     classId: loadout.classId,
-    temperament: loadout.temperament,
+    temperament,
     perks,
     permStats,
-    traits: clampTraits(traitsForTemperament(loadout.temperament)),
+    traits: clampTraits(traitsForTemperament(temperament)),
     x: WORLD_WIDTH / 2 + offset.x,
     y: WORLD_HEIGHT / 2 + offset.y,
     vx: 0,
@@ -179,7 +181,7 @@ function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
     deathTick: undefined,
     hitFlashTicks: 0,
     touchRecoveryTicks: 0,
-    undyingRageAvailable: perks.includes("berserkerUndyingRage"),
+    undyingRageAvailable: hasPerk(perks, "monkUndyingRage"),
   };
   recomputeMaxHp(hero);
   for (let i = 0; i < permStats.lvl; i += 1) {

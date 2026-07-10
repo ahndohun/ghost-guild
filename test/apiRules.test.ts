@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { isResultScoreSane, loadoutBlobKey, selectUniqueByName } from "../src/apiRules";
+import {
+  canonicalizeLoadoutIdentity,
+  isResultScoreSane,
+  isTemperamentId,
+  loadoutBlobKey,
+  parseServerPerkChoices,
+  selectUniqueByName,
+  temperamentForClass,
+  temperamentFromTraits,
+  TEMPERAMENT_PRESETS,
+} from "../src/apiRules";
 
 type NamedCandidate = {
   readonly name: string;
@@ -38,5 +48,46 @@ describe("API rule helpers", () => {
     expect(isResultScoreSane({ score: 1_000_001, kills: 0, timeMs: 0 })).toBe(false);
     expect(isResultScoreSane({ score: 10, kills: 100_001, timeMs: 0 })).toBe(false);
     expect(isResultScoreSane({ score: 10, kills: 1, timeMs: 600_001 })).toBe(false);
+  });
+
+  it("derives temperament from class (Traits v3) independent of legacy fields", () => {
+    expect(temperamentForClass("knight")).toBe("vanguard");
+    expect(temperamentForClass("mage")).toBe("duelist");
+    expect(temperamentForClass("priest")).toBe("survivor");
+    expect(temperamentForClass("monk")).toBe("berserker");
+    expect(temperamentForClass("gambler")).toBe("hoarder");
+
+    const derived = canonicalizeLoadoutIdentity({
+      classId: "monk",
+      temperament: "hoarder",
+      traits: { bravery: 10, greed: 90, focus: 10 },
+    });
+    expect(derived.temperament).toBe("berserker");
+    expect(derived.traits).toEqual(TEMPERAMENT_PRESETS.berserker);
+
+    const knight = canonicalizeLoadoutIdentity({ classId: "knight" });
+    expect(knight.temperament).toBe("vanguard");
+    expect(knight.traits).toEqual({ bravery: 60, greed: 40, focus: 60 });
+  });
+
+  it("keeps legacy traits→temperament mapping for old ghost validation paths", () => {
+    expect(temperamentFromTraits({ bravery: 90, greed: 10, focus: 10 })).toBe("berserker");
+    expect(temperamentFromTraits({ bravery: 10, greed: 90, focus: 10 })).toBe("hoarder");
+    expect(temperamentFromTraits({ bravery: 10, greed: 10, focus: 90 })).toBe("duelist");
+    expect(temperamentFromTraits({ bravery: 40, greed: 40, focus: 40 })).toBe("survivor");
+    expect(isTemperamentId("vanguard")).toBe(true);
+    expect(isTemperamentId("berserker")).toBe(true);
+    expect(isTemperamentId("nope")).toBe(false);
+  });
+
+  it("parses server perk choice blobs and defaults when omitted", () => {
+    expect(parseServerPerkChoices(undefined)).toEqual({ tier1: null, tier2: null, tier3: null });
+    expect(parseServerPerkChoices({ tier1: "a", tier2: "b", tier3: null })).toEqual({
+      tier1: "a",
+      tier2: "b",
+      tier3: null,
+    });
+    expect(parseServerPerkChoices({ tier1: "c", tier2: null, tier3: null })).toBeNull();
+    expect(parseServerPerkChoices("nope")).toBeNull();
   });
 });

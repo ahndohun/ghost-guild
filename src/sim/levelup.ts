@@ -215,6 +215,9 @@ function chooseOption(hero: HeroState, options: readonly LevelOption[], rng: Rng
 
 function filterOptionsForTemperament(hero: HeroState, options: readonly LevelOption[]): readonly LevelOption[] {
   switch (hero.temperament) {
+    case "vanguard":
+      // Balanced baseline: no hard filter — pure trait utility.
+      return options;
     case "berserker":
       return options.filter((option) => option.flavor === "damage");
     case "hoarder": {
@@ -239,11 +242,11 @@ function optionUtility(hero: HeroState, option: LevelOption): number {
     case "weapon": {
       const focusValue = option.action === "upgrade" ? hero.traits.focus * 1.4 : (100 - hero.traits.focus) * 0.85;
       const braveryValue = weaponDefinitions[option.id].flavor === "damage" ? hero.traits.bravery * 0.75 : hero.traits.bravery * 0.25;
-      const duelistPerkValue =
+      const magePerkValue =
         hero.temperament === "duelist" && option.action === "upgrade"
-          ? (hasPerk(hero.perks, "duelistEdgeStudy") ? 25 : 0) + (hasPerk(hero.perks, "duelistMastersChoice") ? 50 : 0)
+          ? (hasPerk(hero.perks, "mageEdgeStudy") ? 25 : 0) + (hasPerk(hero.perks, "mageMastersChoice") ? 50 : 0)
           : 0;
-      return 12 + focusValue + braveryValue + duelistPerkValue;
+      return 12 + focusValue + braveryValue + magePerkValue;
     }
     case "passive":
       return passiveUtility(hero, option.id) + (option.action === "upgrade" ? hero.traits.focus * 0.15 : 0);
