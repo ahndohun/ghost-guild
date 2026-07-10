@@ -23,7 +23,7 @@ export function updateMirror(documentRef: Document, element: HTMLElement, state:
   element.dataset.gold = String(Math.floor(hero.gold));
   element.dataset.seed = String(state.seed);
 
-  requiredElement(documentRef, "hud-hp").textContent = String(Math.ceil(hero.hp));
+  requiredElement(documentRef, "hud-hp").textContent = `${Math.ceil(hero.hp)}/${Math.round(hero.maxHp)}`;
   requiredElement(documentRef, "hud-level").textContent = String(hero.level);
   requiredElement(documentRef, "hud-time").textContent = `${time}s`;
 
