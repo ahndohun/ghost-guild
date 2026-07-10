@@ -1,0 +1,475 @@
+{
+  "schemaVersion": 1,
+  "style": {
+    "promptPrefix": "16-bit JRPG pixel art; low top-down 3/4 camera; crisp single near-black outline; sand-gold, bronze, and blood-red palette; nearest-neighbor edges",
+    "transparentKey": "#FF00FF",
+    "background": "#0e0c15",
+    "outline": "#05040a",
+    "lighting": "warm torch light from upper left with restrained cool night shadows",
+    "palette": {
+      "sandGold": "#d9a441",
+      "bronze": "#8f6344",
+      "bloodRed": "#b8453f",
+      "cyan": "#58d6c9",
+      "knight": "#d9a441",
+      "mage": "#7aa5ff",
+      "priest": "#9fe3b0",
+      "enemy": "#b8453f"
+    }
+  },
+  "productionTargets": {
+    "classPortraits": 11,
+    "skillIcons": 18,
+    "itemIllustrations": 38,
+    "actorSets": 14
+  },
+  "directionOrder": [
+    "south",
+    "south-east",
+    "east",
+    "north-east",
+    "north",
+    "north-west",
+    "west",
+    "south-west"
+  ],
+  "animationContract": {
+    "atlasRows": 8,
+    "rowOrderSource": "directionOrder",
+    "actions": {
+      "idle": { "frames": 4, "frameDurationMs": 150, "loop": true },
+      "walk": { "frames": 4, "frameDurationMs": 100, "loop": true },
+      "attack": { "frames": 4, "frameDurationMs": 80, "loop": false },
+      "hit": { "frames": 4, "frameDurationMs": 60, "loop": false },
+      "death": { "frames": 6, "frameDurationMs": 120, "loop": false }
+    }
+  },
+  "actors": {
+    "fighter": {
+      "id": "actor.fighter",
+      "role": "class",
+      "canvas": { "width": 64, "height": 64 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/fighter/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/fighter"
+    },
+    "knight": {
+      "id": "actor.knight",
+      "role": "class",
+      "canvas": { "width": 64, "height": 64 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/knight/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/knight"
+    },
+    "berserker": {
+      "id": "actor.berserker",
+      "role": "class",
+      "canvas": { "width": 60, "height": 60 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/berserker/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/berserker"
+    },
+    "dwarf": {
+      "id": "actor.dwarf",
+      "role": "class",
+      "canvas": { "width": 64, "height": 64 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/dwarf/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/dwarf"
+    },
+    "paladin": {
+      "id": "actor.paladin",
+      "role": "class",
+      "canvas": { "width": 60, "height": 60 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/paladin/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/paladin"
+    },
+    "mage": {
+      "id": "actor.mage",
+      "role": "class",
+      "canvas": { "width": 64, "height": 64 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/mage/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/mage"
+    },
+    "priest": {
+      "id": "actor.priest",
+      "role": "class",
+      "canvas": { "width": 64, "height": 64 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/priest/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/priest"
+    },
+    "warlock": {
+      "id": "actor.warlock",
+      "role": "class",
+      "canvas": { "width": 64, "height": 64 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/warlock/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/warlock"
+    },
+    "elf": {
+      "id": "actor.elf",
+      "role": "class",
+      "canvas": { "width": 56, "height": 56 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/elf/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/elf"
+    },
+    "thief": {
+      "id": "actor.thief",
+      "role": "class",
+      "canvas": { "width": 60, "height": 60 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/thief/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/thief"
+    },
+    "monk": {
+      "id": "actor.monk",
+      "role": "class",
+      "canvas": { "width": 60, "height": 60 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/monk/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts", "src/ui/lobbyStage.ts"],
+      "runtimeToken": "assets/sprites/monk"
+    },
+    "slime": {
+      "id": "actor.slime",
+      "role": "enemy",
+      "canvas": { "width": 56, "height": 56 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/slime/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts"],
+      "runtimeToken": "assets/sprites/slime"
+    },
+    "bat": {
+      "id": "actor.bat",
+      "role": "enemy",
+      "canvas": { "width": 56, "height": 56 },
+      "contentHeight": 32,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/bat/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts"],
+      "runtimeToken": "assets/sprites/bat"
+    },
+    "brute": {
+      "id": "actor.brute",
+      "role": "enemy",
+      "canvas": { "width": 80, "height": 80 },
+      "contentHeight": 40,
+      "feetAnchor": { "x": 0.5, "y": 0.75 },
+      "animations": {
+        "idle": {
+          "frameCount": 1,
+          "frameDurationMs": 1000,
+          "loop": true,
+          "pathTemplate": "assets/sprites/brute/{direction}.png"
+        }
+      },
+      "consumers": ["src/render/pixelSprites.ts"],
+      "runtimeToken": "assets/sprites/brute"
+    }
+  },
+  "classPortraits": {},
+  "skillIcons": {},
+  "itemIllustrations": {},
+  "perkIcons": {},
+  "environment": {
+    "tiles": {},
+    "props": {
+      "banner": {
+        "id": "prop.banner",
+        "path": "assets/props/banner.png",
+        "dimensions": { "width": 48, "height": 80 },
+        "consumers": ["src/ui/lobbyStage.ts"],
+        "runtimeToken": "/assets/props/banner.png"
+      },
+      "brazier": {
+        "id": "prop.brazier",
+        "path": "assets/props/brazier.png",
+        "dimensions": { "width": 48, "height": 56 },
+        "consumers": ["src/ui/lobbyStage.ts"],
+        "runtimeToken": "/assets/props/brazier.png"
+      },
+      "podium": {
+        "id": "prop.podium",
+        "path": "assets/props/podium.png",
+        "dimensions": { "width": 96, "height": 72 },
+        "consumers": ["src/ui/lobbyStage.ts"],
+        "runtimeToken": "/assets/props/podium.png"
+      },
+      "statueSpear": {
+        "id": "prop.statue-spear",
+        "path": "assets/props/statue-spear.png",
+        "dimensions": { "width": 128, "height": 192 },
+        "consumers": ["src/ui/markup.ts"],
+        "runtimeToken": "/assets/props/statue-spear.png"
+      },
+      "statueSword": {
+        "id": "prop.statue-sword",
+        "path": "assets/props/statue-sword.png",
+        "dimensions": { "width": 128, "height": 192 },
+        "consumers": ["src/ui/markup.ts"],
+        "runtimeToken": "/assets/props/statue-sword.png"
+      },
+      "trainingDummy": {
+        "id": "prop.training-dummy",
+        "path": "assets/props/training-dummy.png",
+        "dimensions": { "width": 48, "height": 64 },
+        "consumers": ["src/ui/lobbyStage.ts"],
+        "runtimeToken": "/assets/props/training-dummy.png"
+      },
+      "weaponRack": {
+        "id": "prop.weapon-rack",
+        "path": "assets/props/weapon-rack.png",
+        "dimensions": { "width": 64, "height": 64 },
+        "consumers": ["src/ui/lobbyStage.ts"],
+        "runtimeToken": "/assets/props/weapon-rack.png"
+      }
+    }
+  },
+  "results": {},
+  "ui": {
+    "buttonBronze": {
+      "id": "ui.button-bronze",
+      "path": "assets/ui/button-bronze.png",
+      "dimensions": { "width": 67, "height": 48 },
+      "consumers": ["src/style.css"],
+      "runtimeToken": "/assets/ui/button-bronze.png"
+    },
+    "hpOrbFrame": {
+      "id": "ui.hp-orb-frame",
+      "path": "assets/ui/hp-orb-frame.png",
+      "dimensions": { "width": 192, "height": 192 },
+      "consumers": ["src/ui/markup.ts"],
+      "runtimeToken": "/assets/ui/hp-orb-frame.png"
+    },
+    "panelStone": {
+      "id": "ui.panel-stone",
+      "path": "assets/ui/panel-stone.png",
+      "dimensions": { "width": 256, "height": 256 },
+      "consumers": ["src/style.css"],
+      "runtimeToken": "/assets/ui/panel-stone.png"
+    },
+    "titleArenaBackground": {
+      "id": "ui.title-arena-background",
+      "path": "assets/ui/title-arena-bg.png",
+      "dimensions": { "width": 1168, "height": 784 },
+      "consumers": ["src/style.css"],
+      "runtimeToken": "/assets/ui/title-arena-bg.png"
+    },
+    "xpBarFrame": {
+      "id": "ui.xp-bar-frame",
+      "path": "assets/ui/xp-bar-frame.png",
+      "dimensions": { "width": 512, "height": 192 },
+      "consumers": ["src/ui/markup.ts"],
+      "runtimeToken": "/assets/ui/xp-bar-frame.png"
+    }
+  },
+  "retired": [
+    {
+      "id": "retired.barracks-arena-gate",
+      "path": "assets/barracks/arena-gate.png",
+      "dimensions": { "width": 160, "height": 128 },
+      "reason": "Unwired duplicate candidate; replace or promote during environment pass."
+    },
+    {
+      "id": "retired.barracks-banner",
+      "path": "assets/barracks/banner.png",
+      "dimensions": { "width": 64, "height": 96 },
+      "reason": "Superseded by assets/props/banner.png."
+    },
+    {
+      "id": "retired.barracks-brazier",
+      "path": "assets/barracks/brazier.png",
+      "dimensions": { "width": 64, "height": 80 },
+      "reason": "Superseded by assets/props/brazier.png."
+    },
+    {
+      "id": "retired.barracks-gladiator-resting",
+      "path": "assets/barracks/gladiator-resting.png",
+      "dimensions": { "width": 96, "height": 80 },
+      "reason": "Not used by the fixed lobby camera."
+    },
+    {
+      "id": "retired.barracks-weapon-rack",
+      "path": "assets/barracks/weapon-rack.png",
+      "dimensions": { "width": 96, "height": 80 },
+      "reason": "Superseded by assets/props/weapon-rack.png."
+    },
+    {
+      "id": "retired.prop-gold-pile",
+      "path": "assets/props/gold-pile.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "reason": "Generated but not wired; reward pass decides promotion or replacement."
+    },
+    {
+      "id": "retired.prop-xp-gem",
+      "path": "assets/props/xp-gem.png",
+      "dimensions": { "width": 32, "height": 32 },
+      "reason": "Generated but not wired; drop pass decides promotion or replacement."
+    },
+    {
+      "id": "retired.gambler-south",
+      "path": "assets/sprites/gambler/south.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    },
+    {
+      "id": "retired.gambler-south-east",
+      "path": "assets/sprites/gambler/south-east.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    },
+    {
+      "id": "retired.gambler-east",
+      "path": "assets/sprites/gambler/east.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    },
+    {
+      "id": "retired.gambler-north-east",
+      "path": "assets/sprites/gambler/north-east.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    },
+    {
+      "id": "retired.gambler-north",
+      "path": "assets/sprites/gambler/north.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    },
+    {
+      "id": "retired.gambler-north-west",
+      "path": "assets/sprites/gambler/north-west.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    },
+    {
+      "id": "retired.gambler-west",
+      "path": "assets/sprites/gambler/west.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    },
+    {
+      "id": "retired.gambler-south-west",
+      "path": "assets/sprites/gambler/south-west.png",
+      "dimensions": { "width": 60, "height": 60 },
+      "reason": "Legacy Gambler was migrated to Thief."
+    }
+  ]
+}
