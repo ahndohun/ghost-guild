@@ -2,17 +2,17 @@
   "testId": "e1e54289-1099-4a20-9cef-1690af46fcdb",
   "status": "blocked",
   "startedAt": null,
-  "finishedAt": "2026-07-10T08:19:36.590Z",
-  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783671576246658//tmp/d117fd76-3943-4d6e-b0bf-678072836945/result.webm",
+  "finishedAt": "2026-07-10T10:17:24.585Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783678644333992//tmp/63c2f39d-d0ce-48b7-b156-55bd228a6f2c/result.webm",
   "failureAnalysisUrl": null,
-  "snapshotId": "snap_6a2ca2cadbd1fd28",
-  "runIdIfAvailable": "26d9ce6b-9cae-4622-9113-092c21464249",
+  "snapshotId": "snap_f1a444374af71565",
+  "runIdIfAvailable": "696fcc62-c22b-4443-9e36-8caf5f39d5b8",
   "codeVersion": "v1",
   "targetUrl": "https://ghost-guild.vercel.app",
   "targetUrlSource": "run",
-  "failedStepIndex": 7,
+  "failedStepIndex": 21,
   "failureKind": null,
   "verdict": "blocked",
   "executionStatus": "completed",
-  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: PASS\n\nAll requested steps completed and verified:\n- Navigation: Visited https://ghost-guild.vercel.app/?seed=42&fast=1.\n- Run: Clicked the 'DEPLOY SOLO' button and the results screen was displayed (titled 'The Sand Settles' in the session).\n- Results assertion: The results container (#screen-results) was present and the result score element contained a numeric value. Observed score: 2194.\n- Return: Clicked the 'BACK TO GUILD' button and …"
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: Clicked button \"BACK TO GUILD\""
 }

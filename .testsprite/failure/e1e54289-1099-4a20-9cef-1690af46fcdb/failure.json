@@ -1,18 +1,5 @@
 {
-  "rootCauseHypothesis": "TEST BLOCKED: PASS\n\nAll requested steps completed and verified:\n- Navigation: Visited https://ghost-guild.vercel.app/?seed=42&fast=1.\n- Run: Clicked the 'DEPLOY SOLO' button and the results screen was displayed (titled 'The Sand Settles' in the session).\n- Results assertion: The results container (#screen-results) was present and the result score element contained a numeric value. Observed score: 2194.\n- Return: Clicked the 'BACK TO GUILD' button and the guild screen is visible again; the guild UI shows the 'DEPLOY SOLO' button.\n\nAll checklist items from the user request were satisfied and verified from the session's UI state and history. No additional actions will be performed.",
+  "rootCauseHypothesis": "TEST BLOCKED: Clicked button \"BACK TO GUILD\"",
   "recommendedFixTarget": null,
-  "evidence": [
-    {
-      "kind": "snapshot",
-      "stepIndex": 6,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/008.html?REDACTED",
-      "summary": "Step 6 'Verify the RESULTS screen ('The Sand Settles') is visible and that the displayed score is a number, then click the 'BACK TO GUILD' button' passed."
-    },
-    {
-      "kind": "snapshot",
-      "stepIndex": 7,
-      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/e1e54289-1099-4a20-9cef-1690af46fcdb/009.html?REDACTED",
-      "summary": "Step 7 'Guild screen (#screen-guild) is visible — the DEPLOY SOLO button is shown.' failed. Error: TEST BLOCKED: PASS\n\nAll requested steps completed and verified:\n- Navigation: Visited https://ghost-guild.vercel.app/?seed=42&fast=1.\n- Run: Clicked the 'DEPLOY SOLO' button and the results screen was displayed (titled 'The Sand Settles' in the session).\n- Results assertion: The results container (#screen-results) was present and the result score element contained a numeric value. Observed score: 2194.\n- Return: Clicked the 'BACK TO GUILD' button and the guild screen is visible again; the guild UI shows the 'DEPLOY SOLO' button.\n\nAll checklist items from the user request were satisfied and verified from the session's UI state and history. No additional actions will be performed."
-    }
-  ]
+  "evidence": []
 }

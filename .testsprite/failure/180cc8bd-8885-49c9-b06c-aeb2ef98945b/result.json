@@ -2,17 +2,17 @@
   "testId": "180cc8bd-8885-49c9-b06c-aeb2ef98945b",
   "status": "blocked",
   "startedAt": null,
-  "finishedAt": "2026-07-10T09:37:08.619Z",
-  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783676228317995//tmp/1b456797-2061-45e9-b948-9173adb40f05/result.webm",
+  "finishedAt": "2026-07-10T09:54:19.169Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783677258929948//tmp/f535e4c0-2e1e-44ab-80ed-747826a30ff4/result.webm",
   "failureAnalysisUrl": null,
-  "snapshotId": "snap_990c66ed8a866ba0",
-  "runIdIfAvailable": "3584b6f8-ad8b-4885-b904-9a47cbdcda60",
+  "snapshotId": "snap_f36f15dfc9d62f79",
+  "runIdIfAvailable": "179f8024-2eea-4968-a77d-1aa6684e8bbe",
   "codeVersion": "v1",
   "targetUrl": "https://ghost-guild.vercel.app",
   "targetUrlSource": "run",
-  "failedStepIndex": 18,
+  "failedStepIndex": 5,
   "failureKind": null,
   "verdict": "blocked",
   "executionStatus": "completed",
-  "summary": "Blocked before a verdict could be produced: The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Clicked button \"DEPLOY ARENA\""
+  "summary": "Blocked before a verdict could be produced: The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Test completed — PASS.\n\nSteps and observations (all from …"
 }

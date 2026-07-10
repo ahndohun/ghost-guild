@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 5,
+    "summary": "Step 5 'The guild screen is visible as indicated by the DEPLOY ARENA button.' failed. Error: TEST BLOCKED: Test completed — PASS.\n\nSteps and observations (all from this session):\n- Navigated to https://ghost-guild.vercel.app/?seed=11&fast=1 — observed the guild page loaded (seeded URL). (Verified in session history and page state.)\n- Clicked the 'DEPLOY ARENA' button — a RESULTS screen appeared showing Match Ranking and World Leaderboard. (Recorded in agent history immediately after the click.)\n- The Match Ranking list contained multiple rows (>=2) as observed on the RESULTS screen. (Recorded in agent history.)\n- The World Leaderboard (leaderboard list) was visible on the RESULTS screen. (Recorded in agent history.)\n- Clicked the 'BACK TO GUILD' button and returned to the guild screen. (Recorded in agent history and confirmed by current page state.)\n- Current page state / screenshot shows the Ghost Colosseum guild screen with the DEPLOY ARENA button visible, confirming #screen-guild is visible.\n\nBased on these observations, all requested assertions were met during this session. No further actions will be taken as requested.",
+    "path": "steps/05-snapshot.html"
+  }
+]

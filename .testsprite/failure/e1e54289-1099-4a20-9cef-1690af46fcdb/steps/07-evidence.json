@@ -1,8 +1,0 @@
-[
-  {
-    "kind": "snapshot",
-    "stepIndex": 7,
-    "summary": "Step 7 'Guild screen (#screen-guild) is visible — the DEPLOY SOLO button is shown.' failed. Error: TEST BLOCKED: PASS\n\nAll requested steps completed and verified:\n- Navigation: Visited https://ghost-guild.vercel.app/?seed=42&fast=1.\n- Run: Clicked the 'DEPLOY SOLO' button and the results screen was displayed (titled 'The Sand Settles' in the session).\n- Results assertion: The results container (#screen-results) was present and the result score element contained a numeric value. Observed score: 2194.\n- Return: Clicked the 'BACK TO GUILD' button and the guild screen is visible again; the guild UI shows the 'DEPLOY SOLO' button.\n\nAll checklist items from the user request were satisfied and verified from the session's UI state and history. No additional actions will be performed.",
-    "path": "steps/07-snapshot.html"
-  }
-]

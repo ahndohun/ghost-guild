@@ -1,9 +1,22 @@
 {
-  "rootCauseHypothesis": "The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Clicked button \"DEPLOY ARENA\"",
+  "rootCauseHypothesis": "The deployed site likely does not render the expected results-screen button because the app is either starting on the wrong screen (Guild/Barracks instead of results), or the BACK TO GUILD element is conditionally omitted due to a routing/state bug, failed hydration, or deployment mismatch. As a result, the test cannot find data-testid='back-to-guild' in the DOM. Underlying error: TEST BLOCKED: Test completed — PASS.\n\nSteps and observations (all from this session):\n- Navigated to https://ghost-guild.vercel.app/?seed=11&fast=1 — observed the guild page loaded (seeded URL). (Verified in session history and page state.)\n- Clicked the 'DEPLOY ARENA' button — a RESULTS screen appeared showing Match Ranking and World Leaderboard. (Recorded in agent history immediately after the click.)\n- The Match Ranking list contained multiple rows (>=2) as observed on the RESULTS screen. (Recorded in agent history.)\n- The World Leaderboard (leaderboard list) was visible on the RESULTS screen. (Recorded in agent history.)\n- Clicked the 'BACK TO GUILD' button and returned to the guild screen. (Recorded in agent history and confirmed by current page state.)\n- Current page state / screenshot shows the Ghost Colosseum guild screen with the DEPLOY ARENA button visible, confirming #screen-guild is visible.\n\nBased on these observations, all requested assertions were met during this session. No further actions will be taken as requested.",
   "recommendedFixTarget": {
     "kind": "unknown",
     "reference": null,
     "rationale": "Ensure the results flow renders the expected BACK TO GUILD control with data-testid='back-to-guild' on the post-combat/results screen. If the app is currently landing on Guild/Barracks instead of the results screen, fix the routing/state transition so the test reaches the results UI, or add the missing button to the visible results view and wire it to return to the guild screen. Also verify the element is not hidden behind conditional rendering, hydration timing, or a broken feature flag, and that the deployed build matches the tested version."
   },
-  "evidence": []
+  "evidence": [
+    {
+      "kind": "snapshot",
+      "stepIndex": 4,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/180cc8bd-8885-49c9-b06c-aeb2ef98945b/004.html?REDACTED",
+      "summary": "Step 4 'Click the 'BACK TO GUILD' button to return to the guild screen' passed."
+    },
+    {
+      "kind": "snapshot",
+      "stepIndex": 5,
+      "url": "https://frontend-test-recordings-production.s3.us-east-1.amazonaws.com/raw_html/180cc8bd-8885-49c9-b06c-aeb2ef98945b/005.html?REDACTED",
+      "summary": "Step 5 'The guild screen is visible as indicated by the DEPLOY ARENA button.' failed. Error: TEST BLOCKED: Test completed — PASS.\n\nSteps and observations (all from this session):\n- Navigated to https://ghost-guild.vercel.app/?seed=11&fast=1 — observed the guild page loaded (seeded URL). (Verified in session history and page state.)\n- Clicked the 'DEPLOY ARENA' button — a RESULTS screen appeared showing Match Ranking and World Leaderboard. (Recorded in agent history immediately after the click.)\n- The Match Ranking list contained multiple rows (>=2) as observed on the RESULTS screen. (Recorded in agent history.)\n- The World Leaderboard (leaderboard list) was visible on the RESULTS screen. (Recorded in agent history.)\n- Clicked the 'BACK TO GUILD' button and returned to the guild screen. (Recorded in agent history and confirmed by current page state.)\n- Current page state / screenshot shows the Ghost Colosseum guild screen with the DEPLOY ARENA button visible, confirming #screen-guild is visible.\n\nBased on these observations, all requested assertions were met during this session. No further actions will be taken as requested."
+    }
+  ]
 }
