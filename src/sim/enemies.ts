@@ -16,7 +16,7 @@ export function removeDefeatedEnemies(state: MatchState, rng: Rng, nextDropId: (
     const killer = state.heroes.find((hero) => hero.id === enemy.lastHitHeroId);
     if (killer !== undefined) {
       killer.kills += 1;
-      healKiller(killer);
+      healKiller(killer, state.tick);
       if (enemy.kind === "eliteBrute" && hasPerk(killer.perks, "berserkerSlaughterer")) {
         resetWeaponCooldowns(killer);
       }
@@ -128,11 +128,24 @@ function createDrop(kind: DropState["kind"], x: number, y: number, value: number
   };
 }
 
-function healKiller(hero: HeroState): void {
+function healKiller(hero: HeroState, tick: number): void {
   if (hero.temperament !== "berserker") {
     return;
   }
-  const amount = hasPerk(hero.perks, "berserkerBloodThirst") ? 2 : 1;
+  const fatigued = tick >= 90 * TICKS_PER_SECOND;
+  const permanentRanks = Math.min(
+    15,
+    hero.permStats.atk + hero.permStats.hp + hero.permStats.spd + hero.permStats.luck + hero.permStats.lvl,
+  );
+  const fatiguedAmount = 0.25 + permanentRanks * 0.02;
+  const hasBloodThirst = hasPerk(hero.perks, "berserkerBloodThirst");
+  const amount = fatigued
+    ? hasBloodThirst
+      ? fatiguedAmount + 0.2
+      : fatiguedAmount
+    : hasBloodThirst
+      ? 1.1
+      : 1;
   hero.hp = Math.min(hero.maxHp, hero.hp + amount);
 }
 
@@ -143,7 +156,7 @@ function resetWeaponCooldowns(hero: HeroState): void {
 }
 
 function contactDamage(amount: number, hero: HeroState): number {
-  const berserkerIronSkin = hasPerk(hero.perks, "berserkerIronSkin") ? 0.8 : 1;
-  const survivorLastLine = hasPerk(hero.perks, "survivorLastLine") && hero.hp / hero.maxHp < 0.5 ? 0.85 : 1;
+  const berserkerIronSkin = hasPerk(hero.perks, "berserkerIronSkin") ? 0.875 : 1;
+  const survivorLastLine = hasPerk(hero.perks, "survivorLastLine") && hero.hp / hero.maxHp < 0.5 ? 0.7 : 1;
   return amount * berserkerIronSkin * survivorLastLine;
 }

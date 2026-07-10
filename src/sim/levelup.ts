@@ -59,6 +59,16 @@ export function resolvePendingLevelUp(hero: HeroState, rng: Rng): LevelDialogSta
   };
 }
 
+/** Apply one seeded level-up choice without raising level, dialog, or pause. */
+export function applyStartingLevelUp(hero: HeroState, rng: Rng): void {
+  const options = rollOptions(hero, filterOptionsForTemperament(hero, buildOptions(hero)), rng);
+  const picked = chooseOption(hero, options);
+  if (picked === undefined) {
+    return;
+  }
+  applyOption(hero, picked);
+}
+
 function buildOptions(hero: HeroState): readonly LevelOption[] {
   const options: LevelOption[] = [];
 

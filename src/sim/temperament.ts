@@ -17,7 +17,8 @@ export const temperamentDefinitions: Record<TemperamentId, TemperamentDefinition
     name: "Berserker",
     traits: { bravery: 90, greed: 20, focus: 50 },
     hardRule: "Ignores loot when an enemy is within 200px and never flees at low HP.",
-    signature: "Kill restores 1 HP.",
+    signature:
+      "On kill: before 90s fatigue restore 1 HP (1.1 with Blood Thirst); after fatigue restore 0.25 + 0.02 * min(15, atk+hp+spd+luck+lvl) HP (+0.2 with Blood Thirst).",
     levelupPreference: "Attack options only.",
   },
   hoarder: {

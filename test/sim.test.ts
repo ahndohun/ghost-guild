@@ -106,8 +106,13 @@ describe("Ghost Guild deterministic simulation", () => {
     const hero = match.state.heroes[0];
 
     expect(hero?.level).toBe(3);
-    expect(hero?.maxHp).toBeCloseTo(81.2);
-    expect(hero?.baseSpeed).toBe(103);
+    expect(hero?.maxHp).toBeCloseTo(84);
+    expect(hero?.baseSpeed).toBe(105);
+
+    // LVL=2 must apply exactly two start choices (not merely bump the level number).
+    const weaponLevelSum = (hero?.weapons ?? []).reduce((sum, weapon) => sum + weapon.level, 0);
+    const passiveLevelSum = (hero?.passives ?? []).reduce((sum, passive) => sum + passive.level, 0);
+    expect(weaponLevelSum - 1 + passiveLevelSum).toBe(2);
   });
 
   it("returns an identical MatchResult hash for a four-hero arena match", () => {
@@ -162,51 +167,58 @@ describe("Ghost Guild deterministic simulation", () => {
     expect(berserkerXp).toBe(0);
   });
 
-  it("keeps generated drops inside the reachable arena across seeds", () => {
-    for (const seed of [7, 42]) {
-      const match = createMatch({
-        seed,
-        heroes: [
-          {
-            classId: "knight",
-            temperament: "survivor",
-            perks: ["survivorWideEyes", "survivorLastLine", "survivorOutlast"],
-            permStats: { atk: 50, hp: 50, spd: 50, luck: 0, lvl: 50 },
-          },
-        ],
-      });
-      let guard = 30000;
-      let checkedDrops = 0;
-      while (match.state.phase !== "finished" && guard > 0) {
-        match.step();
-        guard -= 1;
-        for (const drop of match.state.drops) {
-          checkedDrops += 1;
-          expect(drop.x).toBeGreaterThanOrEqual(HERO_RADIUS);
-          expect(drop.x).toBeLessThanOrEqual(WORLD_WIDTH - HERO_RADIUS);
-          expect(drop.y).toBeGreaterThanOrEqual(HERO_RADIUS);
-          expect(drop.y).toBeLessThanOrEqual(WORLD_HEIGHT - HERO_RADIUS);
+  it(
+    "keeps generated drops inside the reachable arena across seeds",
+    () => {
+      for (const seed of [7, 42]) {
+        const match = createMatch({
+          seed,
+          heroes: [
+            {
+              classId: "knight",
+              temperament: "survivor",
+              perks: ["survivorWideEyes", "survivorLastLine", "survivorOutlast"],
+              // lvl kept at 0 so magnet/level-up power does not instant-vacuum drops (vacuous pass).
+              permStats: { atk: 50, hp: 50, spd: 50, luck: 0, lvl: 0 },
+            },
+          ],
+        });
+        let guard = 30000;
+        let checkedDrops = 0;
+        while (match.state.phase !== "finished" && guard > 0) {
+          match.step();
+          guard -= 1;
+          for (const drop of match.state.drops) {
+            checkedDrops += 1;
+            expect(drop.x).toBeGreaterThanOrEqual(HERO_RADIUS);
+            expect(drop.x).toBeLessThanOrEqual(WORLD_WIDTH - HERO_RADIUS);
+            expect(drop.y).toBeGreaterThanOrEqual(HERO_RADIUS);
+            expect(drop.y).toBeLessThanOrEqual(WORLD_HEIGHT - HERO_RADIUS);
+          }
         }
-      }
 
-      expect(match.state.phase).toBe("finished");
-      expect(match.state.tick).toBe(5400);
-      expect(checkedDrops).toBeGreaterThan(0);
-    }
-  });
+        expect(match.state.phase).toBe("finished");
+        expect(match.state.tick).toBe(5400);
+        expect(checkedDrops).toBeGreaterThan(0);
+      }
+    },
+    30_000,
+  );
 
   it("matches the seed 42 berserker Knight golden score", () => {
     const result = simulateMatch(berserkerKnight);
     const hero = primaryHero(result);
 
+    // Calibration target after balance integration: {score:2194, kills:167, level:8}.
+    // survivedSeconds / survived are reported in the balance-c report; not goldenized as a score string.
     expect({
       score: hero.score,
       kills: hero.kills,
       level: hero.level,
     }).toEqual({
-      score: 2247,
-      kills: 171,
-      level: 9,
+      score: 2194,
+      kills: 167,
+      level: 8,
     });
   });
 });

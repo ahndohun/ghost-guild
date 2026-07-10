@@ -10,9 +10,10 @@ import { resultFromState } from "./results";
 import { recomputeMaxHp } from "./stats";
 import { sanitizePerks } from "./perks";
 import { traitsForTemperament } from "./temperament";
-import { resolvePendingLevelUp, xpNeededForLevel } from "./levelup";
+import { applyStartingLevelUp, resolvePendingLevelUp, xpNeededForLevel } from "./levelup";
 import { createWaveDirector } from "./waves";
 import { tickHeroWeapons } from "./weapons";
+import type { Rng } from "./rng";
 import type {
   HeroLoadout,
   HeroState,
@@ -53,7 +54,7 @@ export function createMatch(config: MatchConfig): MatchController {
     phase: "running",
     pauseTicks: 0,
     world: { x: WORLD_WIDTH, y: WORLD_HEIGHT },
-    heroes: loadouts.map((loadout, index) => createHero(loadout, index)),
+    heroes: loadouts.map((loadout, index) => createHero(loadout, index, rng)),
     enemies: [],
     projectiles: [],
     drops: [],
@@ -135,7 +136,7 @@ function normalizeLoadouts(loadouts: readonly HeroLoadout[]): readonly HeroLoado
   return loadouts.slice(0, 4);
 }
 
-function createHero(loadout: HeroLoadout, index: number): HeroState {
+function createHero(loadout: HeroLoadout, index: number, rng: Rng): HeroState {
   const definition = classDefinitions[loadout.classId];
   const permStats = normalizePermStats(loadout.permStats);
   const perks = sanitizePerks(loadout.temperament, loadout.perks);
@@ -160,10 +161,10 @@ function createHero(loadout: HeroLoadout, index: number): HeroState {
     vx: 0,
     vy: 0,
     radius: HERO_RADIUS,
-    hp: definition.maxHp * (1 + permStats.hp * 0.08),
-    maxHp: definition.maxHp * (1 + permStats.hp * 0.08),
-    baseMaxHp: definition.maxHp * (1 + permStats.hp * 0.08),
-    baseSpeed: definition.speed * (1 + permStats.spd * 0.03),
+    hp: definition.maxHp * (1 + permStats.hp * 0.10),
+    maxHp: definition.maxHp * (1 + permStats.hp * 0.10),
+    baseMaxHp: definition.maxHp * (1 + permStats.hp * 0.10),
+    baseSpeed: definition.speed * (1 + permStats.spd * 0.05),
     moveDirX: 1,
     moveDirY: 0,
     reevaluateTicks: 0,
@@ -181,6 +182,9 @@ function createHero(loadout: HeroLoadout, index: number): HeroState {
     undyingRageAvailable: perks.includes("berserkerUndyingRage"),
   };
   recomputeMaxHp(hero);
+  for (let i = 0; i < permStats.lvl; i += 1) {
+    applyStartingLevelUp(hero, rng);
+  }
   return hero;
 }
 

@@ -9,7 +9,7 @@ export function passiveLevel(hero: HeroState, passiveId: PassiveId): number {
 
 export function damageMultiplier(hero: HeroState, weaponId: WeaponId): number {
   const passiveDamage = 1 + passiveLevel(hero, "damage") * 0.15;
-  const permanentDamage = 1 + hero.permStats.atk * 0.05;
+  const permanentDamage = 1 + hero.permStats.atk * 0.07;
   const berserkerFrenzy = hasPerk(hero.perks, "berserkerFrenzy") && hero.hp / hero.maxHp < 0.35 ? 1.25 : 1;
   const duelistSignature = hero.temperament === "duelist" && isHighestLevelWeapon(hero, weaponId) ? 1.15 : 1;
   const duelistSingleEdge = hasPerk(hero.perks, "duelistSingleEdge") && isHighestLevelWeapon(hero, weaponId) ? 1.1 : 1;
@@ -17,9 +17,9 @@ export function damageMultiplier(hero: HeroState, weaponId: WeaponId): number {
 }
 
 export function speedMultiplier(hero: HeroState): number {
-  const speedPassiveValue = hasPerk(hero.perks, "survivorEnduringPace") ? 0.15 : 0.12;
+  const speedPassiveValue = hasPerk(hero.perks, "survivorEnduringPace") ? 0.18 : 0.12;
   const passiveSpeed = 1 + passiveLevel(hero, "speed") * speedPassiveValue;
-  const quickRetreat = hasPerk(hero.perks, "survivorQuickRetreat") && hero.hp / hero.maxHp < 0.5 ? 1.08 : 1;
+  const quickRetreat = hasPerk(hero.perks, "survivorQuickRetreat") && hero.hp / hero.maxHp < 0.5 ? 1.12 : 1;
   return passiveSpeed * quickRetreat;
 }
 
@@ -37,7 +37,7 @@ export function goldMultiplier(hero: HeroState): number {
 
 export function recomputeMaxHp(hero: HeroState): void {
   const previousMaxHp = hero.maxHp;
-  const maxHpPassiveValue = hasPerk(hero.perks, "survivorSecondWind") ? 0.24 : 0.2;
+  const maxHpPassiveValue = hasPerk(hero.perks, "survivorSecondWind") ? 0.28 : 0.2;
   hero.maxHp = hero.baseMaxHp * (1 + passiveLevel(hero, "maxHp") * maxHpPassiveValue);
   if (hero.maxHp > previousMaxHp) {
     hero.hp += hero.maxHp - previousMaxHp;
