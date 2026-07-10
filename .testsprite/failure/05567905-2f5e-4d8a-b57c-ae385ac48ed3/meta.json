@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "cli-v1",
+  "snapshotId": "snap_acb81ecdacc7a1de",
+  "testId": "05567905-2f5e-4d8a-b57c-ae385ac48ed3",
+  "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
+  "codeVersion": "v1",
+  "runIdIfAvailable": "65686496-1596-424a-8ad9-646a743e269e",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "failedStepIndex": 8,
+  "failureKind": null,
+  "capturedAt": "2026-07-10T21:33:15.930Z",
+  "fetchedAt": "2026-07-10T21:33:17.440Z"
+}

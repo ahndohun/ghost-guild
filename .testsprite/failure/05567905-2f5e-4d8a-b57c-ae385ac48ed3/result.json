@@ -1,0 +1,18 @@
+{
+  "testId": "05567905-2f5e-4d8a-b57c-ae385ac48ed3",
+  "status": "blocked",
+  "startedAt": null,
+  "finishedAt": "2026-07-10T21:33:15.930Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783719195691596//tmp/016223c1-1de7-4f5f-93fd-44341b2fe83e/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_acb81ecdacc7a1de",
+  "runIdIfAvailable": "65686496-1596-424a-8ad9-646a743e269e",
+  "codeVersion": "v1",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 8,
+  "failureKind": null,
+  "verdict": "blocked",
+  "executionStatus": "completed",
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: All requested steps were completed and verified from the visible UI and session history.\n\nVerification checklist (each item cross-checked against session evidence):\n- Navigation: The session loaded https://colosseum-survivors.pages.dev/?seed=11&fast=1 (the Barracks/Guild UI is currently visible).\n- Player name entry: The nameplate shows 'TestSprite-3113' (the entered gladiator name).\n- Confirm-player-name / battle-open: The arena entry f…"
+}

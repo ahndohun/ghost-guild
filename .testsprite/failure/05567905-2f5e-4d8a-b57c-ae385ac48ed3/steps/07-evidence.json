@@ -1,0 +1,8 @@
+[
+  {
+    "kind": "snapshot",
+    "stepIndex": 7,
+    "summary": "Step 7 'Click the 'BACK TO GUILD' button to return to the guild view' passed.",
+    "path": "steps/07-snapshot.html"
+  }
+]

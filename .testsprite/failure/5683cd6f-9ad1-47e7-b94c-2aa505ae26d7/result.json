@@ -1,0 +1,18 @@
+{
+  "testId": "5683cd6f-9ad1-47e7-b94c-2aa505ae26d7",
+  "status": "blocked",
+  "startedAt": null,
+  "finishedAt": "2026-07-10T21:37:58.967Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783719478753948//tmp/a3bf75d1-e7b9-42dd-814e-7be38b097b58/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_947a4dbbc1308aea",
+  "runIdIfAvailable": "43c8730a-984f-4548-9189-5172ec56eff8",
+  "codeVersion": "v1",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 8,
+  "failureKind": null,
+  "verdict": "blocked",
+  "executionStatus": "completed",
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: PASS: All requested verifications completed.\n\nObserved (verifiable from this session):\n- The practice bout completed with result text: 'DEFEATED AT 145s'.\n- The result score shown: 3622 (numeric value observed).\n- Gold ledger values observed: gold before = 0, gold earned = 77, gold after = 77 (gold increased from 0 to 77 after the bout).\n- Result loot list was non-empty (loot items were present in the results screen).\n- The match ranking…"
+}

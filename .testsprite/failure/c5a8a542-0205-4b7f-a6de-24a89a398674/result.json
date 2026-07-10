@@ -1,0 +1,18 @@
+{
+  "testId": "c5a8a542-0205-4b7f-a6de-24a89a398674",
+  "status": "blocked",
+  "startedAt": "2026-07-10T21:44:27.463Z",
+  "finishedAt": "2026-07-10T21:57:24.185Z",
+  "videoUrl": "https://testsprite-videos.s3.us-east-1.amazonaws.com/04484458-c031-705a-8abe-9c707dd14da5/1783720643896105//tmp/5ecc1218-100f-45f5-89c7-9f015db65b81/result.webm",
+  "failureAnalysisUrl": null,
+  "snapshotId": "snap_a702bd04fd8af5ea",
+  "runIdIfAvailable": "c2987ec6-9193-4680-b9ee-08a7f64ef258",
+  "codeVersion": "v1",
+  "targetUrl": "https://ghost-guild.vercel.app",
+  "targetUrlSource": "run",
+  "failedStepIndex": 21,
+  "failureKind": null,
+  "verdict": "blocked",
+  "executionStatus": "completed",
+  "summary": "Blocked before a verdict could be produced: TEST BLOCKED: Found 106 elements matching \"[data-testid]\":\n\n[0] <button> \"PRESS START\" {data-testid=\"start-game\"} (0 children)\n[1] <span> \"0\" {data-testid=\"gold-amount\", id=\"gold-amount\"} (0 children)\n[2] <button> \"⚙\" {data-testid=\"settings-open\", aria-label=\"Open settings\"} (0 children)\n[3] <div> \"SOUND ON TUTORIAL\" {data-testid=\"settings-popover\", id=\"settings-popover\"} (2 children)\n[4] <button> \"SOUND ON\" {data-testid=\"sound-toggle\", id=\"guild-soun…"
+}

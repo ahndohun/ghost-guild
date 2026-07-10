@@ -1,0 +1,870 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preload" href="/fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0e0c15">
+    <meta name="application-name" content="Colosseum Survivors">
+    <meta name="description" content="Coach an autonomous gladiator, forge a class build, and survive the colosseum.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://colosseum-survivors.pages.dev/">
+    <meta property="og:title" content="Colosseum Survivors">
+    <meta property="og:description" content="Coach the build. Trust their judgment. Survive the grand arena.">
+    <meta property="og:image" content="https://colosseum-survivors.pages.dev/social-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Colosseum Survivors">
+    <meta name="twitter:description" content="An autonomous arena-survival game where coaching is the play.">
+    <meta name="twitter:image" content="https://colosseum-survivors.pages.dev/social-card.png">
+    <title>Colosseum Survivors</title>
+    <script type="module" crossorigin="" src="/assets/index-BBNw30Rl.js"></script>
+    <style data-original-href="https://colosseum-survivors.pages.dev/assets/index-BqerK-G0.css">@font-face { font-family: "Press Start 2P"; src: url("/fonts/press-start-2p.woff2") format("woff2"); font-display: swap; }
+:root { color: rgb(232, 227, 213); font-synthesis: none; text-rendering: geometricprecision; --bg: #0e0c15; --bg-deep: #08070d; --ink: #e8e3d5; --ink-dim: #e8e3d5b8; --gold: #d9a441; --gold-soft: #fff4cf; --cyan: #58d6c9; --green: #9fe3b0; --red: #e08484; --enemy: #b8453f; --panel-fill: #1a151c; --panel-fill-deep: #120f16; --button-fill: #2a1c18; --shadow: #05040a; --frame-max: 960px; --stone-slice: 48; --stone-border: 14px; --bronze-slice: 12; --bronze-border: 6px; --pixel-font: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; --body-font: "Avenir Next", Avenir, "Segoe UI", system-ui, -apple-system, sans-serif; background: rgb(14, 12, 21); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+* { box-sizing: border-box; }
+html, body { background: var(--bg-deep); width: 100%; height: 100%; margin: 0px; overflow: hidden; }
+body { background: radial-gradient(circle at 50% 0px, rgba(184, 69, 63, 0.14), rgba(0, 0, 0, 0) 36rem), linear-gradient(rgb(23, 17, 28) 0%, rgb(14, 12, 21) 52%, rgb(8, 7, 13) 100%); min-width: 320px; min-height: 100dvh; }
+#app { width: min(var(--frame-max), 100vw); background: var(--bg); height: 100dvh; max-height: 100dvh; margin: 0px auto; position: relative; overflow: hidden; box-shadow: rgb(5, 4, 10) 0px 0px 0px 2px, rgba(0, 0, 0, 0.55) 0px 0px 48px; }
+#app:has(#screen-guild.screen-active) { width: 100vw; max-width: none; box-shadow: none; }
+h1, h2, .eyebrow, .gold, button, .offline-badge, .hud-chip, .class-card strong, .result-grid dt, .result-grid dd, #result-ranking, #leaderboard-list, .title-logo, .title-logo-big, .title-tagline, .lobby-nameplate-title { font-family: var(--pixel-font); }
+button, input { font: inherit; }
+.ui-stone, .panel, .results-panel, .lobby-stage, .lobby-nameplate, .player-name-field, .gold, .best-survival-guild, .best-survival, .offline-badge, .hud-chip, .result-cell, .overview-cell, .item-compare-panel, #result-ranking li, #leaderboard-list li, .leaderboard-panel, .title-window, .run-canvas-frame, .game-window, .coach-panel, .guild-actions { border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; border-image-width: var(--stone-border); background-color: var(--panel-fill); box-shadow: 4px 4px 0 var(--shadow); image-rendering: pixelated; }
+.coach-panel { border-width: 8px; background-color: var(--panel-fill-deep); min-height: 52px; box-shadow: 2px 2px 0 var(--shadow); border-image-width: 8px; flex: 0 0 auto; justify-content: space-between; align-items: center; gap: 12px; margin: 0px 8px 6px; padding: 8px 10px; display: flex; }
+.modal-backdrop { z-index: 20; backdrop-filter: blur(2px); background: rgba(5, 4, 10, 0.78); place-items: center; padding: 28px; display: grid; position: absolute; inset: 0px; }
+.modal-window { border-width: 14px; border-style: solid; border-color: rgba(0, 0, 0, 0); border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; background-color: var(--panel-fill-deep); width: min(520px, 100%); box-shadow: 6px 6px 0 var(--shadow); text-align: center; border-image-width: 14px; padding: 22px; }
+.modal-window h2 { color: var(--gold-soft); margin: 0px 0px 10px; font-size: 14px; }
+.modal-copy { color: var(--ink-dim); font-family: var(--body-font); margin: 0px 0px 16px; font-size: 14px; font-weight: 600; line-height: 1.5; }
+.modal-error { min-height: 20px; color: var(--red); font-family: var(--body-font); margin: 6px 0px; font-size: 12px; font-weight: 700; }
+.modal-actions { justify-content: flex-end; gap: 8px; display: flex; }
+.modal-actions button { min-height: 44px; }
+.coach-copy { align-items: center; gap: 10px; min-width: 0px; display: flex; }
+.coach-copy strong { color: var(--cyan); font-family: var(--pixel-font); flex: 0 0 auto; font-size: 9px; }
+.coach-copy span { color: var(--gold-soft); font-family: var(--body-font); font-size: 12px; font-weight: 600; line-height: 1.35; }
+.coach-panel [data-testid="coach-skip"], .coach-panel [data-testid="coach-run-skip"], .coach-panel [data-testid="coach-results-skip"] { flex: 0 0 auto; min-width: 72px; min-height: 44px; padding: 8px 10px; font-size: 9px; }
+.coach-overlay { z-index: 4; width: min(680px, 100% - 24px); margin: 0px; position: absolute; top: 12px; bottom: auto; left: 50%; transform: translate(-50%); }
+.coach-results { width: 100%; margin: 12px 0px; }
+.ui-bronze, button, .class-card, .perk-card { border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; border-image-width: var(--bronze-border); background-color: var(--button-fill); box-shadow: 3px 3px 0 var(--shadow); image-rendering: pixelated; }
+button { min-height: 40px; color: var(--gold-soft); cursor: pointer; font-family: var(--pixel-font); text-shadow: 1px 1px 0 var(--shadow); padding: 8px 10px; font-size: 9px; line-height: 1.45; transition: transform 80ms step-end, box-shadow 80ms step-end, filter 80ms step-end; }
+button:hover:not(:disabled) { filter: brightness(1.12); box-shadow: 4px 4px 0 var(--shadow); transform: translate(-1px, -1px); }
+button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; filter: brightness(1.1); }
+button:active:not(:disabled) { box-shadow: 1px 1px 0 var(--shadow); filter: brightness(0.95); transform: translate(2px, 2px); }
+button:disabled, button.locked, button.unaffordable { cursor: not-allowed; filter: grayscale(0.45) brightness(0.72); opacity: 0.72; box-shadow: 2px 2px 0 var(--shadow); }
+button.selected, .class-card.selected, .perk-card.selected { filter: brightness(1.18) saturate(1.15); box-shadow: 0 0 0 3px var(--cyan), inset 0 0 0 1px #58d6c98c, 3px 3px 0 var(--shadow); color: rgb(255, 255, 255); }
+button.locked, .class-card.locked, .perk-card.locked { filter: grayscale(0.4) brightness(0.75); opacity: 0.76; outline-offset: -3px; outline: rgba(232, 227, 213, 0.38) dashed 2px; }
+button.unaffordable { filter: grayscale(0.25) brightness(0.78); opacity: 0.7; outline: none; }
+button.unaffordable em, .perk-card.unaffordable em, .upgrade-grid button.unaffordable { text-decoration: line-through 2px; }
+button.affordable:not(.selected):not(:disabled), .perk-card.affordable:not(.selected) { filter: none; opacity: 1; box-shadow: inset 3px 0 0 0 var(--green), 3px 3px 0 var(--shadow); }
+.primary { color: var(--gold-soft); text-shadow: rgb(58, 30, 10) 1px 1px; min-height: 44px; padding: 10px 14px; font-size: 10px; }
+.primary:hover:not(:disabled) { filter: brightness(1.18) sepia(0.12); }
+.screen { opacity: 0; width: 100%; height: 100%; max-height: 100dvh; margin: 0px; padding: 0px; position: absolute; inset: 0px; overflow: hidden; transform: translateY(6px); }
+.screen.screen-active { opacity: 1; animation: 0.16s steps(3) 0s 1 normal none running screen-enter; transform: none; }
+.hidden { display: none !important; }
+@keyframes screen-enter {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen.screen-active { animation: auto ease 0s 1 normal none running none; }
+  button { transition: none; }
+  button:hover:not(:disabled), button:active:not(:disabled) { transform: none; }
+}
+.title-screen { background: rgb(14, 12, 21); place-items: stretch; padding: 0px; display: grid; overflow: hidden; }
+.title-scene { isolation: isolate; flex-direction: column; justify-content: center; align-items: center; gap: clamp(12px, 2.5vh, 28px); width: 100%; height: 100%; padding: 16px 12px 24px; display: flex; position: relative; overflow: hidden; }
+.title-sky { z-index: 0; image-rendering: pixelated; filter: sepia(0.72) saturate(0.86) hue-rotate(-10deg) brightness(0.8); pointer-events: none; background: url("/assets/ui/title-arena-bg.png") center bottom / cover no-repeat, linear-gradient(rgb(29, 20, 48) 0%, rgb(23, 17, 31) 42%, rgb(14, 12, 21) 78%, rgb(10, 8, 16) 100%); position: absolute; inset: 0px; }
+.title-stars { z-index: 1; pointer-events: none; display: none; position: absolute; inset: 0px; overflow: hidden; }
+.title-stars::before, .title-stars::after { content: ""; background: 0px 0px; border-radius: 50%; width: 1px; height: 1px; position: absolute; }
+.title-stars::before { top: 0px; left: 0px; box-shadow: rgba(232, 227, 213, 0.55) 28px 36px 0px 0.5px, rgba(232, 227, 213, 0.35) 72px 58px 0px 0.5px, rgba(232, 227, 213, 0.45) 118px 22px 0px 0.5px, rgba(232, 227, 213, 0.3) 164px 88px 0px 0.5px, rgba(232, 227, 213, 0.5) 210px 44px 0px 0.5px, rgba(232, 227, 213, 0.28) 256px 112px 0px 0.5px, rgba(232, 227, 213, 0.4) 310px 28px 0px 0.5px, rgba(232, 227, 213, 0.32) 360px 76px 0px 0.5px, rgba(232, 227, 213, 0.48) 420px 18px 0px 0.5px, rgba(232, 227, 213, 0.26) 470px 96px 0px 0.5px, rgba(232, 227, 213, 0.42) 520px 48px 0px 0.5px, rgba(232, 227, 213, 0.34) 580px 70px 0px 0.5px, rgba(232, 227, 213, 0.5) 640px 32px 0px 0.5px, rgba(232, 227, 213, 0.28) 700px 104px 0px 0.5px, rgba(232, 227, 213, 0.38) 760px 54px 0px 0.5px, rgba(232, 227, 213, 0.44) 820px 20px 0px 0.5px, rgba(232, 227, 213, 0.3) 880px 86px 0px 0.5px, rgba(232, 227, 213, 0.46) 940px 40px 0px 0.5px, rgba(232, 227, 213, 0.22) 100px 130px 0px 0.5px, rgba(232, 227, 213, 0.25) 400px 140px 0px 0.5px, rgba(232, 227, 213, 0.2) 680px 150px 0px 0.5px; }
+.title-stars::after { opacity: 0.7; top: 0px; left: 0px; box-shadow: rgba(88, 214, 201, 0.35) 48px 90px 0px 0.5px, rgba(232, 227, 213, 0.4) 190px 16px 0px 0.5px, rgba(232, 227, 213, 0.28) 340px 120px 0px 0.5px, rgba(88, 214, 201, 0.3) 500px 14px 0px 0.5px, rgba(232, 227, 213, 0.36) 650px 64px 0px 0.5px, rgba(232, 227, 213, 0.24) 790px 128px 0px 0.5px, rgba(88, 214, 201, 0.28) 900px 72px 0px 0.5px; }
+.title-colosseum { z-index: 2; pointer-events: none; opacity: 0.38; background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 18px, rgba(8, 6, 12, 0.55) 18px, rgba(8, 6, 12, 0.55) 22px, rgba(0, 0, 0, 0) 22px, rgba(0, 0, 0, 0) 40px), radial-gradient(14% 70% at 8% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 22% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 36% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 50% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.9) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 64% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 78% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), radial-gradient(14% 70% at 92% 100%, rgba(0, 0, 0, 0) 48%, rgba(6, 5, 10, 0.85) 52%, rgba(0, 0, 0, 0) 56%), linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(10, 8, 16, 0.55) 40%, rgba(6, 5, 10, 0.75) 100%); height: 28%; position: absolute; top: 18%; left: -4%; right: -4%; mask-image: linear-gradient(rgba(0, 0, 0, 0) 0%, rgb(0, 0, 0) 18%, rgb(0, 0, 0) 78%, rgba(0, 0, 0, 0) 100%); }
+.title-flames { z-index: 3; pointer-events: none; position: absolute; inset: 0px; overflow: hidden; }
+.title-flame { filter: blur(2px); opacity: 0; will-change: transform, opacity; background: radial-gradient(circle, rgba(255, 238, 154, 0.98) 0%, rgba(230, 118, 42, 0.72) 42%, rgba(0, 0, 0, 0) 72%); border-radius: 50%; width: 10px; height: 10px; animation: 7s ease-in-out 0s infinite normal none running title-flame-drift; position: absolute; bottom: 8%; }
+.title-flame-1 { width: 8px; height: 8px; animation-duration: 6.2s; animation-delay: 0s; left: 12%; }
+.title-flame-2 { width: 12px; height: 12px; animation-duration: 8.1s; animation-delay: 1.1s; left: 28%; }
+.title-flame-3 { width: 9px; height: 9px; animation-duration: 7s; animation-delay: 2.4s; left: 44%; }
+.title-flame-4 { width: 11px; height: 11px; animation-duration: 6.6s; animation-delay: 0.6s; left: 58%; }
+.title-flame-5 { width: 8px; height: 8px; animation-duration: 7.8s; animation-delay: 3.2s; left: 72%; }
+.title-flame-6 { width: 13px; height: 13px; animation-duration: 9s; animation-delay: 1.8s; left: 84%; }
+.title-flame-7 { width: 7px; height: 7px; animation-duration: 5.8s; animation-delay: 4s; bottom: 14%; left: 36%; }
+@keyframes title-flame-drift {
+  0% { opacity: 0; transform: translateY(12px) scale(0.7); }
+  12% { opacity: 0.75; }
+  55% { opacity: 0.55; }
+  100% { opacity: 0; transform: translate(6px, -220px) scale(1.15); }
+}
+.title-fog { z-index: 4; pointer-events: none; filter: blur(10px); background: linear-gradient(rgba(0, 0, 0, 0) 0%, rgba(217, 164, 65, 0.04) 35%, rgba(92, 51, 28, 0.18) 70%, rgba(22, 14, 12, 0.58) 100%); height: 28%; position: absolute; bottom: 0px; left: 0px; right: 0px; }
+.title-statue { z-index: 5; object-fit: contain; width: auto; height: clamp(200px, 38vh, 320px); max-height: 42%; image-rendering: pixelated; pointer-events: none; filter: sepia(0.5) saturate(0.8) hue-rotate(-10deg) drop-shadow(rgba(217, 164, 65, 0.42) 0px 0px 14px) drop-shadow(rgba(184, 69, 63, 0.18) 0px 0px 28px); user-select: none; position: absolute; bottom: 0px; }
+.title-statue-left { left: clamp(0px, 2vw, 24px); }
+.title-statue-right { right: clamp(0px, 2vw, 24px); }
+.title-brand { z-index: 6; text-align: center; pointer-events: none; flex: 0 0 auto; margin: 0px; padding: 0px 12px; position: relative; }
+.title-logo-big { color: rgb(240, 235, 224); letter-spacing: 0.04em; text-shadow: rgba(255, 248, 230, 0.55) 0px -2px, rgba(255, 244, 220, 0.75) 0px -1px, rgb(42, 36, 24) 0px 1px, rgb(26, 21, 16) 0px 2px, rgb(14, 12, 21) 0px 3px, rgb(5, 4, 10) 2px 2px, rgba(217, 164, 65, 0.32) 0px 0px 18px, rgba(184, 69, 63, 0.16) 0px 0px 36px; flex-direction: column; align-items: center; gap: 0.35em; margin: 0px; font-size: clamp(28px, 6.5vw, 52px); line-height: 1.15; display: flex; }
+.title-logo-line { display: block; }
+.title-shell { z-index: 7; flex: 0 0 auto; width: min(480px, 100% - 24px); margin: 0px; position: relative; }
+.title-window { text-align: center; box-shadow: 6px 6px 0 var(--shadow); justify-items: center; gap: 10px; padding: 22px 18px 20px; display: grid; }
+.title-window .eyebrow { color: var(--gold); letter-spacing: 0.08em; text-shadow: 1px 1px 0 var(--shadow); margin: 0px; font-size: 8px; }
+.title-logo { color: var(--gold-soft); text-shadow: 2px 2px 0 var(--shadow), 0 0 12px #d9a44140; margin: 0px; font-size: clamp(16px, 4.2vw, 28px); line-height: 1.35; }
+.title-tagline { max-width: 28rem; color: var(--ink); text-shadow: 1px 1px 0 var(--shadow); margin: 0px; font-size: 9px; line-height: 1.7; }
+.title-subline { max-width: 26rem; color: var(--ink-dim); font-family: var(--pixel-font); margin: 0px 0px 6px; font-size: 8px; line-height: 1.7; }
+.title-start { letter-spacing: 0.04em; min-width: min(240px, 100%); min-height: 48px; margin-top: 4px; font-size: 11px; }
+@media (prefers-reduced-motion: reduce) {
+  .title-flame { opacity: 0.4; animation: auto ease 0s 1 normal none running none; transform: none; }
+}
+@media (width <= 700px) {
+  .title-statue { display: none; }
+  .title-shell { width: min(420px, 100% - 20px); }
+}
+.guild-screen { background: linear-gradient(180deg, #0b0a0ff5 0%, #0e0c15f0 48%, #08070bfa 100%), var(--bg); place-items: center; display: grid; }
+.results-scroll { overscroll-behavior: contain; width: 100%; height: 100%; max-height: 100dvh; padding: 12px; overflow: hidden auto; }
+.guild-shell { --shell-scale: 1; width: 960px; height: 540px; min-height: 0px; transform: translate(-50%, -50%) scale(var(--shell-scale)); transform-origin: 50% center; image-rendering: pixelated; flex-direction: column; display: flex; position: absolute; top: 50%; left: 50%; }
+.guild-topstrip { flex-wrap: nowrap; flex: 0 0 auto; align-items: center; gap: 8px; min-height: 44px; padding: 4px 8px 0px; display: flex; }
+.guild-location { color: var(--cyan); font-family: var(--pixel-font); flex: 1 1 auto; margin: 0px; font-size: 9px; }
+.settings-menu { flex: 0 0 auto; position: relative; }
+.settings-open { width: 44px; min-width: 44px; min-height: 44px; padding: 5px; font-size: 16px; }
+.settings-popover { z-index: 12; border-width: 8px; border-style: solid; border-color: rgba(0, 0, 0, 0); border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; background: var(--panel-fill-deep); width: 220px; box-shadow: 4px 4px 0 var(--shadow); border-image-width: 8px; gap: 6px; padding: 8px; display: grid; position: absolute; top: calc(100% + 6px); right: 0px; }
+.settings-popover button { width: 100%; min-height: 44px; }
+.guild-topstrip .gold { border-width: 6px; white-space: nowrap; border-image-width: 6px; flex-flow: row; flex: 0 0 auto; align-items: center; gap: 8px; min-width: 148px; max-width: none; min-height: 40px; padding: 5px 8px; font-size: 14px; line-height: 1.2; display: inline-flex; overflow: visible; }
+.guild-topstrip .gold .gold-label { white-space: nowrap; flex: 0 0 auto; }
+.guild-topstrip .gold #gold-amount, .guild-topstrip .gold [data-testid="gold-amount"] { white-space: nowrap; color: var(--gold-soft); flex: 0 0 auto; font-size: 14px; line-height: 1.2; display: inline-block; }
+.guild-body { flex-direction: column; flex: 1 1 auto; gap: 5px; min-height: 0px; padding: 4px 8px; display: flex; }
+.guild-nav { flex: 0 0 auto; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 5px; width: 100%; display: grid; }
+.guild-nav .guild-tab { text-align: center; min-width: 44px; min-height: 44px; padding: 8px 6px; font-size: 9px; line-height: 1.25; }
+.guild-pane { overscroll-behavior: contain; flex: 1 1 auto; min-width: 0px; min-height: 0px; overflow: hidden auto; }
+.guild-section:not(:last-child) { margin-bottom: 8px; }
+#guild-section-class { grid-template-columns: minmax(0px, 1.5fr) minmax(0px, 1fr); gap: 5px; margin-bottom: 0px; display: grid; }
+#guild-section-class .panel { margin-bottom: 0px; }
+.guild-section .panel:not(:last-child) { margin-bottom: 10px; }
+.guild-actions { border-width: 6px; background-color: var(--panel-fill-deep); box-shadow: 3px 3px 0 var(--shadow); border-image-width: 6px; flex: 0 0 auto; place-items: stretch; margin: 0px 8px 8px; padding: 4px; display: grid; }
+.guild-shell button { min-width: 44px; min-height: 44px; }
+.guild-actions button { min-width: 44px; min-height: 44px; padding: 10px 12px; font-size: 11px; }
+.guild-actions .primary { letter-spacing: 0.06em; width: 100%; min-height: 48px; padding: 8px 14px; font-size: 14px; line-height: 1.3; }
+.battle-modal-window { width: min(680px, 100%); }
+.battle-mode-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); gap: 10px; margin: 14px 0px 10px; display: grid; }
+.battle-mode-grid > button { align-content: center; gap: 8px; min-height: 92px; display: grid; }
+.battle-mode-grid strong { color: var(--gold-soft); font-family: var(--pixel-font); font-size: 11px; }
+.battle-mode-grid span { color: var(--ink-dim); font-family: var(--body-font); font-size: 13px; font-weight: 600; line-height: 1.35; }
+.autorun-choice { width: 100%; min-height: 44px; margin-bottom: 10px; }
+.guild-shell > #coach-panel { z-index: 8; width: 470px; margin: 0px; position: absolute; top: 54px; right: 14px; }
+.overview-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin: 4px 0px 0px; display: grid; }
+.overview-identity { border-bottom: 2px solid rgba(217, 164, 65, 0.28); align-items: center; gap: 12px; margin: 0px 0px 8px; padding: 8px 10px; display: flex; }
+.overview-identity > div { gap: 6px; display: grid; }
+.overview-identity span { color: var(--cyan); font-family: var(--pixel-font); font-size: 9px; }
+.overview-identity strong { color: var(--gold-soft); font-family: var(--pixel-font); font-size: 14px; }
+.overview-class-portrait, .class-portrait { object-fit: contain; width: 64px; height: 64px; image-rendering: pixelated; filter: drop-shadow(2px 2px 0 var(--shadow)); flex: 0 0 auto; display: block; }
+.class-skill { justify-content: center; align-items: center; gap: 6px; max-width: 100%; display: inline-flex; }
+.class-skill-icon { object-fit: contain; width: 32px; height: 32px; image-rendering: pixelated; flex: 0 0 auto; display: block; }
+.class-skill small { color: var(--ink-dim); font-family: var(--pixel-font); overflow-wrap: anywhere; font-size: 9px; line-height: 1.35; }
+.overview-cell { border-width: 8px; overflow-wrap: anywhere; border-image-width: 8px; padding: 8px 10px; line-height: 1.4; }
+.overview-cell dt { color: var(--cyan); font-family: var(--pixel-font); margin-bottom: 6px; font-size: 9px; }
+.overview-cell dd { color: var(--gold-soft); font-family: var(--body-font); margin: 0px; font-size: 12px; font-weight: 500; line-height: 1.45; }
+.item-compare-panel { border-width: 8px; border-image-width: 8px; margin-top: 10px; padding: 8px 10px; }
+.item-compare-placeholder { color: var(--ink-dim); font-family: var(--body-font); text-align: center; margin: 0px; font-size: 12px; font-weight: 500; line-height: 1.5; }
+.lobby-stage { border-width: 8px; background-color: var(--panel-fill-deep); box-shadow: 5px 5px 0 var(--shadow); border-image-width: 8px; flex: 0 0 150px; grid-template-rows: 100px 34px; gap: 0px; margin: 0px; padding: 0px; display: grid; overflow: hidden; }
+.lobby-stage-frame { background: rgb(14, 12, 21); width: 100%; height: 100px; min-height: 0px; position: relative; overflow: hidden; }
+#lobby-canvas { aspect-ratio: auto; width: 100%; max-width: none; height: 100%; box-shadow: none; image-rendering: pixelated; background: 0px 0px; border: 0px; display: block; }
+.lobby-title-overlay { z-index: 1; pointer-events: none; text-shadow: 2px 2px 0 var(--shadow); position: absolute; top: 7px; left: 9px; right: 12px; }
+.lobby-title-overlay .eyebrow { margin: 0px 0px 4px; font-size: 7px; }
+.lobby-title-overlay h1 { color: var(--gold-soft); margin: 0px; font-size: 12px; line-height: 1.3; }
+.lobby-title-overlay .tagline { max-width: 42rem; color: var(--ink-dim); font-family: var(--body-font); margin: 3px 0px 0px; font-size: 10px; font-weight: 500; line-height: 1.3; }
+.lobby-title-overlay .onboarding-line { color: rgba(232, 227, 213, 0.72); max-width: 48rem; font-family: var(--body-font); margin: 4px 0px 0px; font-size: 12px; font-weight: 500; line-height: 1.45; }
+.lobby-nameplate { border-width: 6px; text-align: left; box-shadow: none; background-color: var(--panel-fill-deep); border-image-width: 6px; grid-template-columns: minmax(180px, 1.05fr) minmax(0px, 1.8fr) auto; align-items: center; gap: 8px; margin: 0px; padding: 2px 8px; display: grid; }
+.lobby-nameplate-title { min-height: 24px; box-shadow: none; color: var(--gold-soft); text-align: left; background: 0px 0px; border: 0px; margin: 0px; padding: 1px 4px; font-size: 8px; line-height: 1.3; }
+.lobby-nameplate-title:hover:not(:disabled), .lobby-nameplate-title:active:not(:disabled) { box-shadow: none; transform: none; }
+.lobby-nameplate-rule { max-width: 52rem; color: var(--ink-dim); font-family: var(--body-font); margin: 0px; font-size: 12px; font-weight: 500; line-height: 1.25; }
+.lobby-nameplate-best { color: var(--green); font-family: var(--pixel-font); white-space: nowrap; margin: 0px; font-size: 7px; line-height: 1.3; }
+.eyebrow { color: var(--cyan); letter-spacing: 0px; text-shadow: 1px 1px 0 var(--shadow); margin: 0px 0px 8px; font-size: 9px; }
+h1, h2, p, .tagline { margin-top: 0px; }
+h1 { margin-bottom: 0px; font-size: 22px; line-height: 1.2; }
+.tagline { max-width: 560px; color: var(--ink-dim); margin: 8px 0px 0px; font-size: 12px; line-height: 1.5; }
+.onboarding-line { color: rgba(232, 227, 213, 0.56); max-width: 720px; margin: 8px 0px 0px; font-size: 11px; line-height: 1.5; }
+h2, .results-section-title { color: var(--gold-soft); text-shadow: 1px 1px 0 var(--shadow); margin-bottom: 10px; font-size: 10px; line-height: 1.5; }
+.gold { white-space: nowrap; min-width: 148px; color: var(--gold-soft); border-width: 8px; box-shadow: 2px 2px 0 var(--shadow); border-image-width: 8px; flex-flow: row; align-items: center; gap: 8px; padding: 10px 12px; font-size: 14px; line-height: 1.2; display: inline-flex; overflow: visible; }
+.player-name-field { border-width: 8px; min-width: 0px; box-shadow: 2px 2px 0 var(--shadow); background-color: var(--panel-fill-deep); border-image-width: 8px; gap: 4px; padding: 6px 10px; display: grid; }
+.player-name-field span { color: var(--cyan); font-family: var(--pixel-font); font-size: 8px; }
+.player-name-field input { width: 100%; min-width: 0px; color: var(--gold-soft); font-family: var(--pixel-font); background: 0px 0px; border-width: 0px 0px 2px; border-top-style: initial; border-right-style: initial; border-left-style: initial; border-top-color: initial; border-right-color: initial; border-left-color: initial; border-image: initial; border-bottom-style: solid; border-bottom-color: rgba(232, 227, 213, 0.42); outline: 0px; font-size: 11px; line-height: 1.5; }
+.player-name-field input:focus-visible { border-bottom-color: var(--cyan); }
+.best-survival-guild { border-width: 8px; box-shadow: 2px 2px 0 var(--shadow); color: var(--green); white-space: nowrap; background-color: var(--panel-fill-deep); border-image-width: 8px; padding: 4px 8px; font-size: 8px; line-height: 1.5; }
+.best-survival { color: rgb(154, 148, 136); text-align: center; border-width: 10px; box-shadow: 3px 3px 0 var(--shadow); border-image-width: 10px; margin: 0px 0px 14px; padding: 8px 10px; font-size: 9px; line-height: 1.6; }
+.best-survival.is-new-best { color: var(--gold); }
+.best-survival.is-survived { color: var(--green); }
+.best-survival.is-new-best.is-survived { color: var(--gold); }
+.panel { border-width: 12px; background-color: var(--panel-fill); border-image-width: 12px; padding: 10px; }
+.upgrade-grid, .perk-grid { gap: 8px; display: grid; }
+.perk-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+.item-slots, .stash-list { grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 8px; display: grid; }
+.stash-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); margin-top: 10px; }
+.item-slot, .stash-item { text-align: left; align-content: start; gap: 6px; min-width: 44px; min-height: 88px; padding: 10px; display: grid; position: relative; }
+.item-card-body, .stash-item { grid-template-columns: 40px minmax(0px, 1fr); align-items: start; }
+.item-card-body { gap: 8px; display: grid; }
+.item-copy { gap: 4px; min-width: 0px; display: grid; }
+.item-slot.empty .item-card-body { grid-template-columns: minmax(0px, 1fr); }
+.item-slot[data-rarity], .stash-item[data-rarity] { box-shadow: inset 0 0 0 2px var(--rarity-color), 3px 3px 0 var(--shadow); padding-top: 24px; }
+.item-slot[data-rarity]::after, .stash-item[data-rarity]::after { content: attr(data-rarity); color: var(--rarity-color); border: 1px solid var(--rarity-color); font-family: var(--pixel-font); text-transform: uppercase; text-shadow: 1px 1px 0 var(--shadow); background: rgba(5, 4, 10, 0.86); padding: 2px 4px; font-size: 7px; line-height: 1; position: absolute; top: 5px; right: 8px; }
+.item-icon { object-fit: contain; width: 32px; height: 32px; image-rendering: pixelated; filter: drop-shadow(1px 1px 0 var(--shadow)); display: block; }
+.item-effect { color: var(--ink-dim); }
+.item-slot span, .stash-item span { color: var(--ink-dim); font-family: var(--pixel-font); font-size: 9px; }
+.item-slot strong, .stash-item strong { color: var(--gold-soft); font-family: var(--pixel-font); font-size: 11px; line-height: 1.4; }
+.item-slot small, .stash-item small, .stash-empty { color: var(--ink-dim); font-family: var(--body-font); font-size: 12px; font-weight: 500; line-height: 1.45; }
+.stash-empty { text-align: center; grid-column: 1 / -1; padding: 12px; }
+.class-card, .perk-card { min-width: 44px; color: var(--ink); text-shadow: 1px 1px 0 var(--shadow); place-items: center; gap: 6px; padding: 10px 8px; display: grid; }
+.class-card { align-content: start; min-height: 148px; }
+.perk-card { align-content: start; min-height: 150px; }
+.perk-icon-frame { background: color-mix(in srgb, var(--perk-accent,var(--gold)) 18%, var(--button-fill)); place-items: center; width: 38px; height: 38px; display: grid; }
+.perk-card[data-perk-choice="a"] .perk-icon-frame { clip-path: polygon(0px 0px, 100% 0px, 100% 74%, 74% 100%, 0px 100%); border-left: 2px solid var(--perk-accent,var(--gold)); }
+.perk-card[data-perk-choice="b"] .perk-icon-frame { clip-path: polygon(0px 0px, 100% 0px, 100% 100%, 26% 100%, 0px 74%); border-right: 2px solid var(--perk-accent,var(--gold)); }
+.perk-card[data-perk-tier="1"] .perk-icon-frame { filter: brightness(0.76); }
+.perk-card[data-perk-tier="2"] .perk-icon-frame { filter: brightness(0.86); }
+.perk-card[data-perk-tier="3"] .perk-icon-frame { filter: brightness(0.96); }
+.perk-card[data-perk-tier="4"] .perk-icon-frame { filter: brightness(1.08); }
+.perk-card[data-perk-tier="5"] .perk-icon-frame { filter: brightness(1.2) saturate(1.15); box-shadow: 0 0 0 1px var(--perk-accent,var(--gold)); }
+.perk-icon { object-fit: contain; width: 32px; height: 32px; image-rendering: pixelated; filter: drop-shadow(1px 1px 0 var(--shadow)); display: block; }
+.upgrade-grid button { min-width: 44px; min-height: 44px; padding: 10px 8px; font-size: 11px; line-height: 1.3; }
+.class-card > small, .perk-tier { max-width: 100%; color: var(--ink-dim); font-family: var(--pixel-font); overflow-wrap: anywhere; text-align: center; font-size: 9px; line-height: 1.35; }
+.perk-card em { max-width: 100%; color: var(--gold); font-family: var(--pixel-font); text-align: center; font-size: 11px; font-style: normal; line-height: 1.35; }
+.perk-card small, .class-card .class-strength, .class-card .class-weakness { max-width: 100%; font-family: var(--body-font); overflow-wrap: anywhere; text-align: center; text-shadow: none; font-size: 12px; font-weight: 500; line-height: 1.4; }
+.perk-card small { color: var(--ink-dim); }
+.perk-card strong, .class-card strong { font-family: var(--pixel-font); text-align: center; color: var(--gold-soft); font-size: 11px; line-height: 1.4; }
+.perk-tier { color: var(--gold); font-style: normal; }
+.class-status { color: var(--gold); font-family: var(--pixel-font); font-size: 9px; }
+.class-picker-panel { border-width: 8px; border-image-width: 8px; gap: 4px; padding: 5px; display: grid; overflow: hidden; }
+.class-picker-panel > h2 { display: none; }
+.class-roster { grid-template-columns: repeat(6, minmax(44px, 1fr)); gap: 4px; display: grid; }
+.class-roster .class-card { border-width: 4px; border-image-width: 4px; grid-template-rows: 22px 10px 9px; place-items: center; gap: 2px; min-width: 44px; height: 44px; min-height: 44px; padding: 1px; display: grid; overflow: hidden; }
+.class-roster [data-testid="class-elf"] { grid-column: span 2; }
+.class-roster .class-portrait { width: 22px; height: 22px; }
+.class-roster .class-card > strong { text-overflow: ellipsis; white-space: nowrap; max-width: 100%; font-size: 8px; line-height: 1; overflow: hidden; }
+.class-roster .class-status { white-space: nowrap; font-size: 8px; line-height: 1; }
+.selected-class-detail { border-width: 6px; border-style: solid; border-color: rgba(0, 0, 0, 0); border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; background: var(--panel-fill-deep); min-height: 68px; box-shadow: 2px 2px 0 var(--shadow); border-image-width: 6px; grid-template-rows: 28px 28px; grid-template-columns: 48px 104px minmax(160px, 1.08fr) minmax(155px, 0.92fr); gap: 3px 8px; padding: 4px 7px; display: grid; }
+.selected-class-portrait { object-fit: contain; width: 48px; height: 48px; image-rendering: pixelated; grid-row: 1 / 3; align-self: center; }
+.selected-class-heading { align-self: center; }
+.selected-class-heading span, .selected-class-detail p > span { color: var(--cyan); font-family: var(--pixel-font); margin-bottom: 2px; font-size: 7px; line-height: 1.2; display: block; }
+.selected-class-heading h3 { color: var(--gold-soft); font-family: var(--pixel-font); margin: 0px; font-size: 10px; }
+.selected-class-weapon { align-items: center; gap: 6px; min-width: 0px; display: flex; }
+.selected-class-weapon img { width: 22px; height: 22px; image-rendering: pixelated; }
+.selected-class-detail p { align-self: center; min-width: 0px; margin: 0px; }
+.selected-class-detail p > strong { color: var(--ink); font-family: var(--body-font); font-size: 12px; font-weight: 600; line-height: 1.15; display: block; }
+.selected-class-strength > strong, .selected-class-weakness > strong, .selected-class-behavior > strong { white-space: normal; }
+.selected-class-strength { grid-area: 1 / 3; }
+.selected-class-weakness { grid-area: 2 / 3; }
+.selected-class-behavior { grid-area: 1 / 4 / 3; }
+.selected-class-strength > strong { color: var(--green) !important; }
+.selected-class-weakness > strong { color: var(--red) !important; }
+.class-tree-panel { border-width: 4px; border-image-width: 4px; grid-template-rows: auto auto minmax(0px, 1fr); gap: 2px; min-width: 0px; padding: 2px; display: grid; overflow: hidden; }
+.class-tree-panel > h2 { text-align: center; margin: 0px; font-size: 8px; line-height: 1.3; }
+.class-tree-panel .perk-grid { grid-template-rows: repeat(2, 52px); grid-template-columns: repeat(5, minmax(44px, 1fr)); grid-auto-flow: column; gap: 4px; }
+.class-tree-panel .perk-card { grid-template-rows: auto 1fr auto; gap: 1px; min-width: 44px; height: 52px; min-height: 52px; padding: 2px; overflow: hidden; }
+.class-tree-panel .perk-tier, .class-tree-panel .perk-icon-frame { display: none; }
+.class-tree-panel .perk-icon { width: 16px; height: 16px; }
+.class-tree-panel .perk-card strong { -webkit-line-clamp: 1; -webkit-box-orient: vertical; max-width: 100%; font-size: 7px; line-height: 1.1; display: -webkit-box; overflow: hidden; }
+.class-tree-panel .perk-card small { -webkit-line-clamp: 1; -webkit-box-orient: vertical; max-height: 13px; font-size: 12px; line-height: 1.05; display: -webkit-box; overflow: hidden; }
+.class-tree-panel .perk-card em { font-size: 7px; line-height: 1; }
+.class-tree-panel .perk-card::after { display: none !important; }
+.class-tree-panel .perk-card.inspected { box-shadow: inset 0 -2px 0 var(--cyan), 2px 2px 0 var(--shadow); }
+.specialization-detail { border-top: 1px solid rgba(217, 164, 65, 0.34); grid-template-columns: minmax(72px, 0.7fr) minmax(96px, 0.9fr) minmax(0px, 1.7fr); gap: 4px; min-width: 0px; padding: 3px 2px 0px; display: grid; }
+.specialization-detail p { min-width: 0px; margin: 0px; }
+.specialization-detail span { color: var(--cyan); font-family: var(--pixel-font); margin-bottom: 1px; font-size: 7px; line-height: 1.1; display: block; }
+.specialization-detail strong { min-height: 27px; color: var(--ink); font-family: var(--body-font); overflow-wrap: anywhere; font-size: 12px; font-weight: 600; line-height: 1.05; display: block; }
+.specialization-detail p:first-child strong { color: var(--gold-soft); }
+.class-strength { color: var(--green); }
+.class-weakness { color: var(--red); }
+.results-panel button { padding: 10px 12px; }
+.perk-card.locked em { opacity: 0.85; }
+.perk-card.locked::after { content: "LOCKED"; color: var(--ink-dim); font-family: var(--pixel-font); letter-spacing: 0.04em; margin-top: 2px; font-size: 8px; display: block; }
+.perk-card.selected::after { content: "OWNED"; color: var(--cyan); font-family: var(--pixel-font); letter-spacing: 0.04em; margin-top: 2px; font-size: 8px; display: block; }
+#screen-run { background: var(--bg-deep); place-items: center; padding: 8px; display: grid; }
+#screen-run.hidden { display: none !important; }
+.run-shell, .game-window { border-width: 12px; background-color: var(--panel-fill-deep); width: min(100%, 960px); box-shadow: 5px 5px 0 var(--shadow); border-image-width: 12px; margin: 0px auto; padding: 8px; position: relative; }
+.spectator-hud { grid-template-columns: minmax(0px, 1.3fr) minmax(190px, 0.9fr) minmax(0px, 1.1fr); gap: 5px; width: 100%; height: 44px; margin-bottom: 5px; display: grid; }
+.spectator-hud .hud-chip { border-width: 6px; white-space: nowrap; border-image-width: 6px; min-width: 0px; height: 44px; min-height: 0px; padding: 4px 7px; overflow: hidden; }
+.hud-identity { text-align: left; grid-template-columns: auto minmax(0px, 1fr); align-content: center; column-gap: 7px; display: grid; }
+.hud-identity > strong { color: var(--gold-soft); }
+.hud-identity > span { color: var(--cyan); text-overflow: ellipsis; overflow: hidden; }
+.hud-identity > small { color: var(--ink-dim); font-family: var(--body-font); text-overflow: ellipsis; grid-column: 1 / -1; font-size: 9px; font-weight: 600; line-height: 1.2; overflow: hidden; }
+.hud-stats { justify-content: space-between; align-items: center; gap: 8px; display: flex; }
+.hud-stats span { color: var(--ink-dim); }
+.run-canvas-frame { border-width: 10px; width: 100%; box-shadow: none; background-color: rgb(14, 12, 21); border-image-width: 10px; padding: 0px; position: relative; overflow: hidden; }
+#run-canvas { aspect-ratio: 960 / 540; width: 100%; max-width: 100%; height: auto; box-shadow: none; image-rendering: pixelated; background: rgb(14, 12, 21); border: 0px; display: block; }
+canvas { image-rendering: pixelated; display: block; }
+.offline-badge { z-index: 2; border-width: 8px; color: var(--gold-soft); box-shadow: 2px 2px 0 var(--shadow); background-color: rgba(20, 14, 18, 0.92); border-image-width: 8px; padding: 6px 8px; font-size: 8px; position: absolute; top: 8px; left: 8px; }
+.hud { z-index: 3; pointer-events: none; font-size: 8px; position: absolute; inset: 0px; }
+.hud-chip { border-width: 8px; min-height: 28px; color: var(--ink); box-shadow: 2px 2px 0 var(--shadow); text-shadow: 1px 1px 0 var(--shadow); background-color: rgba(18, 14, 20, 0.94); border-image-width: 8px; align-items: center; gap: 4px; padding: 4px 8px; font-size: 8px; line-height: 1.2; display: inline-flex; }
+.hud-chip strong { color: var(--gold-soft); font-weight: 400; }
+.hud-time { z-index: 4; white-space: nowrap; grid-template-columns: auto 1fr; align-content: center; column-gap: 6px; display: grid; position: static; transform: none; }
+.hud-time > span { color: var(--cyan); }
+.hud-time > strong { text-align: right; }
+.hud-time > small { color: var(--ink-dim); text-align: right; font-size: 7px; }
+.hud-progress-track { background: rgba(5, 4, 10, 0.85); align-self: center; height: 5px; overflow: hidden; box-shadow: rgba(217, 164, 65, 0.34) 0px 0px 0px 1px inset; }
+.hud-progress-fill { background: linear-gradient(90deg, var(--enemy), var(--gold)); width: 0%; height: 100%; transition: width 0.12s linear; }
+.hud-hp-orb { z-index: 4; width: 120px; height: 120px; position: absolute; bottom: 8px; left: 10px; }
+.hud-hp-well { background: radial-gradient(circle at 50% 40%, rgb(42, 16, 20) 0%, rgb(18, 8, 10) 100%); border-radius: 50%; width: 44%; height: 43%; position: absolute; top: 28.5%; left: 28%; overflow: hidden; box-shadow: rgba(0, 0, 0, 0.65) 0px 0px 6px inset; }
+.hud-hp-fill { background: radial-gradient(at 50% 20%, rgba(255, 140, 120, 0.55), rgba(0, 0, 0, 0) 55%), linear-gradient(rgb(255, 90, 90) 0%, rgb(198, 40, 40) 45%, rgb(122, 16, 24) 100%); height: 100%; transition: height 80ms steps(2); position: absolute; bottom: 0px; left: 0px; right: 0px; }
+.hud-hp-frame { object-fit: contain; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; user-select: none; position: absolute; inset: 0px; }
+.hud-hp-label { z-index: 2; font-family: var(--pixel-font); color: rgb(255, 255, 255); text-shadow: rgb(5, 4, 10) 1px 1px, rgb(5, 4, 10) -1px 0px, rgb(5, 4, 10) 0px -1px, rgb(5, 4, 10) 1px 0px, rgb(5, 4, 10) 0px 1px; place-items: center; padding-top: 4px; font-size: 9px; line-height: 1.2; display: grid; position: absolute; inset: 0px; }
+.hud-hp-label strong { color: rgb(255, 255, 255); font-weight: 400; }
+.hud-xp { z-index: 4; pointer-events: none; flex-direction: column; align-items: center; gap: 0px; width: min(360px, 62%); display: flex; position: absolute; bottom: 10px; left: 50%; transform: translate(-50%); }
+.hud-xp-level { font-family: var(--pixel-font); color: var(--gold-soft); text-shadow: 1px 1px 0 var(--shadow), 0 0 6px #d9a44140; white-space: nowrap; margin-bottom: -2px; font-size: 9px; line-height: 1.2; }
+.hud-xp-level strong { color: var(--gold-soft); font-weight: 400; }
+.hud-xp-bar { --xp-band: 56; aspect-ratio: 512 / 56; width: 100%; max-height: 48px; position: relative; overflow: visible; }
+.hud-xp-track { z-index: 2; background: rgba(12, 8, 14, 0.55); border-radius: 3px; position: absolute; inset: 24% 5.5%; overflow: hidden; }
+.hud-xp-fill { background: linear-gradient(rgba(255, 240, 180, 0.45) 0%, rgba(0, 0, 0, 0) 40%, rgba(80, 40, 0, 0.35) 100%), repeating-linear-gradient(90deg, rgb(240, 208, 96) 0px, rgb(240, 208, 96) 9px, rgb(212, 168, 42) 9px, rgb(212, 168, 42) 11px, rgb(196, 146, 24) 11px, rgb(196, 146, 24) 12px); width: 0%; height: 100%; transition: width 80ms steps(2); box-shadow: rgba(255, 250, 200, 0.45) 0px 1px inset; }
+.hud-xp-frame { width: 100%; height: calc(100% * 192 / var(--xp-band)); z-index: 1; object-fit: fill; image-rendering: pixelated; pointer-events: none; user-select: none; position: absolute; top: 50%; left: 0px; transform: translateY(-50%); }
+.hud-sound { z-index: 5; pointer-events: auto; min-height: 28px; padding: 4px 8px; font-size: 8px; position: absolute; bottom: 8px; right: 8px; }
+.results-scroll { place-items: start center; padding: 16px 12px 24px; display: grid; }
+.results-panel, .victory-window { border-width: 14px; width: min(720px, 100%); box-shadow: 6px 6px 0 var(--shadow); background-color: var(--panel-fill); text-align: center; border-image-width: 14px; margin: 0px auto; padding: 18px 16px 16px; }
+.results-eyebrow { margin: 0px 0px 6px; }
+.victory-title { color: var(--gold-soft); text-shadow: 2px 2px 0 var(--shadow), 0 0 10px #d9a44133; margin: 0px; font-size: clamp(14px, 3.2vw, 22px); line-height: 1.35; }
+.victory-sub { color: var(--ink-dim); font-family: var(--pixel-font); margin: 8px 0px 0px; font-size: 8px; line-height: 1.6; }
+.result-outcome { color: var(--gold); font-family: var(--pixel-font); margin: 7px 0px 0px; font-size: 12px; line-height: 1.4; }
+.result-grid { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin: 16px 0px 12px; display: grid; }
+.result-rewards { grid-template-columns: minmax(0px, 1.2fr) minmax(0px, 0.8fr); gap: 8px; margin-bottom: 12px; display: grid; }
+.gold-ledger, .result-loot { border-width: 8px; border-style: solid; border-color: rgba(0, 0, 0, 0); border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; background: var(--panel-fill-deep); border-image-width: 8px; justify-content: space-between; align-items: center; gap: 8px; min-width: 0px; padding: 9px 10px; display: flex; }
+.gold-ledger span, .result-loot > span { color: var(--ink-dim); font-family: var(--pixel-font); font-size: 7px; }
+.gold-ledger strong, .result-loot > strong { color: var(--gold-soft); font-family: var(--pixel-font); font-size: 9px; }
+.result-loot > strong { text-align: right; overflow-wrap: anywhere; line-height: 1.35; }
+.leaderboard-status { color: var(--ink-dim); font-family: var(--pixel-font); text-align: center; margin: 0px 0px 8px; font-size: 7px; line-height: 1.5; }
+.result-actions { grid-template-columns: 1fr 1fr auto; gap: 8px; display: grid; }
+.result-actions .tertiary { opacity: 0.78; min-width: 44px; font-size: 7px; }
+.result-cell, .result-grid div { border-width: 10px; background-color: var(--panel-fill-deep); box-shadow: 2px 2px 0 var(--shadow); overflow-wrap: anywhere; border-image-width: 10px; padding: 8px 6px; line-height: 1.4; }
+.result-grid dt { color: var(--cyan); margin-bottom: 6px; font-size: 8px; }
+.result-grid dd { color: var(--gold-soft); margin: 0px; font-size: 13px; }
+#result-ranking, #leaderboard-list, .ranking-list, .leaderboard-list { text-align: left; gap: 6px; margin: 0px 0px 12px; padding-left: 0px; list-style: none; display: grid; }
+#result-ranking li, #leaderboard-list li { border-width: 10px; background-color: var(--panel-fill-deep); box-shadow: 2px 2px 0 var(--shadow); overflow-wrap: anywhere; border-image-width: 10px; padding: 8px 10px; font-size: 9px; line-height: 1.5; }
+#result-ranking .local-row { filter: brightness(1.12); box-shadow: 0 0 0 2px var(--cyan), 2px 2px 0 var(--shadow); color: rgb(255, 255, 255); }
+.leaderboard-panel { border-width: 12px; text-align: left; box-shadow: 3px 3px 0 var(--shadow); background-color: var(--panel-fill-deep); border-image-width: 12px; margin: 12px 0px 16px; padding: 10px; }
+.leaderboard-panel .results-section-title { text-align: center; }
+#leaderboard-list:empty::after, #result-ranking:empty::after { content: "NO ENTRIES"; border-top-color: ; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-outset: ; border-image-repeat: ; background-color: var(--panel-fill-deep); color: var(--ink-dim); font-family: var(--pixel-font); text-align: center; image-rendering: pixelated; box-shadow: 2px 2px 0 var(--shadow); border-image-width: 10px; padding: 10px; font-size: 8px; display: block; }
+@media (width <= 860px) {
+  .results-scroll { padding: 8px; }
+  h1 { font-size: 18px; }
+  .lobby-stage-frame { height: min(28vh, 200px); min-height: 150px; }
+  .lobby-title-overlay .tagline, .lobby-title-overlay .onboarding-line { display: none; }
+  .result-grid { grid-template-columns: 1fr; }
+  .title-window { padding: 18px 14px 16px; }
+  .title-logo-big { font-size: clamp(24px, 7vw, 40px); }
+}
+@media (width <= 720px) {
+  :root { --stone-border: 10px; --bronze-border: 5px; }
+  .result-grid { grid-template-columns: repeat(2, minmax(0px, 1fr)); }
+  .result-grid .result-cell:last-child, .result-grid div:last-child { grid-column: 1 / -1; }
+  #result-ranking li, #leaderboard-list li { font-size: 8px; line-height: 1.7; }
+  .hud-chip, .hud-sound { border-width: 6px; border-image-width: 6px; min-height: 24px; padding: 3px 5px; font-size: 7px; }
+  .hud-time { top: 6px; }
+  .hud-hp-orb { width: 88px; height: 88px; bottom: 4px; left: 4px; }
+  .hud-hp-label { padding-top: 2px; font-size: 7px; }
+  .hud-xp { gap: 3px; width: min(240px, 58%); bottom: 6px; }
+  .hud-xp-level { font-size: 7px; }
+  .hud-xp-bar { max-height: 36px; }
+  .hud-sound { bottom: 4px; right: 4px; }
+  .run-shell, .game-window { border-width: 8px; border-image-width: 8px; padding: 4px; }
+  .run-canvas-frame { border-width: 6px; border-image-width: 6px; }
+  .title-logo { font-size: 16px; }
+  .title-logo-big { gap: 0.3em; font-size: clamp(20px, 7.5vw, 32px); }
+  .title-tagline, .title-subline { font-size: 7px; }
+  .title-window { gap: 8px; padding: 16px 12px 14px; }
+  .title-start { min-height: 44px; font-size: 10px; }
+}
+@media (width <= 420px) {
+  #screen-run { align-content: center; padding: 4px; }
+  .run-shell { width: 100%; }
+  .hud-hp-orb { width: 72px; height: 72px; bottom: 2px; left: 2px; }
+  .hud-hp-label { font-size: 6px; }
+  .hud-xp { width: min(200px, 56%); bottom: 4px; }
+  .hud-xp-level { font-size: 6px; }
+  .hud-xp-bar { max-height: 30px; }
+  .hud-time { min-height: 22px; padding: 2px 5px; font-size: 6px; top: 4px; }
+  .hud-sound { min-height: 22px; padding: 2px 5px; font-size: 6px; bottom: 2px; right: 2px; }
+  .lobby-stage-frame { height: 210px; min-height: 210px; }
+}</style>
+  </head>
+  <body>
+    <div id="app">
+    <section id="screen-title" class="screen title-screen hidden">
+      <div class="title-scene">
+        <div class="title-sky" aria-hidden="true"></div>
+        <div class="title-stars" aria-hidden="true"></div>
+        <div class="title-colosseum" aria-hidden="true"></div>
+        <div class="title-flames" aria-hidden="true">
+          <span class="title-flame title-flame-1"></span>
+          <span class="title-flame title-flame-2"></span>
+          <span class="title-flame title-flame-3"></span>
+          <span class="title-flame title-flame-4"></span>
+          <span class="title-flame title-flame-5"></span>
+          <span class="title-flame title-flame-6"></span>
+          <span class="title-flame title-flame-7"></span>
+        </div>
+        <div class="title-fog" aria-hidden="true"></div>
+        <img class="title-statue title-statue-left" src="/assets/props/statue-sword.png" alt="" width="160" height="320" decoding="async" aria-hidden="true">
+        <img class="title-statue title-statue-right" src="/assets/props/statue-spear.png" alt="" width="160" height="320" decoding="async" aria-hidden="true">
+        <div class="title-brand">
+          <h1 class="title-logo-big" aria-label="Colosseum Survivors"><span class="title-logo-line">COLOSSEUM</span><span class="title-logo-line">SURVIVORS</span></h1>
+        </div>
+        <div class="title-shell">
+          <div class="title-window">
+            <p class="eyebrow">ENTER THE GRAND ARENA</p>
+            <p class="title-tagline">You don't play the gladiator. You coach them.</p>
+            <p class="title-subline">Pick a class, forge its specialization tree — then watch judgment decide the sand.</p>
+            <button type="button" class="primary title-start" data-testid="start-game">PRESS START</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="screen-guild" class="screen guild-screen hidden">
+      <div class="guild-shell" style="--shell-scale: 1.3333333333333333;">
+        <header class="guild-topstrip">
+          <p class="guild-location">BARRACKS · GRAND COLOSSEUM</p>
+          <div class="gold"><span class="gold-label">Gold</span><span id="gold-amount" data-testid="gold-amount">0</span></div>
+          <div class="settings-menu">
+            <button type="button" class="settings-open" data-testid="settings-open" aria-expanded="false" aria-label="Open settings">⚙</button>
+            <div id="settings-popover" class="settings-popover hidden" data-testid="settings-popover" role="menu">
+              <button type="button" id="guild-sound-toggle" data-testid="sound-toggle" aria-pressed="false" role="menuitem" aria-label="Mute sound">SOUND ON</button>
+              <button type="button" data-testid="coach-replay" role="menuitem">TUTORIAL</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="guild-body">
+          <div class="lobby-stage" aria-label="Gladiator lobby">
+            <div class="lobby-stage-frame">
+              <canvas id="lobby-canvas" width="1259" height="133" aria-label="Lobby stage"></canvas>
+              <div class="lobby-title-overlay">
+                <p class="eyebrow">YOUR GLADIATOR</p>
+                <h1>Colosseum Survivors</h1>
+                <p class="tagline">Coach the build. Trust their judgment.</p>
+              </div>
+            </div>
+            <div class="lobby-nameplate" aria-live="polite">
+              <button type="button" id="lobby-nameplate-title" class="lobby-nameplate-title" data-testid="rename-player">TestSprite-3113 · Knight · Guardian</button>
+              <p id="lobby-nameplate-rule" class="lobby-nameplate-rule">Holds ground; low-HP flee only below 25% (late flee).</p>
+              <p id="lobby-nameplate-best" class="lobby-nameplate-best" data-testid="nameplate-best">NO RUN RECORDED</p>
+            </div>
+          </div>
+
+          <nav class="guild-nav" aria-label="Guild sections">
+            <button type="button" class="guild-tab selected" data-testid="guild-tab-class" data-guild-tab="class" aria-pressed="true">CLASS &amp; TREE</button>
+            <button type="button" class="guild-tab" data-testid="guild-tab-training" data-guild-tab="training" aria-pressed="false">TRAINING</button>
+            <button type="button" class="guild-tab" data-testid="guild-tab-gear" data-guild-tab="gear" aria-pressed="false">INVENTORY</button>
+          </nav>
+
+          <main class="guild-pane">
+            <div id="guild-section-class" class="guild-section">
+              <section class="panel class-picker-panel">
+                <h2>Choose a Class</h2>
+                <div class="class-roster" data-testid="class-roster">
+
+    <button type="button" class="class-card" data-testid="class-fighter" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/fighter.png" alt="" width="64" height="64" decoding="async">
+      <strong>Fighter</strong>
+      <small id="class-fighter-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card selected" data-testid="class-knight" aria-pressed="true">
+      <img class="class-portrait" src="/assets/art/portraits/knight.png" alt="" width="64" height="64" decoding="async">
+      <strong>Knight</strong>
+      <small id="class-knight-status" class="class-status">Selected</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-berserker" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/berserker.png" alt="" width="64" height="64" decoding="async">
+      <strong>Berserker</strong>
+      <small id="class-berserker-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-dwarf" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/dwarf.png" alt="" width="64" height="64" decoding="async">
+      <strong>Dwarf</strong>
+      <small id="class-dwarf-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-paladin" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/paladin.png" alt="" width="64" height="64" decoding="async">
+      <strong>Paladin</strong>
+      <small id="class-paladin-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-mage" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/mage.png" alt="" width="64" height="64" decoding="async">
+      <strong>Mage</strong>
+      <small id="class-mage-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-priest" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/priest.png" alt="" width="64" height="64" decoding="async">
+      <strong>Priest</strong>
+      <small id="class-priest-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-warlock" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/warlock.png" alt="" width="64" height="64" decoding="async">
+      <strong>Warlock</strong>
+      <small id="class-warlock-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-elf" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/elf.png" alt="" width="64" height="64" decoding="async">
+      <strong>Elf Archer</strong>
+      <small id="class-elf-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-thief" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/thief.png" alt="" width="64" height="64" decoding="async">
+      <strong>Thief</strong>
+      <small id="class-thief-status" class="class-status">Ready</small>
+    </button>
+
+    <button type="button" class="class-card" data-testid="class-monk" aria-pressed="false">
+      <img class="class-portrait" src="/assets/art/portraits/monk.png" alt="" width="64" height="64" decoding="async">
+      <strong>Monk</strong>
+      <small id="class-monk-status" class="class-status">Ready</small>
+    </button>
+
+                </div>
+                <article class="selected-class-detail" data-testid="selected-class-detail" aria-live="polite">
+                  <img id="selected-class-portrait" class="selected-class-portrait" data-testid="selected-class-portrait" src="/assets/art/portraits/knight.png" alt="Knight portrait" width="64" height="64" decoding="async">
+                  <div class="selected-class-heading">
+                    <span id="selected-class-behavior-name" data-testid="selected-class-behavior-name">Guardian</span>
+                    <h3 id="selected-class-name" data-testid="selected-class-name">Knight</h3>
+                  </div>
+                  <div class="selected-class-weapon">
+                    <img id="selected-class-weapon-icon" src="/assets/art/icons/skills/shield-bash.png" alt="" width="32" height="32" decoding="async">
+                    <p><span>WEAPON</span><strong id="selected-class-weapons" data-testid="selected-class-weapons">Shield Bash</strong></p>
+                  </div>
+                  <p class="selected-class-strength"><span>STRENGTH</span><strong id="selected-class-strength" data-testid="selected-class-strength" title="Immovable bulwark — highest HP, shrugs contact hits" aria-label="Strength: Immovable bulwark — highest HP, shrugs contact hits">140 HP · contact guard</strong></p>
+                  <p class="selected-class-weakness"><span>WEAKNESS</span><strong id="selected-class-weakness" data-testid="selected-class-weakness" title="Lowest attack tier; slow feet, no burst" aria-label="Weakness: Lowest attack tier; slow feet, no burst">Low ATK · slow · no burst</strong></p>
+                  <p class="selected-class-behavior"><span>BEHAVIOR</span><strong id="selected-class-behavior" data-testid="selected-class-behavior" title="Holds ground; low-HP flee only below 25% (late flee)." aria-label="Behavior: Holds ground; low-HP flee only below 25% (late flee).">Holds ground · flees below 25% HP</strong></p>
+                </article>
+              </section>
+              <section class="panel perk-panel class-tree-panel">
+                <h2>Specialization Tree</h2>
+                <div class="perk-grid">
+
+    <button type="button" class="perk-card unaffordable" data-testid="perk-t1-a" aria-pressed="false" data-perk-tier="1" data-perk-choice="a" data-perk-family="defense" data-perk-frame="knight-t1-a" style="--perk-accent: #d9a441" data-perk-name="Bulwark" data-perk-effect="Contact damage taken −12.5%." data-perk-reason="Needs 150g; 0g held." aria-controls="specialization-detail" title="Bulwark — Contact damage taken −12.5%. — 150g" aria-label="Bulwark. Contact damage taken −12.5%.. 150 gold." aria-disabled="true">
+      <span class="perk-tier">T1A</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t1-a-icon" class="perk-icon" src="/assets/art/icons/perks/defense.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t1-a-name">Bulwark</strong>
+      <small id="perk-t1-a-effect">Contact damage taken −12.5%.</small>
+      <em id="perk-t1-a-cost">150g</em>
+    </button>
+
+
+    <button type="button" class="perk-card unaffordable inspected" data-testid="perk-t1-b" aria-pressed="false" data-perk-tier="1" data-perk-choice="b" data-perk-family="behavior" data-perk-frame="knight-t1-b" style="--perk-accent: #d9a441" data-perk-name="Weapon Drill" data-perk-effect="All weapons +4% with soft combat focus (small low-ATK round)." data-perk-reason="Needs 150g; 0g held." aria-controls="specialization-detail" title="Weapon Drill — All weapons +4% with soft combat focus (small low-ATK round). — 150g" aria-label="Weapon Drill. All weapons +4% with soft combat focus (small low-ATK round).. 150 gold." aria-disabled="true">
+      <span class="perk-tier">T1B</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t1-b-icon" class="perk-icon" src="/assets/art/icons/perks/behavior.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t1-b-name">Weapon Drill</strong>
+      <small id="perk-t1-b-effect">All weapons +4% with soft combat focus (small low-ATK round).</small>
+      <em id="perk-t1-b-cost">150g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t2-a" aria-pressed="false" data-perk-tier="2" data-perk-choice="a" data-perk-family="attack" data-perk-frame="knight-t2-a" style="--perk-accent: #d9a441" data-perk-name="Frenzy" data-perk-effect="Damage +25% below 35% HP." data-perk-reason="Choose a Tier 1 node first." aria-controls="specialization-detail" title="Frenzy — Damage +25% below 35% HP. — 350g" aria-label="Frenzy. Damage +25% below 35% HP.. 350 gold." aria-disabled="true">
+      <span class="perk-tier">T2A</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t2-a-icon" class="perk-icon" src="/assets/art/icons/perks/attack.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t2-a-name">Frenzy</strong>
+      <small id="perk-t2-a-effect">Damage +25% below 35% HP.</small>
+      <em id="perk-t2-a-cost">350g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t2-b" aria-pressed="false" data-perk-tier="2" data-perk-choice="b" data-perk-family="movement" data-perk-frame="knight-t2-b" style="--perk-accent: #d9a441" data-perk-name="Hasty Stance" data-perk-effect="Speed +4% and earlier retreat (small slow-foot round)." data-perk-reason="Choose a Tier 1 node first." aria-controls="specialization-detail" title="Hasty Stance — Speed +4% and earlier retreat (small slow-foot round). — 350g" aria-label="Hasty Stance. Speed +4% and earlier retreat (small slow-foot round).. 350 gold." aria-disabled="true">
+      <span class="perk-tier">T2B</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t2-b-icon" class="perk-icon" src="/assets/art/icons/perks/movement.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t2-b-name">Hasty Stance</strong>
+      <small id="perk-t2-b-effect">Speed +4% and earlier retreat (small slow-foot round).</small>
+      <em id="perk-t2-b-cost">350g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t3-a" aria-pressed="false" data-perk-tier="3" data-perk-choice="a" data-perk-family="attack" data-perk-frame="knight-t3-a" style="--perk-accent: #d9a441" data-perk-name="Slaughterer" data-perk-effect="Elite kills reset all weapon cooldowns." data-perk-reason="Choose a Tier 2 node first." aria-controls="specialization-detail" title="Slaughterer — Elite kills reset all weapon cooldowns. — 600g" aria-label="Slaughterer. Elite kills reset all weapon cooldowns.. 600 gold." aria-disabled="true">
+      <span class="perk-tier">T3A</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t3-a-icon" class="perk-icon" src="/assets/art/icons/perks/attack.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t3-a-name">Slaughterer</strong>
+      <small id="perk-t3-a-effect">Elite kills reset all weapon cooldowns.</small>
+      <em id="perk-t3-a-cost">600g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t3-b" aria-pressed="false" data-perk-tier="3" data-perk-choice="b" data-perk-family="behavior" data-perk-frame="knight-t3-b" style="--perk-accent: #d9a441" data-perk-name="Riposte Drill" data-perk-effect="All weapons +8% with combat focus (round low ATK, still weakest tier)." data-perk-reason="Choose a Tier 2 node first." aria-controls="specialization-detail" title="Riposte Drill — All weapons +8% with combat focus (round low ATK, still weakest tier). — 600g" aria-label="Riposte Drill. All weapons +8% with combat focus (round low ATK, still weakest tier).. 600 gold." aria-disabled="true">
+      <span class="perk-tier">T3B</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t3-b-icon" class="perk-icon" src="/assets/art/icons/perks/behavior.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t3-b-name">Riposte Drill</strong>
+      <small id="perk-t3-b-effect">All weapons +8% with combat focus (round low ATK, still weakest tier).</small>
+      <em id="perk-t3-b-cost">600g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t4-a" aria-pressed="false" data-perk-tier="4" data-perk-choice="a" data-perk-family="defense" data-perk-frame="knight-t4-a" style="--perk-accent: #d9a441" data-perk-name="Aegis Pulse" data-perk-effect="Below 40% HP: max HP effective +10%." data-perk-reason="Choose a Tier 3 node first." aria-controls="specialization-detail" title="Aegis Pulse — Below 40% HP: max HP effective +10%. — 900g" aria-label="Aegis Pulse. Below 40% HP: max HP effective +10%.. 900 gold." aria-disabled="true">
+      <span class="perk-tier">T4A</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t4-a-icon" class="perk-icon" src="/assets/art/icons/perks/defense.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t4-a-name">Aegis Pulse</strong>
+      <small id="perk-t4-a-effect">Below 40% HP: max HP effective +10%.</small>
+      <em id="perk-t4-a-cost">900g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t4-b" aria-pressed="false" data-perk-tier="4" data-perk-choice="b" data-perk-family="behavior" data-perk-frame="knight-t4-b" style="--perk-accent: #d9a441" data-perk-name="Measured Swing" data-perk-effect="Sword Sweep / Shield Bash +12% dmg (soft ATK round)." data-perk-reason="Choose a Tier 3 node first." aria-controls="specialization-detail" title="Measured Swing — Sword Sweep / Shield Bash +12% dmg (soft ATK round). — 900g" aria-label="Measured Swing. Sword Sweep / Shield Bash +12% dmg (soft ATK round).. 900 gold." aria-disabled="true">
+      <span class="perk-tier">T4B</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t4-b-icon" class="perk-icon" src="/assets/art/icons/perks/behavior.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t4-b-name">Measured Swing</strong>
+      <small id="perk-t4-b-effect">Sword Sweep / Shield Bash +12% dmg (soft ATK round).</small>
+      <em id="perk-t4-b-cost">900g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t5-a" aria-pressed="false" data-perk-tier="5" data-perk-choice="a" data-perk-family="signature" data-perk-frame="knight-t5-a" style="--perk-accent: #d9a441" data-perk-name="Immovable" data-perk-effect="Max HP +15%, signature bulwark amplified." data-perk-reason="Choose a Tier 4 node first." aria-controls="specialization-detail" title="Immovable — Max HP +15%, signature bulwark amplified. — 1300g" aria-label="Immovable. Max HP +15%, signature bulwark amplified.. 1300 gold." aria-disabled="true">
+      <span class="perk-tier">T5A</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t5-a-icon" class="perk-icon" src="/assets/art/icons/perks/signature.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t5-a-name">Immovable</strong>
+      <small id="perk-t5-a-effect">Max HP +15%, signature bulwark amplified.</small>
+      <em id="perk-t5-a-cost">1300g</em>
+    </button>
+
+
+    <button type="button" class="perk-card locked" data-testid="perk-t5-b" aria-pressed="false" data-perk-tier="5" data-perk-choice="b" data-perk-family="behavior" data-perk-frame="knight-t5-b" style="--perk-accent: #d9a441" data-perk-name="Counterweight" data-perk-effect="ATK +10% (round of lowest-ATK, capped)." data-perk-reason="Choose a Tier 4 node first." aria-controls="specialization-detail" title="Counterweight — ATK +10% (round of lowest-ATK, capped). — 1300g" aria-label="Counterweight. ATK +10% (round of lowest-ATK, capped).. 1300 gold." aria-disabled="true">
+      <span class="perk-tier">T5B</span>
+      <span class="perk-icon-frame">
+        <img id="perk-t5-b-icon" class="perk-icon" src="/assets/art/icons/perks/behavior.png" alt="" width="32" height="32" decoding="async">
+      </span>
+      <strong id="perk-t5-b-name">Counterweight</strong>
+      <small id="perk-t5-b-effect">ATK +10% (round of lowest-ATK, capped).</small>
+      <em id="perk-t5-b-cost">1300g</em>
+    </button>
+
+                </div>
+                <article id="specialization-detail" class="specialization-detail" data-testid="specialization-detail" data-perk-testid="perk-t1-b" aria-live="polite">
+                  <p><span>NAME</span><strong id="specialization-detail-name" data-testid="specialization-detail-name">Weapon Drill</strong></p>
+                  <p><span>WHY</span><strong id="specialization-detail-reason" data-testid="specialization-detail-reason">Needs 150g; 0g held.</strong></p>
+                  <p><span>EFFECT</span><strong id="specialization-detail-effect" data-testid="specialization-detail-effect">All weapons +4% with soft combat focus (small low-ATK round).</strong></p>
+                </article>
+              </section>
+            </div>
+
+            <div id="guild-section-training" class="guild-section hidden">
+              <section class="panel">
+                <h2>Guild Upgrades</h2>
+                <div class="upgrade-grid">
+                  <button type="button" data-testid="buy-atk" disabled="" class="unaffordable">ATK Lv.0 50g</button>
+                  <button type="button" data-testid="buy-hp" disabled="" class="unaffordable">HP Lv.0 50g</button>
+                  <button type="button" data-testid="buy-spd" disabled="" class="unaffordable">SPD Lv.0 80g</button>
+                  <button type="button" data-testid="buy-luck" disabled="" class="unaffordable">LUCK Lv.0 100g</button>
+                  <button type="button" data-testid="buy-lvl" disabled="" class="unaffordable">LVL Lv.0 200g</button>
+                </div>
+              </section>
+            </div>
+
+            <div id="guild-section-gear" class="guild-section hidden">
+              <section class="panel inventory-panel" data-testid="inventory-panel">
+                <h2>Guild Inventory</h2>
+                <div class="item-slots" aria-label="Equipped items">
+
+    <button type="button" class="item-slot empty" id="item-slot-relicWeapon" data-testid="item-slot-relicWeapon" data-item-slot="relicWeapon" disabled="" data-item-id="" aria-pressed="false">
+      <span class="item-slot-label">Relic Weapon</span>
+      <div class="item-card-body">
+        <img class="item-icon hidden" alt="" width="32" height="32" decoding="async">
+        <div class="item-copy">
+          <strong style="color:#888">Empty</strong>
+          <small>Empty — click a stash item to equip.</small>
+        </div>
+      </div>
+    </button>
+
+
+    <button type="button" class="item-slot empty" id="item-slot-armor" data-testid="item-slot-armor" data-item-slot="armor" disabled="" data-item-id="" aria-pressed="false">
+      <span class="item-slot-label">Armor</span>
+      <div class="item-card-body">
+        <img class="item-icon hidden" alt="" width="32" height="32" decoding="async">
+        <div class="item-copy">
+          <strong style="color:#888">Empty</strong>
+          <small>Empty — click a stash item to equip.</small>
+        </div>
+      </div>
+    </button>
+
+
+    <button type="button" class="item-slot empty" id="item-slot-trinket" data-testid="item-slot-trinket" data-item-slot="trinket" disabled="" data-item-id="" aria-pressed="false">
+      <span class="item-slot-label">Trinket</span>
+      <div class="item-card-body">
+        <img class="item-icon hidden" alt="" width="32" height="32" decoding="async">
+        <div class="item-copy">
+          <strong style="color:#888">Empty</strong>
+          <small>Empty — click a stash item to equip.</small>
+        </div>
+      </div>
+    </button>
+
+                </div>
+                <div class="item-compare-panel" data-testid="item-compare-panel" aria-live="polite">
+                  <p class="item-compare-placeholder">Select a stash item to compare.</p>
+                </div>
+                <div id="stash-list" class="stash-list" data-testid="stash-list" aria-live="polite"><p class="stash-empty">Stash empty — survive runs to loot items.</p></div>
+              </section>
+            </div>
+          </main>
+        </div>
+
+        <aside id="coach-panel" class="coach-panel" data-testid="coach-panel" aria-live="polite">
+          <div class="coach-copy">
+            <strong id="coach-step-label">COACH 1/4</strong>
+            <span id="coach-message">Choose a class.</span>
+          </div>
+          <button type="button" data-testid="coach-skip">SKIP</button>
+        </aside>
+
+        <footer class="guild-actions">
+          <button type="button" class="primary battle-open" data-testid="battle-open" aria-expanded="false">ENTER THE ARENA</button>
+        </footer>
+
+        <div id="battle-modal" class="modal-backdrop hidden" data-testid="battle-modal" role="dialog" aria-modal="true" aria-labelledby="battle-modal-title">
+          <section class="modal-window battle-modal-window">
+            <p class="eyebrow">CHOOSE YOUR SAND</p>
+            <h2 id="battle-modal-title">Enter the arena</h2>
+            <div class="battle-mode-grid">
+              <button type="button" data-testid="deploy-solo" aria-busy="false">
+                <strong id="deploy-solo-label">PRACTICE BOUT</strong>
+                <span>Stand alone upon the sand.</span>
+              </button>
+              <button type="button" data-testid="deploy-arena" aria-busy="false">
+                <strong id="deploy-arena-label">GRAND BOUT</strong>
+                <span>Face three rival legends.</span>
+              </button>
+            </div>
+            <button type="button" class="autorun-choice" data-testid="toggle-autorun" aria-pressed="false">AUTO-RUN OFF</button>
+            <div class="modal-actions">
+              <button type="button" data-testid="battle-close">NOT YET</button>
+            </div>
+          </section>
+        </div>
+
+        <div id="name-modal" class="modal-backdrop hidden" data-testid="name-modal" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+          <section class="modal-window name-modal-window">
+            <p class="eyebrow">THE SAND ASKS</p>
+            <h2 id="name-modal-title">Leave your name</h2>
+            <p id="name-modal-copy" class="modal-copy">Leave your name — the sand will remember it.</p>
+            <label class="player-name-field">
+              <span>GLADIATOR NAME</span>
+              <input type="text" data-testid="player-name" maxlength="20" autocomplete="off" spellcheck="false" value="TestSprite-3113">
+            </label>
+            <p id="name-modal-error" class="modal-error" aria-live="polite"></p>
+            <div class="modal-actions">
+              <button type="button" data-testid="name-modal-close" class="hidden">CANCEL</button>
+              <button type="button" class="primary" data-testid="confirm-player-name">ENTER THE BARRACKS</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+    <section id="screen-run" class="screen hidden">
+      <div class="run-shell game-window">
+        <div class="spectator-hud" data-testid="spectator-hud" aria-label="Live run report">
+          <div class="hud-chip hud-identity" data-testid="run-identity">
+            <strong id="run-class" data-testid="run-class">Knight</strong>
+            <span id="run-behavior" data-testid="run-behavior">FLEE</span>
+            <small id="run-behavior-reason" data-testid="run-behavior-reason">Low HP triggers a retreat.</small>
+          </div>
+          <div class="hud-chip hud-time" data-testid="run-survival">
+            <span id="run-mode" data-testid="run-mode">SOLO</span>
+            <strong id="run-remaining" data-testid="run-remaining">35s LEFT</strong>
+            <div class="hud-progress-track" aria-hidden="true"><div id="run-progress-fill" class="hud-progress-fill" style="width: 80.5556%;"></div></div>
+            <small id="run-progress" data-testid="run-progress">145 / 180s</small>
+            <span id="hud-time" hidden="">145s</span>
+          </div>
+          <div class="hud-chip hud-stats" data-testid="run-stats">
+            <span>KILLS <strong id="run-kills" data-testid="run-kills">282</strong></span>
+            <span>GOLD <strong id="run-gold" data-testid="run-gold">77</strong></span>
+            <span>SCORE <strong id="run-score" data-testid="run-score">3622</strong></span>
+          </div>
+        </div>
+        <div id="run-canvas-frame" class="run-canvas-frame" tabindex="-1">
+          <canvas id="run-canvas" width="960" height="540" aria-label="Colosseum Survivors run"></canvas>
+          <div id="arena-offline-badge" class="offline-badge hidden" data-testid="arena-offline-badge">OFFLINE MATCH</div>
+          <div class="hud" aria-hidden="false">
+            <div class="hud-hp-orb">
+              <div class="hud-hp-well" aria-hidden="true">
+                <div class="hud-hp-fill" id="hud-hp-fill" style="height: 0%;"></div>
+              </div>
+              <img class="hud-hp-frame" src="/assets/ui/hp-orb-frame.png" alt="" draggable="false">
+              <span class="hud-hp-label">HP <strong id="hud-hp">0/140</strong></span>
+            </div>
+            <div class="hud-xp">
+              <span class="hud-xp-level">LV <strong id="hud-level">11</strong></span>
+              <div class="hud-xp-bar">
+                <div class="hud-xp-track" aria-hidden="true">
+                  <div class="hud-xp-fill" id="hud-xp-fill" style="width: 7.89474%;"></div>
+                </div>
+                <img class="hud-xp-frame" src="/assets/ui/xp-bar-frame.png" alt="" draggable="false">
+              </div>
+            </div>
+          </div>
+          <aside id="coach-run-panel" class="coach-panel coach-overlay hidden" data-testid="coach-run-panel" aria-live="polite">
+            <div class="coach-copy">
+              <strong>COACH 3/4</strong>
+              <span>Watch the run, then return to the Guild.</span>
+            </div>
+            <button type="button" data-testid="coach-run-skip">SKIP</button>
+          </aside>
+        </div>
+        <div id="game-state" class="mirror" hidden="" data-phase="finished" data-time="145" data-hp="0" data-level="11" data-kills="282" data-gold="77" data-seed="42" data-class="knight" data-temperament="guardian" data-mode="solo"></div>
+      </div>
+    </section>
+    <section id="screen-results" class="screen screen-active">
+      <div class="results-scroll">
+        <div class="results-panel victory-window">
+          <p class="eyebrow results-eyebrow">RESULTS</p>
+          <h1 class="victory-title">The Sand Settles</h1>
+          <p id="result-outcome" class="result-outcome" data-testid="result-outcome">DEFEATED AT 145s</p>
+          <p class="victory-sub">Match report from the colosseum floor</p>
+          <aside id="coach-results-panel" class="coach-panel coach-results hidden" data-testid="coach-results-panel" aria-live="polite">
+            <div class="coach-copy">
+              <strong>COACH 3/4</strong>
+              <span>Review the result, then return to the Guild.</span>
+            </div>
+            <button type="button" data-testid="coach-results-skip">SKIP</button>
+          </aside>
+          <dl class="result-grid">
+            <div class="result-cell"><dt>Score</dt><dd id="result-score" data-testid="result-score">3622</dd></div>
+            <div id="result-rank-cell" class="result-cell hidden" data-testid="result-rank-cell"><dt>Placement</dt><dd id="result-rank" data-testid="result-rank">1</dd></div>
+            <div class="result-cell"><dt>Kills</dt><dd id="result-kills" data-testid="result-kills">282</dd></div>
+            <div class="result-cell"><dt>Time</dt><dd id="result-time" data-testid="result-time">145s</dd></div>
+          </dl>
+          <section class="result-rewards" aria-label="Run rewards">
+            <div class="gold-ledger" data-testid="result-gold-ledger">
+              <span>BEFORE <strong id="result-gold-before" data-testid="result-gold-before">0</strong></span>
+              <span>+ EARNED <strong id="result-gold-earned" data-testid="result-gold-earned">77</strong></span>
+              <span>AFTER <strong id="result-gold-after" data-testid="result-gold-after">77</strong></span>
+            </div>
+            <div class="result-loot"><span>LOOT</span><strong id="result-loot" data-testid="result-loot">Mage Robe · Enchanted Scale Hauberk · Vitality Band · Bloodstone · Enchanted Iron Blade · Aegis of the Line · Enchanted Holy Scepter · Oak Staff</strong></div>
+          </section>
+          <p id="best-survival" class="best-survival is-new-best" data-testid="best-survival">NEW BEST! 145s</p>
+          <section id="match-ranking-section" data-testid="match-ranking-section" class="hidden">
+            <h2 class="results-section-title">Match Ranking</h2>
+            <ol id="result-ranking" class="ranking-list" data-testid="result-ranking"><li class="local-row">#1 TestSprite-3113 knight 3622</li></ol>
+          </section>
+          <section id="leaderboard-section" class="leaderboard-panel hidden" data-testid="leaderboard-section">
+            <h2 class="results-section-title">World Leaderboard</h2>
+            <p id="leaderboard-status" class="leaderboard-status" data-testid="leaderboard-status">WORLD LEADERBOARD UNAVAILABLE · OFFLINE MATCH</p>
+            <ol id="leaderboard-list" class="leaderboard-list" data-testid="leaderboard-list"></ol>
+          </section>
+          <div class="result-actions">
+            <button type="button" class="primary" data-testid="run-again">RUN AGAIN</button>
+            <button type="button" data-testid="adjust-build" data-testsprite-action-target="0">ADJUST BUILD</button>
+            <button type="button" class="tertiary" data-testid="back-to-guild">BACK TO GUILD</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+</body></html>

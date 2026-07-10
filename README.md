@@ -46,12 +46,13 @@ Real catches from the log:
 - A synchronous fast-sim loop froze slow cloud browsers → judges saw an unresponsive page; rewrote it as a chunked, yielding loop
 - A human playtest caught drops landing outside the arena walls (heroes ground against the wall chasing them) → clamped drop spawns + a cross-seed property test now guards the invariant
 - Cloud runs kept finalizing as `blocked` while the judge's own verdict text said PASS → filed [TestSprite/testsprite-cli#221](https://github.com/TestSprite/testsprite-cli/issues/221) with run evidence
+- The final Guild test replaced supplied `data-testid` locators with four invalid absolute XPaths → corrected the generated test; strict no-auto-heal replay passed **24/24**, completing effective **4/4** production verification
 
 Run it yourself: `node scripts/tsloop.mjs <maker> [note]` — runs the 4-test cloud suite against production, downloads failure bundles into `.testsprite/failure/`, appends the LOOP.md line. CI (`.github/workflows/ci.yml`) runs typecheck+vitest on every push and the full TestSprite suite on `[e2e]` pushes.
 
 ## Stack
 
-Vite + TypeScript + Canvas 2D (no game engine, no UI framework). Manifest-driven pixel-art assets and directional actor atlases, produced through a PixelLab pipeline and rendered with nearest-neighbor scaling; Press Start 2P supplies the UI type. Pure sim / render / DOM-UI split. Vercel static + functions + Blob. vitest + TestSprite CLI (Node ≥ 20).
+Vite + TypeScript + Canvas 2D (no game engine, no UI framework). Manifest-driven pixel-art assets and directional actor atlases, produced through a PixelLab pipeline and rendered with nearest-neighbor scaling; Press Start 2P supplies the UI type. Pure sim / render / DOM-UI split. Cloudflare Pages public mirror plus Vercel functions + Blob for live asynchronous rankings. vitest + TestSprite CLI (Node ≥ 20).
 
 ```bash
 npm install
