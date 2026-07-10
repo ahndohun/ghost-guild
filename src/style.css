@@ -608,12 +608,15 @@ button.locked,
 /* Single 960x540 logical shell: header / nav+pane / action rail. */
 .guild-shell {
   --shell-scale: 1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   display: flex;
   flex-direction: column;
   width: 960px;
   height: 540px;
   min-height: 0;
-  transform: scale(var(--shell-scale));
+  transform: translate(-50%, -50%) scale(var(--shell-scale));
   transform-origin: center;
   image-rendering: pixelated;
 }

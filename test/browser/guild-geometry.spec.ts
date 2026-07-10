@@ -41,6 +41,14 @@ test.describe("Guild fixed-shell geometry", () => {
     );
     expect(shellBox.width / scale).toBeCloseTo(960, 1);
     expect(shellBox.height / scale).toBeCloseTo(540, 1);
+    expect(shellBox.x).toBeGreaterThanOrEqual(-epsilon);
+    expect(shellBox.y).toBeGreaterThanOrEqual(-epsilon);
+    expect(shellBox.x + shellBox.width).toBeLessThanOrEqual(
+      (await page.evaluate(() => window.innerWidth)) + epsilon,
+    );
+    expect(shellBox.y + shellBox.height).toBeLessThanOrEqual(
+      (await page.evaluate(() => window.innerHeight)) + epsilon,
+    );
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(
       await page.evaluate(() => window.innerHeight),
     );
