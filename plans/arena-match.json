@@ -17,11 +17,11 @@
     },
     {
       "type": "assertion",
-      "description": "The list with data-testid result-ranking contains at least 2 rows"
+      "description": "The list with data-testid result-ranking contains at least 2 rows ranking this match's own gladiators by score"
     },
     {
       "type": "assertion",
-      "description": "The element with data-testid leaderboard-list is visible"
+      "description": "When the element with data-testid leaderboard-list is visible, it represents world leaderboard standings (persisted across matches), not a required duplicate of the result-ranking rows"
     },
     {
       "type": "action",

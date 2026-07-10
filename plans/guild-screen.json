@@ -1,7 +1,7 @@
 {
   "projectId": "c172d9d5-4d21-4efd-81a7-37e706318152",
   "type": "frontend",
-  "name": "Guild screen derives identity from five classes",
+  "name": "Guild screen derives identity from eleven classes",
   "priority": "p0",
   "planSteps": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "type": "assertion",
-      "description": "The guild screen shows all five class choices"
+      "description": "The guild screen shows all eleven class choices: fighter, knight, berserker, dwarf, paladin, mage, priest, warlock, elf, thief, monk"
     },
     {
       "type": "assertion",
