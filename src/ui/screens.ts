@@ -17,7 +17,13 @@ import { screenMarkup } from "./markup";
 import { currentLoadout } from "./meta";
 import { renderLeaderboard, renderRanking, updateMirror } from "./runHud";
 import { applyBestSurvival, formatBestSurvivalLine, loadSave } from "./save";
-import { clearAutorun, parseSeed, persist, setVisibleScreen } from "./screenUtils";
+import {
+  clearAutorun,
+  parseSeed,
+  persist,
+  setVisibleScreen,
+  shouldSkipTitle,
+} from "./screenUtils";
 
 type RunMode = "solo" | "arena";
 
@@ -49,12 +55,20 @@ export function bootGhostGuild(documentRef: Document, windowRef: Window): void {
   const fixedSeed = parseSeed(params.get("seed"));
   const fastMode = params.get("fast") === "1";
   const autoplay = params.get("autoplay") === "1";
+  // Presence of any seed/fast/autoplay key skips title (E2E surface unchanged).
+  const skipTitle = shouldSkipTitle(params);
   const controller = createScreenController(documentRef, windowRef, fixedSeed, fastMode);
-  controller.renderGuild();
 
-  if (autoplay) {
-    controller.deploySolo();
+  if (skipTitle) {
+    // Same-turn visibility: title never paints for autoplay/seed/fast paths.
+    controller.enterGuild();
+    if (autoplay) {
+      controller.deploySolo();
+    }
+    return;
   }
+
+  controller.showTitle();
 }
 
 function createScreenController(
@@ -62,7 +76,7 @@ function createScreenController(
   windowRef: Window,
   fixedSeed: number | undefined,
   fastMode: boolean,
-): { renderGuild(): void; deploySolo(): void } {
+): { showTitle(): void; enterGuild(): void; renderGuild(): void; deploySolo(): void } {
   let save = loadSave(windowRef.localStorage);
   let session: RunSession | undefined;
   let autorunTimer: number | undefined;
@@ -78,13 +92,20 @@ function createScreenController(
   const matchSound = createMatchSoundObserver(audio, !fastMode);
 
   const canvas = requiredCanvas(documentRef, "run-canvas");
+  const titleScreen = requiredElement(documentRef, "screen-title");
   const guildScreen = requiredElement(documentRef, "screen-guild");
   const runScreen = requiredElement(documentRef, "screen-run");
   const resultsScreen = requiredElement(documentRef, "screen-results");
-  const screenElements = { guild: guildScreen, run: runScreen, results: resultsScreen };
+  const screenElements = {
+    title: titleScreen,
+    guild: guildScreen,
+    run: runScreen,
+    results: resultsScreen,
+  };
   const gameState = requiredElement(documentRef, "game-state");
   const lobbyStage = createLobbyStage(documentRef, windowRef);
 
+  const startGameButton = requiredButton(documentRef, "start-game");
   const deploySoloButton = requiredButton(documentRef, "deploy-solo");
   const deployArenaButton = requiredButton(documentRef, "deploy-arena");
   const backButton = requiredButton(documentRef, "back-to-guild");
@@ -101,6 +122,9 @@ function createScreenController(
     lobbyStage,
   };
 
+  startGameButton.addEventListener("click", () => {
+    enterGuild();
+  });
   deploySoloButton.addEventListener("click", () => deploySolo());
   deployArenaButton.addEventListener("click", () => {
     void deployArena();
@@ -111,6 +135,16 @@ function createScreenController(
     setVisibleScreen(screenElements, "guild");
     renderGuild();
   });
+
+  function showTitle(): void {
+    lobbyStage.stop();
+    setVisibleScreen(screenElements, "title");
+  }
+
+  function enterGuild(): void {
+    setVisibleScreen(screenElements, "guild");
+    renderGuild();
+  }
 
   function renderGuild(): void {
     renderGuildView(documentRef, save, guildControls);
@@ -286,7 +320,7 @@ function createScreenController(
     return seed;
   }
 
-  return { renderGuild, deploySolo };
+  return { showTitle, enterGuild, renderGuild, deploySolo };
 }
 
 function renderBestSurvivalLine(
